@@ -20,9 +20,10 @@ type CalendarDay = {
 
 const PLAN_OPTIONS = [
   { id: "visitor-exterior", label: "ビジター：ボディ洗車", price: 7700 },
-  { id: "visitor-full", label: "ビジター：内装＋ボディ洗車", price: 9900 },
+  { id: "visitor-full", label: "ビジター：ボディ洗車＋内装清掃", price: 9900 },
+  { id: "sub-1", label: "継続プラン：月1回ボディ洗車", price: 6600 },
   { id: "sub-2", label: "継続プラン：月2回ボディ洗車", price: 11000 },
-  { id: "sub-2-full", label: "継続プラン：月2回＋内装", price: 15400 },
+  { id: "sub-2-full", label: "継続プラン：月2回ボディ洗車＋内装清掃", price: 15400 },
 ];
 
 const TIME_SLOTS = [

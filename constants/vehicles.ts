@@ -1,129 +1,140 @@
-﻿// プレミアム出張洗車用 車種データベース（日産・トヨタ大幅強化版）
-// サイズ基準: M (1.0x), L (1.2x), LL (1.4x), XL (1.8x)
-
-export type CarSize = 'M' | 'L' | 'LL' | 'XL';
+﻿export type CarSize = "M" | "L" | "LL" | "XL";
 
 export interface Vehicle {
   brand: string;
+  brandEn?: string;
   model: string;
+  modelEn?: string;
   size: CarSize;
 }
 
 export const vehicles: Vehicle[] = [
   // ==========================================
-  // トヨタ (TOYOTA) - 35車種以上
+  // ポルシェ (PORSCHE)
   // ==========================================
-  { brand: "トヨタ", model: "ハイラックス (GUN125等)", size: "LL" },
-  { brand: "トヨタ", model: "ランドクルーザー 300 / 200 / 100", size: "XL" },
-  { brand: "トヨタ", model: "ランドクルーザー 250 / 70", size: "LL" },
-  { brand: "トヨタ", model: "ランドクルーザー プラド", size: "LL" },
-  { brand: "トヨタ", model: "センチュリー / センチュリーSUV", size: "XL" },
-  { brand: "トヨタ", model: "アルファード", size: "LL" },
-  { brand: "トヨタ", model: "ヴェルファイア", size: "LL" },
-  { brand: "トヨタ", model: "グランエース", size: "XL" },
-  { brand: "トヨタ", model: "ハイエース (ワイド/スーパーロング/ハイルーフ)", size: "XL" },
-  { brand: "トヨタ", model: "ハイエース (標準ボディ)", size: "LL" },
-  { brand: "トヨタ", model: "タンドラ / セコイア (逆輸入車)", size: "XL" },
-  { brand: "トヨタ", model: "シエナ (逆輸入車)", size: "LL" },
-  { brand: "トヨタ", model: "ハリアー", size: "L" },
-  { brand: "トヨタ", model: "RAV4 / ヴァンガード", size: "L" },
-  { brand: "トヨタ", model: "クラウン (クロスオーバー/スポーツ/セダン/エステート)", size: "L" },
-  { brand: "トヨタ", model: "クラウン マジェスタ", size: "LL" },
-  { brand: "トヨタ", model: "カムリ", size: "L" },
-  { brand: "トヨタ", model: "マークX / マークII / チェイサー / クレスタ", size: "L" },
-  { brand: "トヨタ", model: "セルシオ / アリスト", size: "LL" },
-  { brand: "トヨタ", model: "ソアラ", size: "L" },
-  { brand: "トヨタ", model: "ノア / ヴォクシー / エスクァイア", size: "L" },
-  { brand: "トヨタ", model: "エスティマ", size: "L" },
-  { brand: "トヨタ", model: "プリウス / プリウスPHV / プリウスα", size: "M" },
-  { brand: "トヨタ", model: "カローラ / カローラアクシオ", size: "M" },
-  { brand: "トヨタ", model: "カローラツーリング / カローラフィールダー", size: "M" },
-  { brand: "トヨタ", model: "カローラスポーツ / GRカローラ", size: "M" },
-  { brand: "トヨタ", model: "カローラクロス", size: "M" },
-  { brand: "トヨタ", model: "ヤリス / ヤリスクロス", size: "M" },
-  { brand: "トヨタ", model: "アクア", size: "M" },
-  { brand: "トヨタ", model: "C-HR", size: "M" },
-  { brand: "トヨタ", model: "ライズ / ラッシュ", size: "M" },
-  { brand: "トヨタ", model: "シエンタ", size: "M" },
-  { brand: "トヨタ", model: "ルーミー / タンク", size: "M" },
-  { brand: "トヨタ", model: "GR86 / 86", size: "M" },
-  { brand: "トヨタ", model: "スープラ (DB / A80)", size: "M" },
-  { brand: "トヨタ", model: "MIRAI", size: "L" },
-  { brand: "トヨタ", model: "FJクルーザー", size: "LL" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "911 カレラ / カレラS / カレラT (992/991/997)", modelEn: "911 Carrera / Carrera S / Carrera T", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "911 タルガ (992/991/997)", modelEn: "911 Targa", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "911 ターボ / ターボS (992/991/997)", modelEn: "911 Turbo / Turbo S", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "911 GT3 / GT3 RS / GT2 RS", modelEn: "911 GT3 / GT3 RS / GT2 RS", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "911 ダカール", modelEn: "911 Dakar", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "911 空冷モデル (993/964/930/ナロー)", modelEn: "911 Air-Cooled", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "718 ケイマン / ケイマンS / ケイマンGTS", modelEn: "718 Cayman / Cayman S / Cayman GTS", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "718 ボクスター / ボクスターS / ボクスターGTS", modelEn: "718 Boxster / Boxster S / Boxster GTS", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "718 ケイマン GT4 / RS", modelEn: "718 Cayman GT4 / RS", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "718 スパイダー / RS スパイダー", modelEn: "718 Spyder / RS Spyder", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "981 / 987 ケイマン / ボクスター", modelEn: "981 / 987 Cayman / Boxster", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "986 ボクスター", modelEn: "986 Boxster", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "マカン / マカンS / マカンGTS / マカンターボ", modelEn: "Macan / Macan S / Macan GTS / Macan Turbo", size: "L" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "マカン EV (電気自動車)", modelEn: "Macan EV", size: "L" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "カイエン / カイエンS / カイエンGTS / カイエンターボ", modelEn: "Cayenne / Cayenne S / Cayenne GTS / Cayenne Turbo", size: "LL" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "カイエン クーペ", modelEn: "Cayenne Coupe", size: "LL" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "カイエン E-ハイブリッド", modelEn: "Cayenne E-Hybrid", size: "LL" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "カイエン ターボGT", modelEn: "Cayenne Turbo GT", size: "LL" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "パナメーラ / パナメーラ4 / パナメーラGTS", modelEn: "Panamera / Panamera 4 / Panamera GTS", size: "L" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "パナメーラ ターボ / ターボS", modelEn: "Panamera Turbo / Turbo S", size: "L" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "パナメーラ スポーツツーリング (ワゴン)", modelEn: "Panamera Sport Turismo", size: "LL" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "パナメーラ エグゼクティブ (ロング)", modelEn: "Panamera Executive", size: "LL" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "タイカン / タイカン4S / タイカンターボ (電気自動車)", modelEn: "Taycan / Taycan 4S / Taycan Turbo", size: "L" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "タイカン クロスツーリング / スポーツツーリング", modelEn: "Taycan Cross Turismo / Sport Turismo", size: "LL" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "カレラGT / 918 スパイダー", modelEn: "Carrera GT / 918 Spyder", size: "L" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "356 / 914 / 924 / 944 / 968", modelEn: "356 / 914 / 924 / 944 / 968", size: "M" },
+  { brand: "ポルシェ", brandEn: "Porsche", model: "928", modelEn: "928", size: "L" },
 
   // ==========================================
-  // 日産 (NISSAN) - 30車種以上
+  // ランドローバー (LAND ROVER)
   // ==========================================
-  { brand: "日産", model: "フェアレディZ (RZ34 / Z34 / Z33 / S30等)", size: "M" },
-  { brand: "日産", model: "GT-R (R35 / R34 / R33 / R32)", size: "M" },
-  { brand: "日産", model: "スカイライン (V37 / V36 / V35)", size: "L" },
-  { brand: "日産", model: "スカイライン GT-R", size: "M" },
-  { brand: "日産", model: "シルビア / 180SX", size: "M" },
-  { brand: "日産", model: "フーガ / シーマ", size: "L" },
-  { brand: "日産", model: "プレジデント", size: "LL" },
-  { brand: "日産", model: "ティアナ", size: "L" },
-  { brand: "日産", model: "セドリック / グロリア / レパード", size: "L" },
-  { brand: "日産", model: "ノート / オーラ / ノートNISMO", size: "M" },
-  { brand: "日産", model: "サクラ / デイズ / ルークス", size: "M" },
-  { brand: "日産", model: "マーチ / キューブ", size: "M" },
-  { brand: "日産", model: "リーフ", size: "M" },
-  { brand: "日産", model: "アリア (ARIYA)", size: "L" },
-  { brand: "日産", model: "エクストレイル", size: "L" },
-  { brand: "日産", model: "キックス", size: "M" },
-  { brand: "日産", model: "ジューク", size: "M" },
-  { brand: "日産", model: "デュアリス", size: "L" },
-  { brand: "日産", model: "ムラーノ", size: "LL" },
-  { brand: "日産", model: "サファリ", size: "XL" },
-  { brand: "日産", model: "テラノ", size: "LL" },
-  { brand: "日産", model: "スカイラインクロスオーバー", size: "L" },
-  { brand: "日産", model: "セレナ", size: "L" },
-  { brand: "日産", model: "エルグランド", size: "LL" },
-  { brand: "日産", model: "キャラバン (NV350)", size: "LL" },
-  { brand: "日産", model: "バネット / セレナカーゴ", size: "L" },
-  { brand: "日産", model: "ブルーバード / プリメーラ", size: "M" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "レンジローバー (標準ボディ / LWB)", modelEn: "Range Rover (SWB / LWB)", size: "XL" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "レンジローバー スポーツ", modelEn: "Range Rover Sport", size: "LL" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "レンジローバー ヴェラール", modelEn: "Range Rover Velar", size: "LL" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "レンジローバー イヴォーク", modelEn: "Range Rover Evoque", size: "L" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "クラシック レンジローバー (初代/2代目)", modelEn: "Classic Range Rover", size: "LL" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "ディフェンダー 90 (現行L663 / 旧型)", modelEn: "Defender 90", size: "LL" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "ディフェンダー 110 (現行L663 / 旧型)", modelEn: "Defender 110", size: "LL" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "ディフェンダー 130 (現行L663 / 旧型)", modelEn: "Defender 130", size: "XL" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "ディスカバリー (1〜5代目)", modelEn: "Discovery", size: "LL" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "ディスカバリー スポーツ", modelEn: "Discovery Sport", size: "L" },
+  { brand: "ランドローバー", brandEn: "Land Rover", model: "フリーランダー (1/2)", modelEn: "Freelander", size: "L" },
 
   // ==========================================
-  // レクサス (LEXUS) - 全ラインナップ
+  // ボルボ (VOLVO)
   // ==========================================
-  { brand: "レクサス", model: "LS", size: "LL" },
-  { brand: "レクサス", model: "GS", size: "L" },
-  { brand: "レクサス", model: "ES", size: "L" },
-  { brand: "レクサス", model: "IS", size: "L" },
-  { brand: "レクサス", model: "HS / CT", size: "M" },
-  { brand: "レクサス", model: "LC / SC", size: "L" },
-  { brand: "レクサス", model: "RC / RC F", size: "L" },
-  { brand: "レクサス", model: "LX", size: "XL" },
-  { brand: "レクサス", model: "RX / RZ / GX", size: "LL" },
-  { brand: "レクサス", model: "NX / UX / LBX", size: "L" },
-  { brand: "レクサス", model: "LM", size: "XL" },
+  { brand: "ボルボ", brandEn: "Volvo", model: "XC90", modelEn: "XC90", size: "LL" },
+  { brand: "ボルボ", brandEn: "Volvo", model: "XC60", modelEn: "XC60", size: "L" },
+  { brand: "ボルボ", brandEn: "Volvo", model: "XC40 / C40", modelEn: "XC40 / C40", size: "M" },
+  { brand: "ボルボ", brandEn: "Volvo", model: "V90 / V90 クロスカントリー", modelEn: "V90 / V90 Cross Country", size: "LL" },
+  { brand: "ボルボ", brandEn: "Volvo", model: "V60 / V60 クロスカントリー", modelEn: "V60 / V60 Cross Country", size: "L" },
+  { brand: "ボルボ", brandEn: "Volvo", model: "V40", modelEn: "V40", size: "M" },
 
   // ==========================================
-  // メルセデス・ベンツ (Mercedes-Benz) - 25車種以上
+  // ジープ (Jeep)
   // ==========================================
-  { brand: "メルセデス・ベンツ", model: "Gクラス (ゲレンデ)", size: "XL" },
-  { brand: "メルセデス・ベンツ", model: "GLS / GL", size: "XL" },
-  { brand: "メルセデス・ベンツ", model: "GLE / Mクラス", size: "LL" },
-  { brand: "メルセデス・ベンツ", model: "Sクラス / マイバッハ", size: "LL" },
-  { brand: "メルセデス・ベンツ", model: "Eクラス (セダン/ワゴン)", size: "L" },
-  { brand: "メルセデス・ベンツ", model: "Cクラス (セダン/ワゴン)", size: "L" },
-  { brand: "メルセデス・ベンツ", model: "CLA / CLS", size: "L" },
-  { brand: "メルセデス・ベンツ", model: "GLC / GLK", size: "L" },
-  { brand: "メルセデス・ベンツ", model: "GLB / GLA", size: "L" },
-  { brand: "メルセデス・ベンツ", model: "Aクラス / Bクラス", size: "M" },
-  { brand: "メルセデス・ベンツ", model: "Vクラス", size: "LL" },
-  { brand: "メルセデス・ベンツ", model: "SL / SLC / SLK", size: "L" },
-  { brand: "メルセデス・ベンツ", model: "AMG GT (2ドア/4ドア)", size: "L" },
-  { brand: "メルセデス・ベンツ", model: "EQS / EQE (SUV含む)", size: "LL" },
-  { brand: "メルセデス・ベンツ", model: "EQC / EQB / EQA", size: "L" },
+  { brand: "ジープ", brandEn: "Jeep", model: "ラングラー アンリミテッド (4ドア)", modelEn: "Wrangler Unlimited (4-Door)", size: "LL" },
+  { brand: "ジープ", brandEn: "Jeep", model: "ラングラー (2ドア)", modelEn: "Wrangler (2-Door)", size: "L" },
+  { brand: "ジープ", brandEn: "Jeep", model: "グランドチェロキー", modelEn: "Grand Cherokee", size: "LL" },
+  { brand: "ジープ", brandEn: "Jeep", model: "チェロキー / コンパス / レネゲード", modelEn: "Cherokee / Compass / Renegade", size: "M" },
+  { brand: "ジープ", brandEn: "Jeep", model: "グラディエーター", modelEn: "Gladiator", size: "XL" },
 
-  // 補完: 既存ハイエンド輸入車
-  { brand: "ランドローバー", model: "レンジローバー イヴォーク", size: "L" },
-  { brand: "ランドローバー", model: "レンジローバー", size: "XL" },
-  { brand: "ランドローバー", model: "ディフェンダー 90/110", size: "LL" },
-  { brand: "ランドローバー", model: "ディフェンダー 130", size: "XL" },
-  { brand: "ポルシェ", model: "パナメーラ", size: "L" },
-  { brand: "キャデラック", model: "エスカレード", size: "XL" },
-  { brand: "ランボルギーニ", model: "ウルス", size: "XL" },
-  { brand: "ベントレー", model: "ベンテイガ / フライングスパー", size: "XL" },
-  { brand: "ロールスロイス", model: "カリナン / ゴースト", size: "XL" }
+  // ==========================================
+  // フォルクスワーゲン (VW) & MINI
+  // ==========================================
+  { brand: "フォルクスワーゲン", brandEn: "Volkswagen", model: "ゴルフ / ポロ / ビートル", modelEn: "Golf / Polo / Beetle", size: "M" },
+  { brand: "フォルクスワーゲン", brandEn: "Volkswagen", model: "ゴルフ ヴァリアント", modelEn: "Golf Variant", size: "M" },
+  { brand: "フォルクスワーゲン", brandEn: "Volkswagen", model: "パサート (セダン/ヴァリアント)", modelEn: "Passat", size: "L" },
+  { brand: "フォルクスワーゲン", brandEn: "Volkswagen", model: "ティグアン / T-Roc / T-Cross", modelEn: "Tiguan / T-Roc / T-Cross", size: "M" },
+  { brand: "フォルクスワーゲン", brandEn: "Volkswagen", model: "トゥアレグ", modelEn: "Touareg", size: "LL" },
+  { brand: "MINI", brandEn: "MINI", model: "MINI 3ドア / 5ドア / コンバーチブル", modelEn: "MINI 3-Door / 5-Door / Convertible", size: "M" },
+  { brand: "MINI", brandEn: "MINI", model: "MINI クラブマン", modelEn: "MINI Clubman", size: "M" },
+  { brand: "MINI", brandEn: "MINI", model: "MINI クロスオーバー", modelEn: "MINI Crossover", size: "L" },
+
+  // ==========================================
+  // BMW / アウディ / テスラ 他
+  // ==========================================
+  { brand: "BMW", brandEn: "BMW", model: "1シリーズ / 2シリーズ", modelEn: "1 Series / 2 Series", size: "M" },
+  { brand: "BMW", brandEn: "BMW", model: "3シリーズ / 4シリーズ / Z4", modelEn: "3 Series / 4 Series / Z4", size: "M" },
+  { brand: "BMW", brandEn: "BMW", model: "5シリーズ / 6シリーズ", modelEn: "5 Series / 6 Series", size: "L" },
+  { brand: "BMW", brandEn: "BMW", model: "7シリーズ / 8シリーズ", modelEn: "7 Series / 8 Series", size: "LL" },
+  { brand: "BMW", brandEn: "BMW", model: "X1 / X2", modelEn: "X1 / X2", size: "M" },
+  { brand: "BMW", brandEn: "BMW", model: "X3 / X4", modelEn: "X3 / X4", size: "L" },
+  { brand: "BMW", brandEn: "BMW", model: "X5 / X6", modelEn: "X5 / X6", size: "LL" },
+  { brand: "BMW", brandEn: "BMW", model: "X7 / XM", modelEn: "X7 / XM", size: "XL" },
+  { brand: "アウディ", brandEn: "Audi", model: "A1 / A3", modelEn: "A1 / A3", size: "M" },
+  { brand: "アウディ", brandEn: "Audi", model: "A4 / A5 / TT", modelEn: "A4 / A5 / TT", size: "M" },
+  { brand: "アウディ", brandEn: "Audi", model: "A6 / A7", modelEn: "A6 / A7", size: "L" },
+  { brand: "アウディ", brandEn: "Audi", model: "A8", modelEn: "A8", size: "LL" },
+  { brand: "アウディ", brandEn: "Audi", model: "Q2 / Q3", modelEn: "Q2 / Q3", size: "M" },
+  { brand: "アウディ", brandEn: "Audi", model: "Q5 / e-tron", modelEn: "Q5 / e-tron", size: "L" },
+  { brand: "アウディ", brandEn: "Audi", model: "Q7 / Q8", modelEn: "Q7 / Q8", size: "LL" },
+  { brand: "アウディ", brandEn: "Audi", model: "R8", modelEn: "R8", size: "M" },
+  { brand: "テスラ", brandEn: "Tesla", model: "モデル3", modelEn: "Model 3", size: "M" },
+  { brand: "テスラ", brandEn: "Tesla", model: "モデルY / モデルS", modelEn: "Model Y / Model S", size: "L" },
+  { brand: "テスラ", brandEn: "Tesla", model: "モデルX / サイバートラック", modelEn: "Model X / Cybertruck", size: "LL" },
+
+  // ==========================================
+  // フェラーリ / アストンマーティン / マセラティ / 他スーパーカー
+  // ==========================================
+  { brand: "フェラーリ", brandEn: "Ferrari", model: "プロサングエ", modelEn: "Purosangue", size: "LL" },
+  { brand: "フェラーリ", brandEn: "Ferrari", model: "ローマ / ポルトフィーノ", modelEn: "Roma / Portofino", size: "L" },
+  { brand: "フェラーリ", brandEn: "Ferrari", model: "SF90 / 296 GTB", modelEn: "SF90 / 296 GTB", size: "L" },
+  { brand: "フェラーリ", brandEn: "Ferrari", model: "F8 / 488 / 458 / 430", modelEn: "F8 / 488 / 458 / 430", size: "M" },
+  { brand: "フェラーリ", brandEn: "Ferrari", model: "812 / F12 / 599", modelEn: "812 / F12 / 599", size: "L" },
+  { brand: "アストンマーティン", brandEn: "Aston Martin", model: "DBX", modelEn: "DBX", size: "LL" },
+  { brand: "アストンマーティン", brandEn: "Aston Martin", model: "DB11 / DB12 / ヴァンテージ / DBS", modelEn: "DB11 / DB12 / Vantage / DBS", size: "L" },
+  { brand: "マセラティ", brandEn: "Maserati", model: "レヴァンテ / グレカーレ", modelEn: "Levante / Grecale", size: "LL" },
+  { brand: "マセラティ", brandEn: "Maserati", model: "クアトロポルテ", modelEn: "Quattroporte", size: "LL" },
+  { brand: "マセラティ", brandEn: "Maserati", model: "ギブリ / MC20 / グラントゥーリズモ", modelEn: "Ghibli / MC20 / GranTurismo", size: "L" },
+  { brand: "ジャガー", brandEn: "Jaguar", model: "F-PACE", modelEn: "F-PACE", size: "LL" },
+  { brand: "ジャガー", brandEn: "Jaguar", model: "E-PACE", modelEn: "E-PACE", size: "L" },
+  { brand: "ジャガー", brandEn: "Jaguar", model: "XJ", modelEn: "XJ", size: "LL" },
+  { brand: "ジャガー", brandEn: "Jaguar", model: "XF / XE / F-TYPE", modelEn: "XF / XE / F-TYPE", size: "L" },
+  { brand: "マクラーレン", brandEn: "McLaren", model: "750S / 720S / 600LT / GT / アルトゥーラ", modelEn: "750S / 720S / 600LT / GT / Artura", size: "M" },
+  { brand: "ランボルギーニ", brandEn: "Lamborghini", model: "ウルス", modelEn: "Urus", size: "XL" },
+  { brand: "ランボルギーニ", brandEn: "Lamborghini", model: "アヴェンタドール / ウラカン / レヴエルト", modelEn: "Aventador / Huracan / Revuelto", size: "L" },
+  { brand: "ベントレー", brandEn: "Bentley", model: "ベンテイガ / フライングスパー / ミュルザンヌ", modelEn: "Bentayga / Flying Spur / Mulsanne", size: "XL" },
+  { brand: "ベントレー", brandEn: "Bentley", model: "コンチネンタルGT", modelEn: "Continental GT", size: "LL" },
+  { brand: "ロールスロイス", brandEn: "Rolls-Royce", model: "カリナン / ゴースト / ファントム", modelEn: "Cullinan / Ghost / Phantom", size: "XL" },
+  { brand: "ロールスロイス", brandEn: "Rolls-Royce", model: "レイス / ドーン", modelEn: "Wraith / Dawn", size: "LL" },
+  { brand: "アルファロメオ", brandEn: "Alfa Romeo", model: "ステルヴィオ", modelEn: "Stelvio", size: "L" },
+  { brand: "アルファロメオ", brandEn: "Alfa Romeo", model: "ジュリア", modelEn: "Giulia", size: "M" },
+  { brand: "キャデラック", brandEn: "Cadillac", model: "エスカレード", modelEn: "Escalade", size: "XL" },
 ];
+
