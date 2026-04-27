@@ -21,8 +21,8 @@ type CalendarDay = {
 const PLAN_OPTIONS = [
   { id: "visitor-exterior", label: "ビジター：ボディ洗車", price: 7700 },
   { id: "visitor-full", label: "ビジター：内装＋ボディ洗車", price: 9900 },
-  { id: "sub-2", label: "継続オーダー：月2回ボディ洗車", price: 11000 },
-  { id: "sub-2-full", label: "継続オーダー：月2回＋内装", price: 15400 },
+  { id: "sub-2", label: "継続プラン：月2回ボディ洗車", price: 11000 },
+  { id: "sub-2-full", label: "継続プラン：月2回＋内装", price: 15400 },
 ];
 
 const TIME_SLOTS = [
@@ -135,7 +135,7 @@ export default function AmanBookingForm() {
       ? `${selectedVehicleSize}サイズ`
       : "未選択";
 
-    const message = `【プレミアム出張洗車 予約リクエスト】
+    const message = `【プライム出張洗車 予約リクエスト】
 ■ 車両サイズ: ${sizeText}
 ■ ご希望プラン: ${selectedPlan.label}
 
