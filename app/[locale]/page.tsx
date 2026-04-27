@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReservationForm from "./reservation-form";
 import { Locale, locales, siteContent } from "@/lib/site-content";
+import BlurFade from "@/components/BlurFade";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -69,9 +70,15 @@ export default async function LocalePage({ params }: PageProps) {
           <div className="absolute inset-0 bg-black/40" />
         </div>
         <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-32 sm:pb-20">
-          <p className="font-serif text-sm text-[#999999]">{content.brandTagline}</p>
-          <h1 className="mt-4 font-serif text-5xl leading-none tracking-[0.08em] sm:text-7xl md:text-8xl">{content.heroTitle}</h1>
-          <p className="mt-6 max-w-xl text-sm leading-7 text-[#d9d9d9]">{content.heroDescription}</p>
+          <BlurFade delay={0}>
+            <p className="font-serif text-sm text-[#999999]">{content.brandTagline}</p>
+          </BlurFade>
+          <BlurFade delay={0.12}>
+            <h1 className="mt-4 font-serif text-5xl leading-none tracking-[0.08em] sm:text-7xl md:text-8xl">{content.heroTitle}</h1>
+          </BlurFade>
+          <BlurFade delay={0.24}>
+            <p className="mt-6 max-w-xl text-sm leading-7 text-[#d9d9d9]">{content.heroDescription}</p>
+          </BlurFade>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href={content.lineUrlPlaceholder} target="_blank" rel="noreferrer" className="rounded-full border border-white px-6 py-3 text-xs tracking-[0.16em] uppercase hover:bg-white hover:text-black">{content.ctaReserve}</a>
             <a href="#reservation-form" className="rounded-full border border-[#999999] px-6 py-3 text-xs tracking-[0.16em] uppercase hover:border-white">{content.ctaContact}</a>
@@ -80,9 +87,11 @@ export default async function LocalePage({ params }: PageProps) {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="font-serif text-3xl tracking-[0.12em]">{content.serviceScopeTitle}</h2>
+        <BlurFade>
+          <h2 className="font-serif text-3xl tracking-[0.12em]">{content.serviceScopeTitle}</h2>
+        </BlurFade>
         <div className="mt-8 grid gap-8 md:grid-cols-2">
-          <article className="border border-[#999999] bg-[#050505]">
+          <BlurFade delay={0.1} className="border border-[#999999] bg-[#050505]">
             <div className="relative aspect-[16/10] w-full">
               <Image
                 src="/service-exterior.png"
@@ -102,8 +111,8 @@ export default async function LocalePage({ params }: PageProps) {
                 ))}
               </ul>
             </div>
-          </article>
-          <article className="border border-[#999999] bg-[#050505]">
+          </BlurFade>
+          <BlurFade delay={0.2} className="border border-[#999999] bg-[#050505]">
             <div className="relative aspect-[16/10] w-full">
               <Image
                 src="/service-interior.png"
@@ -123,7 +132,7 @@ export default async function LocalePage({ params }: PageProps) {
                 ))}
               </ul>
             </div>
-          </article>
+          </BlurFade>
         </div>
         <div className="mt-8 border border-[#999999] p-4 text-sm text-[#d9d9d9]">
           <p className="font-semibold text-white">{content.benefitTitle}</p>
@@ -132,14 +141,20 @@ export default async function LocalePage({ params }: PageProps) {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="font-serif text-3xl tracking-[0.12em]">{content.plansTitle}</h2>
+        <BlurFade>
+          <h2 className="font-serif text-3xl tracking-[0.12em]">{content.plansTitle}</h2>
+        </BlurFade>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {content.plans.map((plan) => (
-            <article key={plan.name} className={`border p-4 ${plan.highlight ? "border-white" : "border-[#999999]"}`}>
+          {content.plans.map((plan, index) => (
+            <BlurFade
+              key={plan.name}
+              delay={0.06 * index}
+              className={`border p-4 ${plan.highlight ? "border-white" : "border-[#999999]"}`}
+            >
               <h3 className="text-xs tracking-[0.08em] text-[#d9d9d9]">{plan.name}</h3>
               <p className="mt-4 font-serif text-3xl">{plan.price}</p>
               <p className="mt-2 text-xs text-[#999999]">{plan.detail}</p>
-            </article>
+            </BlurFade>
           ))}
         </div>
       </section>

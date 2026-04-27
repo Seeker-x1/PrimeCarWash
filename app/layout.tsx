@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_JP, Noto_Serif_JP } from "next/font/google";
 import Script from "next/script";
 import { cookies } from "next/headers";
+import LineFloat from "@/components/LineFloat";
 import "./globals.css";
 
 const notoSans = Noto_Sans_JP({
@@ -44,7 +45,10 @@ export default async function RootLayout({
 
   return (
     <html lang={lang} className={`${notoSans.variable} ${notoSerif.variable} h-full`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <LineFloat />
+      </body>
       {gaMeasurementId ? (
         <>
           <Script
