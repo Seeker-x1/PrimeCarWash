@@ -32,13 +32,15 @@ export default function LineFloat() {
           className="fixed bottom-5 right-4 z-50"
         >
           <div className="hidden items-center gap-2 rounded-md border border-[#999999] bg-black/90 p-2 backdrop-blur-sm md:flex">
-            <div className="relative h-12 w-12 overflow-hidden rounded-sm bg-white p-0.5">
+            <div className="rounded-sm bg-white p-0.5">
               <Image
                 src={LINE_QR_URL}
                 alt="LINE reservation QR"
-                fill
+                width={48}
+                height={48}
                 sizes="48px"
                 className="object-contain"
+                unoptimized
               />
             </div>
             <a

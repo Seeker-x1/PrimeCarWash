@@ -119,8 +119,8 @@ export const siteContent: Record<Locale, SiteContent> = {
       { name: "ビジター：車外", price: "¥7,700", detail: "都度払い" },
       { name: "ビジター：内＋外", price: "¥9,900", detail: "都度払い" },
       { name: "継続：月1回", price: "¥6,600", detail: "車外洗浄のみ" },
-      { name: "継続：月2回", price: "¥11,000", detail: "車外洗浄：月2回", highlight: true },
-      { name: "継続：月2＋内", price: "¥15,400", detail: "車内外＋継続特典付" },
+      { name: "継続オーダー：月2回ボディ洗車", price: "¥11,000", detail: "ボディ洗車：月2回", highlight: true },
+      { name: "継続オーダー：月2回＋内装", price: "¥15,400", detail: "内装＋ボディ洗車＋継続特典付" },
     ],
     matrixTitle: "サイズ別料金一覧（税込）",
     matrixHeaders: {

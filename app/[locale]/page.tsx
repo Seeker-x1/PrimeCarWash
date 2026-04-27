@@ -2,9 +2,9 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ReservationForm from "./reservation-form";
 import { Locale, locales, siteContent } from "@/lib/site-content";
 import BlurFade from "@/components/BlurFade";
+import AmanBookingForm from "@/components/AmanBookingForm";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -208,10 +208,8 @@ export default async function LocalePage({ params }: PageProps) {
         <p className="mt-6 text-xs text-[#999999]">{content.vehicleSizeNote}</p>
       </section>
 
-      <section id="reservation-form" className="mx-auto max-w-3xl px-4 py-16">
-        <h2 className="font-serif text-3xl tracking-[0.12em]">{content.formTitle}</h2>
-        <p className="mt-3 text-sm text-[#d9d9d9]">{content.formDescription}</p>
-        <div className="mt-8 border border-[#999999] p-5 sm:p-8"><ReservationForm locale={currentLocale} /></div>
+      <section id="reservation-form" className="py-8">
+        <AmanBookingForm />
       </section>
 
       <footer className="border-t border-[#999999] px-4 py-8 text-center text-xs tracking-[0.1em] text-[#999999]">{content.footer}</footer>
