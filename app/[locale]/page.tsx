@@ -82,22 +82,48 @@ export default async function LocalePage({ params }: PageProps) {
       <section className="mx-auto max-w-6xl px-4 py-16">
         <h2 className="font-serif text-3xl tracking-[0.12em]">{content.serviceScopeTitle}</h2>
         <div className="mt-8 grid gap-8 md:grid-cols-2">
-          <div>
-            <h3 className="text-sm tracking-[0.1em] text-[#d9d9d9]">{content.exteriorTitle}</h3>
-            <ul className="mt-4 space-y-3 text-sm text-[#d9d9d9]">
-              {content.exteriorItems.map((item) => (
-                <li key={item.label} className="border-l border-[#999999] pl-4"><span className="font-semibold text-white">{item.label}</span> - {item.description}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-sm tracking-[0.1em] text-[#d9d9d9]">{content.interiorTitle}</h3>
-            <ul className="mt-4 space-y-3 text-sm text-[#d9d9d9]">
-              {content.interiorItems.map((item) => (
-                <li key={item.label} className="border-l border-[#999999] pl-4"><span className="font-semibold text-white">{item.label}</span> - {item.description}</li>
-              ))}
-            </ul>
-          </div>
+          <article className="border border-[#999999] bg-[#050505]">
+            <div className="relative aspect-[16/10] w-full">
+              <Image
+                src="/service-exterior.png"
+                alt={currentLocale === "ja" ? "外部洗車の施工イメージ" : "Exterior wash service detail"}
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="p-5">
+              <h3 className="text-sm tracking-[0.1em] text-[#d9d9d9]">{content.exteriorTitle}</h3>
+              <ul className="mt-4 space-y-3 text-sm text-[#d9d9d9]">
+                {content.exteriorItems.map((item) => (
+                  <li key={item.label} className="border-l border-[#999999] pl-4">
+                    <span className="font-semibold text-white">{item.label}</span> - {item.description}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </article>
+          <article className="border border-[#999999] bg-[#050505]">
+            <div className="relative aspect-[16/10] w-full">
+              <Image
+                src="/service-interior.png"
+                alt={currentLocale === "ja" ? "内装清掃の施工イメージ" : "Interior cleaning service detail"}
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="p-5">
+              <h3 className="text-sm tracking-[0.1em] text-[#d9d9d9]">{content.interiorTitle}</h3>
+              <ul className="mt-4 space-y-3 text-sm text-[#d9d9d9]">
+                {content.interiorItems.map((item) => (
+                  <li key={item.label} className="border-l border-[#999999] pl-4">
+                    <span className="font-semibold text-white">{item.label}</span> - {item.description}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </article>
         </div>
         <div className="mt-8 border border-[#999999] p-4 text-sm text-[#d9d9d9]">
           <p className="font-semibold text-white">{content.benefitTitle}</p>
