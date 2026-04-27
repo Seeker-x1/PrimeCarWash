@@ -24,12 +24,21 @@ type SiteContent = {
   plansTitle: string;
   plans: Plan[];
   matrixTitle: string;
+  matrixHeaders: {
+    size: string;
+    visitorExterior: string;
+    visitorFull: string;
+    subMonthly1: string;
+    subMonthly2Exterior: string;
+    subMonthly2Full: string;
+  };
   matrixNote: string;
   matrixRows: MatrixRow[];
   vehicleSizeTitle: string;
   vehicleSizeSubTitle: string;
   sizeGroups: SizeGroup[];
   vehicleSizeNote: string;
+  heroImageAlt: string;
   formTitle: string;
   formDescription: string;
   labels: {
@@ -114,6 +123,14 @@ export const siteContent: Record<Locale, SiteContent> = {
       { name: "継続：月2＋内", price: "¥15,400", detail: "車内外＋継続特典付" },
     ],
     matrixTitle: "サイズ別料金一覧（税込）",
+    matrixHeaders: {
+      size: "サイズ区分",
+      visitorExterior: "ビジター：外",
+      visitorFull: "ビジター：内＋外",
+      subMonthly1: "継続：月1回（外）",
+      subMonthly2Exterior: "継続：月2回（外）",
+      subMonthly2Full: "継続：月2回（内＋外）",
+    },
     matrixNote: "※継続プラン：月内回数分をオンライン自動決済。解約はいつでも可能です。",
     matrixRows: [
       { size: "SS / S / M (1.0x)", visitorExterior: "¥7,700", visitorFull: "¥9,900", subMonthly1: "¥6,600", subMonthly2Exterior: "¥11,000", subMonthly2Full: "¥15,400" },
@@ -125,6 +142,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     vehicleSizeSubTitle: "Vehicle Classification Standard (10 Examples Per Group)",
     sizeGroups: commonSizeGroups,
     vehicleSizeNote: "※掲載のない車種、およびカスタムパーツ装着車は現車確認の上で判断します。",
+    heroImageAlt: "高級セダンを手作業で拭き上げる出張洗車イメージ",
     formTitle: "予約フォーム",
     formDescription: "以下をご入力ください。担当より折り返しご連絡します。",
     labels: { name: "氏名", phone: "電話番号", vehicle: "車種", preferredDate1: "希望日（第1候補）", preferredDate2: "希望日（第2候補）", address: "住所", submit: "送信する" },
@@ -163,6 +181,14 @@ export const siteContent: Record<Locale, SiteContent> = {
       { name: "Subscription: Monthly x2 + Interior", price: "¥15,400", detail: "With benefits" },
     ],
     matrixTitle: "Pricing Matrix (Tax Included)",
+    matrixHeaders: {
+      size: "Size",
+      visitorExterior: "Visitor: Exterior",
+      visitorFull: "Visitor: In+Out",
+      subMonthly1: "Sub: Monthly x1",
+      subMonthly2Exterior: "Sub: Monthly x2 (Out)",
+      subMonthly2Full: "Sub: Monthly x2 (In+Out)",
+    },
     matrixNote: "Subscription plans are auto-paid online monthly and can be canceled anytime.",
     matrixRows: [
       { size: "SS / S / M (1.0x)", visitorExterior: "¥7,700", visitorFull: "¥9,900", subMonthly1: "¥6,600", subMonthly2Exterior: "¥11,000", subMonthly2Full: "¥15,400" },
@@ -174,6 +200,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     vehicleSizeSubTitle: "Vehicle Classification Standard",
     sizeGroups: commonSizeGroups,
     vehicleSizeNote: "Vehicles not listed or with custom parts are assessed after physical inspection.",
+    heroImageAlt: "Mobile valeting specialist wiping a luxury sedan",
     formTitle: "Reservation Form",
     formDescription: "Please fill in the fields below. Our team will contact you shortly.",
     labels: { name: "Full Name", phone: "Phone Number", vehicle: "Vehicle Model", preferredDate1: "Preferred Date (1st)", preferredDate2: "Preferred Date (2nd)", address: "Address", submit: "Submit" },

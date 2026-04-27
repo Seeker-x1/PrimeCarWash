@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ReservationForm from "./reservation-form";
@@ -56,7 +57,17 @@ export default async function LocalePage({ params }: PageProps) {
       </header>
 
       <section className="hero-vignette relative isolate flex min-h-screen items-end">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_60%_20%,#222_0%,#000_60%)]" />
+        <div className="absolute inset-0 -z-10">
+          <Image
+            src="/hero-carwash.png"
+            alt={content.heroImageAlt}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
         <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-32 sm:pb-20">
           <p className="font-serif text-sm text-[#999999]">{content.brandTagline}</p>
           <h1 className="mt-4 font-serif text-5xl leading-none tracking-[0.08em] sm:text-7xl md:text-8xl">{content.heroTitle}</h1>
@@ -113,12 +124,12 @@ export default async function LocalePage({ params }: PageProps) {
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead className="bg-[#111] text-xs uppercase tracking-[0.08em] text-[#d9d9d9]">
               <tr>
-                <th className="px-3 py-3">Size</th>
-                <th className="px-3 py-3">Visitor: Exterior</th>
-                <th className="px-3 py-3">Visitor: In+Out</th>
-                <th className="px-3 py-3">Sub: Monthly x1</th>
-                <th className="px-3 py-3">Sub: Monthly x2 (Out)</th>
-                <th className="px-3 py-3">Sub: Monthly x2 (In+Out)</th>
+                <th className="px-3 py-3">{content.matrixHeaders.size}</th>
+                <th className="px-3 py-3">{content.matrixHeaders.visitorExterior}</th>
+                <th className="px-3 py-3">{content.matrixHeaders.visitorFull}</th>
+                <th className="px-3 py-3">{content.matrixHeaders.subMonthly1}</th>
+                <th className="px-3 py-3">{content.matrixHeaders.subMonthly2Exterior}</th>
+                <th className="px-3 py-3">{content.matrixHeaders.subMonthly2Full}</th>
               </tr>
             </thead>
             <tbody>
