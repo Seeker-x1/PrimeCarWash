@@ -16,9 +16,10 @@ const REFERENCE_VEHICLES = buildReferenceVehicles();
 
 type VehicleClassification = {
   size: CarSize;
-  source: "local" | "ai";
+  source: "local" | "ai" | "heuristic";
   matchedVehicle?: string;
 };
+type HeuristicRule = { size: CarSize; patterns: string[] };
 
 function normalizeSearchText(value: string) {
   return value
@@ -59,6 +60,88 @@ function findLocalVehicle(carName: string): VehicleClassification | null {
     source: "local",
     matchedVehicle: `${matched.brand} ${matched.model}`,
   };
+}
+
+const HEURISTIC_RULES: HeuristicRule[] = [
+  {
+    size: "XL",
+    patterns: [
+      "cybertruck",
+      "サイバートラック",
+      "escalade",
+      "エスカレード",
+      "defender 130",
+      "ディフェンダー130",
+      "land cruiser 300",
+      "ランドクルーザー300",
+      "g class",
+      "gクラス",
+      "urus",
+      "ウルス",
+      "cullinan",
+      "カリナン",
+    ],
+  },
+  {
+    size: "LL",
+    patterns: [
+      "alphard",
+      "アルファード",
+      "vellfire",
+      "ヴェルファイア",
+      "model x",
+      "モデルx",
+      "defender 110",
+      "ディフェンダー110",
+      "defender 90",
+      "ディフェンダー90",
+      "wrangler unlimited",
+      "ラングラー アンリミテッド",
+      "cayenne",
+      "カイエン",
+      "range rover sport",
+      "レンジローバー スポーツ",
+      "minivan",
+      "ミニバン",
+    ],
+  },
+  {
+    size: "M",
+    patterns: [
+      "911",
+      "718",
+      "prius",
+      "プリウス",
+      "fit",
+      "フィット",
+      "golf",
+      "ゴルフ",
+      "model 3",
+      "モデル3",
+      "a110",
+      "ミニ",
+      "mini",
+    ],
+  },
+];
+
+function classifyByHeuristic(carName: string): VehicleClassification {
+  const normalized = normalizeSearchText(carName);
+  for (const rule of HEURISTIC_RULES) {
+    const hit = rule.patterns.find((pattern) =>
+      normalized.includes(normalizeSearchText(pattern)),
+    );
+    if (hit) {
+      return {
+        size: rule.size,
+        source: "heuristic",
+        matchedVehicle: `heuristic:${hit}`,
+      };
+    }
+  }
+
+  // Unknown vehicles default to L as safe middle tier.
+  return { size: "L", source: "heuristic", matchedVehicle: "heuristic:default-l" };
 }
 
 function buildReferenceVehicles() {
@@ -125,10 +208,7 @@ export async function POST(request: Request) {
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(
-        { error: "GEMINI_API_KEY is not configured." },
-        { status: 500 },
-      );
+      return NextResponse.json(classifyByHeuristic(carName));
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -161,18 +241,12 @@ ${REFERENCE_VEHICLES}
     const size = parseSizeFromGemini(text);
 
     if (!size) {
-      return NextResponse.json(
-        { error: "Failed to parse Gemini response." },
-        { status: 502 },
-      );
+      return NextResponse.json(classifyByHeuristic(carName));
     }
 
     return NextResponse.json({ size, source: "ai" });
   } catch {
-    return NextResponse.json(
-      { error: "Vehicle classification failed." },
-      { status: 500 },
-    );
+    return NextResponse.json({ size: "L", source: "heuristic" });
   }
 }
 

@@ -155,7 +155,7 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
 
       const data = (await response.json()) as {
         size?: CarSize;
-        source?: "local" | "ai";
+        source?: "local" | "ai" | "heuristic";
         matchedVehicle?: string;
       };
       if (!data.size || !manualSizes.includes(data.size)) {
@@ -168,6 +168,8 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
       setAiMessage(
         data.source === "local" && data.matchedVehicle
           ? `登録済み車両「${data.matchedVehicle}」から判定しました。`
+          : data.source === "heuristic"
+            ? "未登録車のため推定サイズを設定しました。必要に応じて手動で調整してください。"
           : "AI判定によりサイズを設定しました。",
       );
     } catch {
