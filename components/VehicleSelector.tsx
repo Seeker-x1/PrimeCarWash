@@ -51,7 +51,7 @@ const modelAliases: Array<{ includes: string; aliases: string[] }> = [
   { includes: "ハイラックス", aliases: ["hilux"] },
   { includes: "ランドクルーザー", aliases: ["land cruiser", "landcruiser", "lc300", "lc250"] },
   { includes: "アルファード", aliases: ["alphard"] },
-  { includes: "ヴェルファイア", aliases: ["vellfire", "vellfire"] },
+  { includes: "ヴェルファイア", aliases: ["vellfire"] },
   { includes: "ハリアー", aliases: ["harrier"] },
   { includes: "rav4", aliases: ["rav4"] },
   { includes: "ノア", aliases: ["noah"] },
@@ -94,7 +94,7 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
   const [selectedSize, setSelectedSize] = useState<CarSize | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -116,16 +116,31 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
 
   const handleVehicleSelect = (vehicle: Vehicle) => {
     setManualMode(false);
-    setAiError(null);
+    setAiMessage(null);
     setSelectedVehicle(vehicle);
     setSelectedSize(vehicle.size);
     setQuery(`${vehicle.brand} ${vehicle.model}`);
   };
 
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
+    setAiMessage(null);
+
+    const selectedLabel = selectedVehicle
+      ? `${selectedVehicle.brand} ${selectedVehicle.model}`
+      : "";
+
+    if (selectedVehicle && value === selectedLabel) return;
+
+    setSelectedVehicle(null);
+    setSelectedSize(null);
+    setManualMode(false);
+  };
+
   const handleAiClassify = async () => {
     if (!normalizedQuery) return;
     setAiLoading(true);
-    setAiError(null);
+    setAiMessage(null);
 
     try {
       const response = await fetch("/api/classify-vehicle", {
@@ -138,7 +153,11 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
         throw new Error("AI classify request failed");
       }
 
-      const data = (await response.json()) as { size?: CarSize };
+      const data = (await response.json()) as {
+        size?: CarSize;
+        source?: "local" | "ai";
+        matchedVehicle?: string;
+      };
       if (!data.size || !manualSizes.includes(data.size)) {
         throw new Error("Invalid size returned");
       }
@@ -146,8 +165,13 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
       setSelectedVehicle(null);
       setSelectedSize(data.size);
       setManualMode(false);
+      setAiMessage(
+        data.source === "local" && data.matchedVehicle
+          ? `登録済み車両「${data.matchedVehicle}」から判定しました。`
+          : "AI判定によりサイズを設定しました。",
+      );
     } catch {
-      setAiError("AI判定に失敗しました。手動でサイズを選択してください。");
+      setAiMessage("AI判定に失敗しました。手動でサイズを選択してください。");
       setSelectedVehicle(null);
       setSelectedSize(null);
       setManualMode(true);
@@ -157,6 +181,8 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
   };
 
   const noResults = normalizedQuery.length > 0 && filteredVehicles.length === 0;
+  const shouldShowAiButton =
+    noResults && normalizedQuery.length >= 2 && !selectedSize && !manualMode;
 
   return (
     <div className="space-y-3">
@@ -164,7 +190,7 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
         <Command shouldFilter={false}>
           <CommandInput
             value={query}
-            onValueChange={setQuery}
+            onValueChange={handleQueryChange}
             placeholder="車名を入力（例：プリウス / Gクラス）"
           />
           <CommandList>
@@ -193,7 +219,7 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
         </Command>
       </div>
 
-      {noResults ? (
+      {shouldShowAiButton ? (
         <div className="space-y-2">
           <button
             type="button"
@@ -210,9 +236,10 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
               `「${query.trim()}」のサイズをAIで自動判定する`
             )}
           </button>
-          {aiError ? <p className="text-xs text-[#999999]">{aiError}</p> : null}
         </div>
       ) : null}
+
+      {aiMessage ? <p className="text-xs text-[#999999]">{aiMessage}</p> : null}
 
       <div className="flex items-center gap-2 text-xs text-[#999999]">
         <span>判定サイズ:</span>

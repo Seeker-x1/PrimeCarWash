@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import BlurFade from "@/components/BlurFade";
 import VehicleSelector from "@/components/VehicleSelector";
@@ -104,10 +104,26 @@ export default function AmanBookingForm() {
   const [secondChoice, setSecondChoice] = useState<ChoiceSlot | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [lineUrl, setLineUrl] = useState("");
+  const [selectedVehicleName, setSelectedVehicleName] = useState("");
 
   const selectedPlan = useMemo(
     () => PLAN_OPTIONS.find((plan) => plan.id === selectedPlanId) ?? PLAN_OPTIONS[0],
     [selectedPlanId],
+  );
+  const handleVehicleChange = useCallback(
+    (value: {
+      vehicle: { brand: string; model: string } | null;
+      size: CarSize | null;
+      query: string;
+    }) => {
+      setSelectedVehicleSize(value.size);
+      setSelectedVehicleName(
+        value.vehicle
+          ? `${value.vehicle.brand} ${value.vehicle.model}`
+          : value.query.trim(),
+      );
+    },
+    [],
   );
   const multiplier = selectedVehicleSize ? SIZE_MULTIPLIER[selectedVehicleSize] : 1.0;
   const today = new Date();
@@ -138,8 +154,10 @@ export default function AmanBookingForm() {
     const sizeText = selectedVehicleSize
       ? `${selectedVehicleSize}サイズ`
       : "未選択";
+    const vehicleText = selectedVehicleName || "未選択";
 
     const message = `【プライム出張洗車 予約リクエスト】
+■ 車種: ${vehicleText}
 ■ 車両サイズ: ${sizeText}
 ■ ご希望プラン: ${selectedPlan.label}
 
@@ -185,9 +203,7 @@ JPY ${totalPrice.toLocaleString()}`;
             </h2>
             <div className="mt-3">
               <VehicleSelector
-                onChange={(value) => {
-                  setSelectedVehicleSize(value.size);
-                }}
+                onChange={handleVehicleChange}
               />
             </div>
             <p className="mt-2 text-xs text-[#999999]">

@@ -161,7 +161,8 @@ export const vehicles: Vehicle[] = [
   { brand: "アウディ", brandEn: "Audi", model: "R8", modelEn: "R8", size: "M" },
   { brand: "テスラ", brandEn: "Tesla", model: "モデル3", modelEn: "Model 3", size: "M" },
   { brand: "テスラ", brandEn: "Tesla", model: "モデルY / モデルS", modelEn: "Model Y / Model S", size: "L" },
-  { brand: "テスラ", brandEn: "Tesla", model: "モデルX / サイバートラック", modelEn: "Model X / Cybertruck", size: "LL" },
+  { brand: "テスラ", brandEn: "Tesla", model: "モデルX", modelEn: "Model X", size: "LL" },
+  { brand: "テスラ", brandEn: "Tesla", model: "サイバートラック", modelEn: "Cybertruck", size: "XL" },
 
   // ==========================================
   // フェラーリ / アストンマーティン / マセラティ / 他スーパーカー
@@ -186,7 +187,6 @@ export const vehicles: Vehicle[] = [
   { brand: "ベントレー", brandEn: "Bentley", model: "ベンテイガ / フライングスパー / ミュルザンヌ", modelEn: "Bentayga / Flying Spur / Mulsanne", size: "XL" },
   { brand: "ベントレー", brandEn: "Bentley", model: "コンチネンタルGT", modelEn: "Continental GT", size: "LL" },
   { brand: "ロールスロイス", brandEn: "Rolls-Royce", model: "カリナン / ゴースト / ファントム", modelEn: "Cullinan / Ghost / Phantom", size: "XL" },
-{ brand: "ロールスロイス", model: "カリナン / ゴースト", size: "XL" },
   { brand: "ロールスロイス", brandEn: "Rolls-Royce", model: "レイス / ドーン", modelEn: "Wraith / Dawn", size: "LL" },
   { brand: "アルファロメオ", brandEn: "Alfa Romeo", model: "ステルヴィオ", modelEn: "Stelvio", size: "L" },
   { brand: "アルファロメオ", brandEn: "Alfa Romeo", model: "ジュリア", modelEn: "Giulia", size: "M" },
