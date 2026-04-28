@@ -3,7 +3,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { vehicles, type CarSize } from "@/constants/vehicles";
 
 const MODEL_NAME = "gemini-1.5-flash";
-const SIZE_VALUES = new Set(["M", "L", "LL", "XL"]);
 const MAX_CAR_NAME_LENGTH = 80;
 const GEMINI_TIMEOUT_MS = 8000;
 const SIZE_GUIDE = `
@@ -16,10 +15,28 @@ const REFERENCE_VEHICLES = buildReferenceVehicles();
 
 type VehicleClassification = {
   size: CarSize;
-  source: "local" | "ai" | "heuristic";
+  source: "local" | "spec_ai" | "heuristic";
   matchedVehicle?: string;
+  dimensions?: VehicleSpecs;
+  reason?: string;
 };
 type HeuristicRule = { size: CarSize; patterns: string[] };
+type VehicleSpecs = {
+  vehicleName?: string;
+  lengthMm?: number | null;
+  widthMm?: number | null;
+  heightMm?: number | null;
+  bodyType?: string;
+  similarVehicles?: string[];
+  confidence?: "high" | "medium" | "low";
+};
+
+const SIZE_RANK: Record<CarSize, number> = {
+  M: 1,
+  L: 2,
+  LL: 3,
+  XL: 4,
+};
 
 function normalizeSearchText(value: string) {
   return value
@@ -60,6 +77,10 @@ function findLocalVehicle(carName: string): VehicleClassification | null {
     source: "local",
     matchedVehicle: `${matched.brand} ${matched.model}`,
   };
+}
+
+function findLocalVehicleSize(carName: string): CarSize | null {
+  return findLocalVehicle(carName)?.size ?? null;
 }
 
 const HEURISTIC_RULES: HeuristicRule[] = [
@@ -125,7 +146,7 @@ const HEURISTIC_RULES: HeuristicRule[] = [
   },
 ];
 
-function classifyByHeuristic(carName: string): VehicleClassification {
+function classifyByHeuristic(carName: string): VehicleClassification | null {
   const normalized = normalizeSearchText(carName);
   for (const rule of HEURISTIC_RULES) {
     const hit = rule.patterns.find((pattern) =>
@@ -140,8 +161,7 @@ function classifyByHeuristic(carName: string): VehicleClassification {
     }
   }
 
-  // Unknown vehicles default to L as safe middle tier.
-  return { size: "L", source: "heuristic", matchedVehicle: "heuristic:default-l" };
+  return null;
 }
 
 function buildReferenceVehicles() {
@@ -153,6 +173,69 @@ function buildReferenceVehicles() {
     .join("\n");
 }
 
+function pickLargerSize(a: CarSize, b: CarSize) {
+  return SIZE_RANK[a] >= SIZE_RANK[b] ? a : b;
+}
+
+function classifyByDimensions(specs: VehicleSpecs): VehicleClassification | null {
+  const length = specs.lengthMm ?? 0;
+  const width = specs.widthMm ?? 0;
+  const height = specs.heightMm ?? 0;
+  const bodyType = normalizeSearchText(specs.bodyType ?? "");
+  const similarSizes = (specs.similarVehicles ?? [])
+    .map(findLocalVehicleSize)
+    .filter((size): size is CarSize => Boolean(size));
+
+  let size: CarSize | null = null;
+  const isLongBody =
+    bodyType.includes("long") ||
+    bodyType.includes("lwb") ||
+    bodyType.includes("superlong") ||
+    bodyType.includes("スーパーロング") ||
+    bodyType.includes("ロング");
+  const isLargeTruck =
+    bodyType.includes("pickup") ||
+    bodyType.includes("truck") ||
+    bodyType.includes("ピックアップ");
+
+  if (length || width || height || isLongBody || isLargeTruck) {
+    if (length >= 5300 || width >= 2050 || isLongBody || isLargeTruck) {
+      size = "XL";
+    } else if (length >= 5000 || width >= 1950 || height >= 1800) {
+      size = "LL";
+    } else if (length >= 4700 || width >= 1850) {
+      size = "L";
+    } else {
+      size = "M";
+    }
+  }
+
+  const similarSize = similarSizes.reduce<CarSize | null>(
+    (current, next) => (current ? pickLargerSize(current, next) : next),
+    null,
+  );
+
+  if (!size && !similarSize) return null;
+
+  const finalSize = size && similarSize ? pickLargerSize(size, similarSize) : size ?? similarSize;
+  if (!finalSize) return null;
+
+  return {
+    size: finalSize,
+    source: "spec_ai",
+    dimensions: specs,
+    reason: [
+      length ? `全長${length}mm` : null,
+      width ? `全幅${width}mm` : null,
+      height ? `全高${height}mm` : null,
+      specs.bodyType ? `車種タイプ: ${specs.bodyType}` : null,
+      similarSizes.length > 0 ? `類似車両サイズ: ${similarSizes.join("/")}` : null,
+    ]
+      .filter(Boolean)
+      .join(" / "),
+  };
+}
+
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
   return Promise.race([
     promise,
@@ -162,22 +245,29 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
   ]);
 }
 
-function parseSizeFromGemini(rawText: string): "M" | "L" | "LL" | "XL" | null {
+function parseSpecsFromGemini(rawText: string): VehicleSpecs | null {
   const trimmed = rawText.trim();
-  const jsonBlock = trimmed.match(/\{[^{}]*\}/)?.[0];
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  const jsonBlock = start !== -1 && end !== -1 ? trimmed.slice(start, end + 1) : "";
   if (!jsonBlock) return null;
 
   try {
-    const parsed = JSON.parse(jsonBlock) as { size?: string };
-    const size = parsed.size?.toUpperCase();
-    if (size && SIZE_VALUES.has(size)) {
-      return size as "M" | "L" | "LL" | "XL";
-    }
+    const parsed = JSON.parse(jsonBlock) as VehicleSpecs;
+    return {
+      vehicleName: parsed.vehicleName,
+      lengthMm: typeof parsed.lengthMm === "number" ? parsed.lengthMm : null,
+      widthMm: typeof parsed.widthMm === "number" ? parsed.widthMm : null,
+      heightMm: typeof parsed.heightMm === "number" ? parsed.heightMm : null,
+      bodyType: parsed.bodyType ?? "",
+      similarVehicles: Array.isArray(parsed.similarVehicles)
+        ? parsed.similarVehicles.slice(0, 5)
+        : [],
+      confidence: parsed.confidence,
+    };
   } catch {
     return null;
   }
-
-  return null;
 }
 
 export async function POST(request: Request) {
@@ -208,7 +298,15 @@ export async function POST(request: Request) {
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(classifyByHeuristic(carName));
+      const heuristicClassification = classifyByHeuristic(carName);
+      if (heuristicClassification) {
+        return NextResponse.json(heuristicClassification);
+      }
+
+      return NextResponse.json(
+        { error: "GEMINI_API_KEY is not configured." },
+        { status: 503 },
+      );
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -219,34 +317,53 @@ export async function POST(request: Request) {
         responseMimeType: "application/json",
       },
     });
-    const prompt = `あなたは高級洗車サービスの車両サイズ判定AIです。
-M/L/LL/XL は一般的な車格ではなく、出張洗車の作業負荷・全長・全幅・全高・ボディ面積で判定します。
+    const prompt = `あなたは高級洗車サービスの車両諸元調査AIです。
+M/L/LL/XL のサイズ分類はアプリ側で行います。あなたはサイズ名を判定しないでください。
+判定対象車両の諸元と、既存登録車両の中で近い車格の類似車だけを返してください。
 
-サイズ基準:
+アプリ側のサイズ基準:
 ${SIZE_GUIDE}
 
 既存登録車両とサイズ:
 ${REFERENCE_VEHICLES}
 
-未登録車両は、上記の登録車両のうち最も近い車格・ボディサイズ・作業負荷の車と比較して分類してください。
-迷う場合は1段階大きめに判定してください。
-
-出力は必ずJSON形式のみで {"size": "LL"} のように返してください。余計な文章は含めないでください。`;
+出力は必ずJSON形式のみで返してください。余計な文章は含めないでください。
+{
+  "vehicleName": "Rivian R1S",
+  "lengthMm": 5100,
+  "widthMm": 2015,
+  "heightMm": 1960,
+  "bodyType": "large SUV",
+  "similarVehicles": ["テスラ モデルX", "ランドローバー レンジローバー スポーツ", "ランドローバー ディフェンダー 110"],
+  "confidence": "medium"
+}`;
 
     const result = await withTimeout(
       model.generateContent(`${prompt}\n\n判定対象の車名: ${safeCarName}`),
       GEMINI_TIMEOUT_MS,
     );
     const text = result.response.text();
-    const size = parseSizeFromGemini(text);
+    const specs = parseSpecsFromGemini(text);
+    const specClassification = specs ? classifyByDimensions(specs) : null;
 
-    if (!size) {
-      return NextResponse.json(classifyByHeuristic(carName));
+    if (!specClassification) {
+      const heuristicClassification = classifyByHeuristic(carName);
+      if (heuristicClassification) {
+        return NextResponse.json(heuristicClassification);
+      }
+
+      return NextResponse.json(
+        { error: "Failed to classify vehicle size." },
+        { status: 502 },
+      );
     }
 
-    return NextResponse.json({ size, source: "ai" });
+    return NextResponse.json(specClassification);
   } catch {
-    return NextResponse.json({ size: "L", source: "heuristic" });
+    return NextResponse.json(
+      { error: "Vehicle classification failed." },
+      { status: 500 },
+    );
   }
 }
 
