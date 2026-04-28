@@ -71,7 +71,9 @@ const modelAliases: Array<{ includes: string; aliases: string[] }> = [
 ];
 
 function buildSearchText(vehicle: Vehicle) {
-  const base = `${vehicle.brand} ${vehicle.model}`.toLowerCase();
+  const jp = `${vehicle.brand} ${vehicle.model}`;
+  const en = `${vehicle.brandEn ?? ""} ${vehicle.modelEn ?? ""}`;
+  const base = `${jp} ${en}`.toLowerCase();
   const aliases: string[] = [];
 
   const brandExtra = brandAliases[vehicle.brand] ?? [];
@@ -91,6 +93,8 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [selectedSize, setSelectedSize] = useState<CarSize | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -112,9 +116,44 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
 
   const handleVehicleSelect = (vehicle: Vehicle) => {
     setManualMode(false);
+    setAiError(null);
     setSelectedVehicle(vehicle);
     setSelectedSize(vehicle.size);
     setQuery(`${vehicle.brand} ${vehicle.model}`);
+  };
+
+  const handleAiClassify = async () => {
+    if (!normalizedQuery) return;
+    setAiLoading(true);
+    setAiError(null);
+
+    try {
+      const response = await fetch("/api/classify-vehicle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ carName: query.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error("AI classify request failed");
+      }
+
+      const data = (await response.json()) as { size?: CarSize };
+      if (!data.size || !manualSizes.includes(data.size)) {
+        throw new Error("Invalid size returned");
+      }
+
+      setSelectedVehicle(null);
+      setSelectedSize(data.size);
+      setManualMode(false);
+    } catch {
+      setAiError("AI判定に失敗しました。手動でサイズを選択してください。");
+      setSelectedVehicle(null);
+      setSelectedSize(null);
+      setManualMode(true);
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const noResults = normalizedQuery.length > 0 && filteredVehicles.length === 0;
@@ -138,7 +177,7 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
               {filteredVehicles.map((vehicle) => (
                 <CommandItem
                   key={`${vehicle.brand}-${vehicle.model}`}
-                  value={`${vehicle.brand} ${vehicle.model}`}
+                  value={`${vehicle.brand} ${vehicle.model} ${vehicle.brandEn ?? ""} ${vehicle.modelEn ?? ""}`}
                   onSelect={() => handleVehicleSelect(vehicle)}
                 >
                   <div className="flex w-full items-center justify-between gap-4">
@@ -154,6 +193,27 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
         </Command>
       </div>
 
+      {noResults ? (
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={handleAiClassify}
+            disabled={aiLoading}
+            className="w-full rounded-[6px] border border-[#999999] px-3 py-2 text-xs text-white transition hover:border-white hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {aiLoading ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-3 w-3 animate-spin rounded-full border border-white border-t-transparent" />
+                AIで判定中...
+              </span>
+            ) : (
+              `「${query.trim()}」のサイズをAIで自動判定する`
+            )}
+          </button>
+          {aiError ? <p className="text-xs text-[#999999]">{aiError}</p> : null}
+        </div>
+      ) : null}
+
       <div className="flex items-center gap-2 text-xs text-[#999999]">
         <span>判定サイズ:</span>
         <span className="rounded-[6px] border border-[#999999] px-2 py-1 text-white">
@@ -161,42 +221,21 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
         </span>
       </div>
 
-      {noResults && !manualMode ? (
-        <button
-          type="button"
-          onClick={() => {
-            setManualMode(true);
-            setSelectedVehicle(null);
-            setSelectedSize(null);
-          }}
-          className="rounded-[6px] border border-[#999999] px-3 py-2 text-xs text-white transition hover:border-white"
-        >
-          リストにないため手動でサイズを選択する
-        </button>
-      ) : null}
-
       {manualMode ? (
         <div className="space-y-2">
-          <p className="text-xs text-[#999999]">手動サイズ選択</p>
-          <div className="grid grid-cols-4 gap-2">
-            {manualSizes.map((size) => {
-              const selected = selectedSize === size;
-              return (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => setSelectedSize(size)}
-                  className={`rounded-[6px] border px-3 py-2 text-xs transition ${
-                    selected
-                      ? "border-white bg-white text-black"
-                      : "border-[#999999] text-white hover:border-white"
-                  }`}
-                >
-                  {size}
-                </button>
-              );
-            })}
-          </div>
+          <p className="text-xs text-[#999999]">手動サイズ選択（フォールバック）</p>
+          <select
+            value={selectedSize ?? ""}
+            onChange={(event) => setSelectedSize(event.target.value as CarSize)}
+            className="w-full rounded-[6px] border border-[#999999] bg-black px-3 py-2 text-sm text-white outline-none"
+          >
+            <option value="">サイズを選択</option>
+            {manualSizes.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
         </div>
       ) : null}
     </div>

@@ -10,6 +10,60 @@ export interface Vehicle {
 
 export const vehicles: Vehicle[] = [
   // ==========================================
+  // トヨタ (TOYOTA)
+  // ==========================================
+  { brand: "トヨタ", brandEn: "Toyota", model: "ハイラックス (GUN125等)", modelEn: "Hilux", size: "LL" },
+  { brand: "トヨタ", brandEn: "Toyota", model: "ランドクルーザー 300 / 200 / 100", modelEn: "Land Cruiser 300 / 200 / 100", size: "XL" },
+  { brand: "トヨタ", brandEn: "Toyota", model: "ランドクルーザー 250 / 70", modelEn: "Land Cruiser 250 / 70", size: "LL" },
+  { brand: "トヨタ", brandEn: "Toyota", model: "ランドクルーザー プラド", modelEn: "Land Cruiser Prado", size: "LL" },
+  { brand: "トヨタ", brandEn: "Toyota", model: "アルファード / ヴェルファイア", modelEn: "Alphard / Vellfire", size: "LL" },
+  { brand: "トヨタ", brandEn: "Toyota", model: "ハリアー / RAV4", modelEn: "Harrier / RAV4", size: "L" },
+  { brand: "トヨタ", brandEn: "Toyota", model: "プリウス / プリウスPHV / プリウスα", modelEn: "Prius / Prius PHV / Prius Alpha", size: "M" },
+  { brand: "トヨタ", brandEn: "Toyota", model: "クラウン (クロスオーバー / スポーツ / セダン / エステート)", modelEn: "Crown", size: "L" },
+  { brand: "トヨタ", brandEn: "Toyota", model: "カローラ / カローラツーリング / カローラクロス", modelEn: "Corolla / Corolla Touring / Corolla Cross", size: "M" },
+  { brand: "トヨタ", brandEn: "Toyota", model: "ヤリス / ヤリスクロス / アクア", modelEn: "Yaris / Yaris Cross / Aqua", size: "M" },
+
+  // ==========================================
+  // 日産 (NISSAN)
+  // ==========================================
+  { brand: "日産", brandEn: "Nissan", model: "フェアレディZ (RZ34 / Z34 / Z33 / S30等)", modelEn: "Fairlady Z", size: "M" },
+  { brand: "日産", brandEn: "Nissan", model: "GT-R (R35 / R34 / R33 / R32)", modelEn: "GT-R", size: "M" },
+  { brand: "日産", brandEn: "Nissan", model: "スカイライン (V37 / V36 / V35)", modelEn: "Skyline", size: "L" },
+  { brand: "日産", brandEn: "Nissan", model: "ノート / オーラ / リーフ", modelEn: "Note / Aura / Leaf", size: "M" },
+  { brand: "日産", brandEn: "Nissan", model: "アリア", modelEn: "Ariya", size: "L" },
+  { brand: "日産", brandEn: "Nissan", model: "エクストレイル / キックス / ジューク", modelEn: "X-Trail / Kicks / Juke", size: "L" },
+  { brand: "日産", brandEn: "Nissan", model: "セレナ / エルグランド", modelEn: "Serena / Elgrand", size: "LL" },
+  { brand: "日産", brandEn: "Nissan", model: "キャラバン (NV350)", modelEn: "Caravan (NV350)", size: "LL" },
+
+  // ==========================================
+  // ホンダ (HONDA)
+  // ==========================================
+  { brand: "ホンダ", brandEn: "Honda", model: "N-BOX / N-WGN / N-ONE", modelEn: "N-BOX / N-WGN / N-ONE", size: "M" },
+  { brand: "ホンダ", brandEn: "Honda", model: "フィット / シビック", modelEn: "Fit / Civic", size: "M" },
+  { brand: "ホンダ", brandEn: "Honda", model: "アコード", modelEn: "Accord", size: "L" },
+  { brand: "ホンダ", brandEn: "Honda", model: "ヴェゼル / ZR-V", modelEn: "Vezel / ZR-V", size: "L" },
+  { brand: "ホンダ", brandEn: "Honda", model: "CR-V", modelEn: "CR-V", size: "LL" },
+  { brand: "ホンダ", brandEn: "Honda", model: "ステップワゴン / オデッセイ", modelEn: "Stepwgn / Odyssey", size: "LL" },
+
+  // ==========================================
+  // レクサス (LEXUS)
+  // ==========================================
+  { brand: "レクサス", brandEn: "Lexus", model: "LS / RX / RZ / GX", modelEn: "LS / RX / RZ / GX", size: "LL" },
+  { brand: "レクサス", brandEn: "Lexus", model: "IS / ES / LC / RC", modelEn: "IS / ES / LC / RC", size: "L" },
+  { brand: "レクサス", brandEn: "Lexus", model: "NX / UX / LBX", modelEn: "NX / UX / LBX", size: "L" },
+  { brand: "レクサス", brandEn: "Lexus", model: "LX / LM", modelEn: "LX / LM", size: "XL" },
+
+  // ==========================================
+  // メルセデス・ベンツ (MERCEDES-BENZ)
+  // ==========================================
+  { brand: "メルセデス・ベンツ", brandEn: "Mercedes-Benz", model: "Aクラス / Bクラス", modelEn: "A-Class / B-Class", size: "M" },
+  { brand: "メルセデス・ベンツ", brandEn: "Mercedes-Benz", model: "Cクラス / Eクラス", modelEn: "C-Class / E-Class", size: "L" },
+  { brand: "メルセデス・ベンツ", brandEn: "Mercedes-Benz", model: "Sクラス / マイバッハ", modelEn: "S-Class / Maybach", size: "LL" },
+  { brand: "メルセデス・ベンツ", brandEn: "Mercedes-Benz", model: "GLC / GLE", modelEn: "GLC / GLE", size: "LL" },
+  { brand: "メルセデス・ベンツ", brandEn: "Mercedes-Benz", model: "GLS / Gクラス", modelEn: "GLS / G-Class", size: "XL" },
+  { brand: "メルセデス・ベンツ", brandEn: "Mercedes-Benz", model: "Vクラス", modelEn: "V-Class", size: "LL" },
+
+  // ==========================================
   // ポルシェ (PORSCHE)
   // ==========================================
   { brand: "ポルシェ", brandEn: "Porsche", model: "911 カレラ / カレラS / カレラT (992/991/997)", modelEn: "911 Carrera / Carrera S / Carrera T", size: "M" },
@@ -132,9 +186,39 @@ export const vehicles: Vehicle[] = [
   { brand: "ベントレー", brandEn: "Bentley", model: "ベンテイガ / フライングスパー / ミュルザンヌ", modelEn: "Bentayga / Flying Spur / Mulsanne", size: "XL" },
   { brand: "ベントレー", brandEn: "Bentley", model: "コンチネンタルGT", modelEn: "Continental GT", size: "LL" },
   { brand: "ロールスロイス", brandEn: "Rolls-Royce", model: "カリナン / ゴースト / ファントム", modelEn: "Cullinan / Ghost / Phantom", size: "XL" },
+{ brand: "ロールスロイス", model: "カリナン / ゴースト", size: "XL" },
   { brand: "ロールスロイス", brandEn: "Rolls-Royce", model: "レイス / ドーン", modelEn: "Wraith / Dawn", size: "LL" },
   { brand: "アルファロメオ", brandEn: "Alfa Romeo", model: "ステルヴィオ", modelEn: "Stelvio", size: "L" },
   { brand: "アルファロメオ", brandEn: "Alfa Romeo", model: "ジュリア", modelEn: "Giulia", size: "M" },
   { brand: "キャデラック", brandEn: "Cadillac", model: "エスカレード", modelEn: "Escalade", size: "XL" },
+
+  // ==========================================
+  // シボレー / フォード (Chevrolet / Ford)
+  // ==========================================
+  { brand: "シボレー", brandEn: "Chevrolet", model: "コルベット", modelEn: "Corvette", size: "L" },
+  { brand: "シボレー", brandEn: "Chevrolet", model: "カマロ", modelEn: "Camaro", size: "L" },
+  { brand: "フォード", brandEn: "Ford", model: "ブロンコ", modelEn: "Bronco", size: "LL" },
+  { brand: "フォード", brandEn: "Ford", model: "マスタング", modelEn: "Mustang", size: "L" },
+  { brand: "フォード", brandEn: "Ford", model: "エクスプローラー", modelEn: "Explorer", size: "LL" },
+
+  // ==========================================
+  // フィアット / アバルト / ロータス (Fiat / Abarth / Lotus)
+  // ==========================================
+  { brand: "フィアット", brandEn: "Fiat", model: "500 (チンクエチェント) / パンダ", modelEn: "500 / Panda", size: "M" },
+  { brand: "アバルト", brandEn: "Abarth", model: "595 / 695 / 124スパイダー", modelEn: "595 / 695 / 124 Spider", size: "M" },
+  { brand: "ロータス", brandEn: "Lotus", model: "エリーゼ / エキシージ", modelEn: "Elise / Exige", size: "M" },
+  { brand: "ロータス", brandEn: "Lotus", model: "エミーラ / エヴォーラ", modelEn: "Emira / Evora", size: "M" },
+  { brand: "アルピーヌ", brandEn: "Alpine", model: "A110 / A110S / A110R", modelEn: "A110 / A110S / A110R", size: "M" },
+  { brand: "アルピーヌ", brandEn: "Alpine", model: "A290 (EV)", modelEn: "A290 (EV)", size: "M" },
+
+  // ==========================================
+  // 既存ブランドの補完 (EV・セダンなど)
+  // ==========================================
+  { brand: "BMW", brandEn: "BMW", model: "iX / iX3 (電気自動車)", modelEn: "iX / iX3", size: "LL" },
+  { brand: "BMW", brandEn: "BMW", model: "i4 / i5 / i7 (電気自動車)", modelEn: "i4 / i5 / i7", size: "L" },
+  { brand: "アウディ", brandEn: "Audi", model: "e-tron GT / RS e-tron GT", modelEn: "e-tron GT / RS e-tron GT", size: "L" },
+  { brand: "ボルボ", brandEn: "Volvo", model: "S90", modelEn: "S90", size: "L" },
+  { brand: "ボルボ", brandEn: "Volvo", model: "S60", modelEn: "S60", size: "M" },
+  { brand: "アルファロメオ", brandEn: "Alfa Romeo", model: "トナーレ", modelEn: "Tonale", size: "M" },
 ];
 
