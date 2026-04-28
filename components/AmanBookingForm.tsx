@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import BlurFade from "@/components/BlurFade";
 import VehicleSelector from "@/components/VehicleSelector";
 import { CarSize } from "@/constants/vehicles";
@@ -101,6 +102,8 @@ export default function AmanBookingForm() {
   const [slotSelections, setSlotSelections] = useState<Record<string, string[]>>({});
   const [firstChoice, setFirstChoice] = useState<ChoiceSlot | null>(null);
   const [secondChoice, setSecondChoice] = useState<ChoiceSlot | null>(null);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [lineUrl, setLineUrl] = useState("");
 
   const selectedPlan = useMemo(
     () => PLAN_OPTIONS.find((plan) => plan.id === selectedPlanId) ?? PLAN_OPTIONS[0],
@@ -151,7 +154,18 @@ JPY ${totalPrice.toLocaleString()}`;
 
     const encodedMessage = encodeURIComponent(message);
     const url = `https://line.me/R/oaMessage/${LINE_OFFICIAL_ID}/?${encodedMessage}`;
-    window.open(url, "_blank");
+    const isMobile =
+      typeof window !== "undefined" &&
+      (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+        window.innerWidth <= 768);
+
+    if (isMobile) {
+      window.open(url, "_blank");
+      return;
+    }
+
+    setLineUrl(url);
+    setShowQRModal(true);
   };
 
   return (
@@ -439,6 +453,40 @@ JPY ${totalPrice.toLocaleString()}`;
           </div>
         </aside>
       </div>
+
+      {showQRModal ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4"
+          onKeyDown={(e) => e.key === "Escape" && setShowQRModal(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="LINE QRコード"
+            className="w-full max-w-sm border border-white/20 bg-[#0a0a0a] p-6 text-center"
+          >
+            <p className="mb-5 text-sm text-[#d4d4d4]">
+              スマートフォンのカメラで読み取ってご予約を完了してください
+            </p>
+            <div className="flex justify-center">
+              <QRCodeSVG
+                value={lineUrl}
+                size={200}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                marginSize={4}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowQRModal(false)}
+              className="mt-6 w-full border border-white/20 px-4 py-2 text-xs tracking-[0.14em] uppercase text-white transition hover:bg-white hover:text-black"
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
