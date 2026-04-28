@@ -150,13 +150,14 @@ export default function AmanBookingForm() {
       : "未選択";
     const secondChoiceText = secondChoice
       ? `${formatDate(secondChoice.date)} ${secondChoice.slot.replaceAll(" / ", ", ")}`
-      : "未選択";
+      : "未選択（第1希望のみで調整希望）";
     const sizeText = selectedVehicleSize
       ? `${selectedVehicleSize}サイズ`
       : "未選択";
     const vehicleText = selectedVehicleName || "未選択";
 
-    const message = `【プライム出張洗車 予約リクエスト】
+    const message = `[WEB予約]
+【プライム出張洗車 予約リクエスト】
 ■ 車種: ${vehicleText}
 ■ 車両サイズ: ${sizeText}
 ■ ご希望プラン: ${selectedPlan.label}
