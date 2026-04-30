@@ -13,7 +13,6 @@ type SiteContent = {
   heroDescription: string;
   ctaReserve: string;
   ctaContact: string;
-  lineUrlPlaceholder: string;
   serviceScopeTitle: string;
   exteriorTitle: string;
   interiorTitle: string;
@@ -101,7 +100,6 @@ export const siteContent: Record<Locale, SiteContent> = {
     heroDescription: "完全予約制の出張洗車サービス。車外・車内ケアを上質な体験で提供します。",
     ctaReserve: "LINEで予約",
     ctaContact: "予約フォームへ",
-    lineUrlPlaceholder: "https://qr-official.line.me/gs/M_834ecayh_BW.png?oat_content=qr",
     serviceScopeTitle: "施工内容詳細",
     exteriorTitle: "車外清掃（全プラン共通・基本範囲）",
     interiorTitle: "車内清掃（オプション内容）",
@@ -159,7 +157,6 @@ export const siteContent: Record<Locale, SiteContent> = {
     heroDescription: "Appointment-only mobile car wash service with premium exterior and interior care.",
     ctaReserve: "Reserve via LINE",
     ctaContact: "Open Reservation Form",
-    lineUrlPlaceholder: "https://qr-official.line.me/gs/M_834ecayh_BW.png?oat_content=qr",
     serviceScopeTitle: "Service Scope",
     exteriorTitle: "Exterior cleaning (included in all plans)",
     interiorTitle: "Interior cleaning (optional)",

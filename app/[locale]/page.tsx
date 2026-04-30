@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, locales, siteContent } from "@/lib/site-content";
+import { getLineConsultationUrl } from "@/lib/line-consultation";
 import BlurFade from "@/components/BlurFade";
 import AmanBookingForm from "@/components/AmanBookingForm";
 
@@ -36,6 +37,7 @@ export default async function LocalePage({ params }: PageProps) {
   const currentLocale = locale as Locale;
   const content = siteContent[currentLocale];
   const alternateLocale = currentLocale === "ja" ? "en" : "ja";
+  const lineConsultationUrl = getLineConsultationUrl(currentLocale);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -80,7 +82,7 @@ export default async function LocalePage({ params }: PageProps) {
             <p className="mt-6 max-w-xl text-sm leading-7 text-[#d9d9d9]">{content.heroDescription}</p>
           </BlurFade>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href={content.lineUrlPlaceholder} target="_blank" rel="noreferrer" className="rounded-full border border-white px-6 py-3 text-xs tracking-[0.16em] uppercase hover:bg-white hover:text-black">{content.ctaReserve}</a>
+            <a href={lineConsultationUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-white px-6 py-3 text-xs tracking-[0.16em] uppercase hover:bg-white hover:text-black">{content.ctaReserve}</a>
             <a href="#reservation-form" className="rounded-full border border-[#999999] px-6 py-3 text-xs tracking-[0.16em] uppercase hover:border-white">{content.ctaContact}</a>
           </div>
         </div>
