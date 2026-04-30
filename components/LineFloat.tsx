@@ -7,10 +7,9 @@ import { useEffect, useState } from "react";
 const LINE_OFFICIAL_ID =
   process.env.NEXT_PUBLIC_LINE_OFFICIAL_ID ?? "@834ecayh";
 const LINE_CONSULTATION_MESSAGE = `[WEB相談]
-【プライム出張洗車 コンシェルジュ相談】
-■ 流入元: フローティングLINE導線
 
-愛車のケアについて、専属コンシェルジュに相談したいです。`;
+※このまま送信するか、以下に自由にご質問・ご要望をご入力ください。
+（例：〇〇という車ですが対応可能ですか？ / 一番おすすめのメニューを教えてください など）`;
 const LINE_CONSULTATION_URL = `https://line.me/R/oaMessage/${LINE_OFFICIAL_ID}/?${encodeURIComponent(
   LINE_CONSULTATION_MESSAGE,
 )}`;
