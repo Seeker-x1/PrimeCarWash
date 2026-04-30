@@ -10,6 +10,11 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import {
+  buildVehicleSearchText,
+  getVehicleQueryVariants,
+  normalizeVehicleSearchValue,
+} from "@/lib/vehicle-search";
 
 type VehicleSelectorValue = {
   mode: "auto" | "manual";
@@ -24,70 +29,6 @@ type VehicleSelectorProps = {
 
 const manualSizes: CarSize[] = ["M", "L", "LL", "XL"];
 
-const brandAliases: Record<string, string[]> = {
-  "トヨタ": ["toyota"],
-  "日産": ["nissan"],
-  "レクサス": ["lexus"],
-  "ホンダ": ["honda"],
-  "マツダ": ["mazda"],
-  "スバル": ["subaru"],
-  "三菱": ["mitsubishi"],
-  "スズキ": ["suzuki"],
-  "ダイハツ": ["daihatsu"],
-  "メルセデス・ベンツ": ["mercedes", "benz", "mercedes-benz"],
-  "ランドローバー": ["land rover", "landrover", "range rover", "rangerover"],
-  "ポルシェ": ["porsche"],
-  "キャデラック": ["cadillac"],
-  "ランボルギーニ": ["lamborghini"],
-  "ベントレー": ["bentley"],
-  "ロールスロイス": ["rolls royce", "rolls-royce"],
-};
-
-const modelAliases: Array<{ includes: string; aliases: string[] }> = [
-  { includes: "プリウス", aliases: ["prius"] },
-  { includes: "フェアレディz", aliases: ["fairlady z", "fairladyz"] },
-  { includes: "gt-r", aliases: ["gtr", "gt r"] },
-  { includes: "スカイライン", aliases: ["skyline"] },
-  { includes: "ハイラックス", aliases: ["hilux"] },
-  { includes: "ランドクルーザー", aliases: ["land cruiser", "landcruiser", "lc300", "lc250"] },
-  { includes: "アルファード", aliases: ["alphard"] },
-  { includes: "ヴェルファイア", aliases: ["vellfire"] },
-  { includes: "ハリアー", aliases: ["harrier"] },
-  { includes: "rav4", aliases: ["rav4"] },
-  { includes: "ノア", aliases: ["noah"] },
-  { includes: "ヴォクシー", aliases: ["voxy"] },
-  { includes: "セレナ", aliases: ["serena"] },
-  { includes: "エルグランド", aliases: ["elgrand"] },
-  { includes: "gクラス", aliases: ["g class", "g-class", "g wagon", "gelandewagen"] },
-  { includes: "cクラス", aliases: ["c class", "c-class"] },
-  { includes: "eクラス", aliases: ["e class", "e-class"] },
-  { includes: "sクラス", aliases: ["s class", "s-class"] },
-  { includes: "gle", aliases: ["gle"] },
-  { includes: "gls", aliases: ["gls"] },
-  { includes: "rx", aliases: ["rx"] },
-  { includes: "nx", aliases: ["nx"] },
-  { includes: "ux", aliases: ["ux"] },
-  { includes: "lx", aliases: ["lx"] },
-];
-
-function buildSearchText(vehicle: Vehicle) {
-  const jp = `${vehicle.brand} ${vehicle.model}`;
-  const en = `${vehicle.brandEn ?? ""} ${vehicle.modelEn ?? ""}`;
-  const base = `${jp} ${en}`.toLowerCase();
-  const aliases: string[] = [];
-
-  const brandExtra = brandAliases[vehicle.brand] ?? [];
-  aliases.push(...brandExtra);
-
-  for (const rule of modelAliases) {
-    if (base.includes(rule.includes.toLowerCase())) {
-      aliases.push(...rule.aliases);
-    }
-  }
-
-  return `${base} ${aliases.join(" ")}`;
-}
-
 export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
   const [query, setQuery] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -96,14 +37,19 @@ export default function VehicleSelector({ onChange }: VehicleSelectorProps) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiMessage, setAiMessage] = useState<string | null>(null);
 
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = normalizeVehicleSearchValue(query);
+  const normalizedQueryVariants = useMemo(
+    () => getVehicleQueryVariants(query.trim()),
+    [query],
+  );
 
   const filteredVehicles = useMemo(() => {
-    if (!normalizedQuery) return [];
-    return vehicles.filter((vehicle) =>
-      buildSearchText(vehicle).includes(normalizedQuery),
-    );
-  }, [normalizedQuery]);
+    if (normalizedQueryVariants.length === 0) return [];
+    return vehicles.filter((vehicle) => {
+      const searchText = normalizeVehicleSearchValue(buildVehicleSearchText(vehicle));
+      return normalizedQueryVariants.some((variant) => searchText.includes(variant));
+    });
+  }, [normalizedQueryVariants]);
 
   useEffect(() => {
     onChange?.({

@@ -1,6 +1,11 @@
 ﻿import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { vehicles, type CarSize } from "@/constants/vehicles";
+import {
+  buildVehicleSearchText,
+  getVehicleQueryVariants,
+  normalizeVehicleSearchValue,
+} from "@/lib/vehicle-search";
 
 const MODEL_NAME = "gemini-1.5-flash";
 const MAX_CAR_NAME_LENGTH = 80;
@@ -38,35 +43,18 @@ const SIZE_RANK: Record<CarSize, number> = {
   XL: 4,
 };
 
-function normalizeSearchText(value: string) {
-  return value
-    .normalize("NFKC")
-    .toLowerCase()
-    .replace(/[‐‑‒–—―ー\-_\s/／・,、.。()（）]/g, "");
-}
-
-function buildVehicleSearchText(vehicle: (typeof vehicles)[number]) {
-  return [
-    vehicle.brand,
-    vehicle.model,
-    vehicle.brandEn ?? "",
-    vehicle.modelEn ?? "",
-  ]
-    .join(" ")
-    .normalize("NFKC")
-    .toLowerCase();
-}
-
 function findLocalVehicle(carName: string): VehicleClassification | null {
-  const query = normalizeSearchText(carName);
-  if (query.length < 2) return null;
+  const queryVariants = getVehicleQueryVariants(carName);
+  if (queryVariants.length === 0 || queryVariants[0].length < 2) return null;
 
   const matches = vehicles
     .map((vehicle) => ({
       vehicle,
-      normalized: normalizeSearchText(buildVehicleSearchText(vehicle)),
+      normalized: normalizeVehicleSearchValue(buildVehicleSearchText(vehicle)),
     }))
-    .filter(({ normalized }) => normalized.includes(query))
+    .filter(({ normalized }) =>
+      queryVariants.some((query) => normalized.includes(query)),
+    )
     .sort((a, b) => a.normalized.length - b.normalized.length);
 
   const matched = matches[0]?.vehicle;
@@ -147,10 +135,10 @@ const HEURISTIC_RULES: HeuristicRule[] = [
 ];
 
 function classifyByHeuristic(carName: string): VehicleClassification | null {
-  const normalized = normalizeSearchText(carName);
+  const normalized = normalizeVehicleSearchValue(carName);
   for (const rule of HEURISTIC_RULES) {
     const hit = rule.patterns.find((pattern) =>
-      normalized.includes(normalizeSearchText(pattern)),
+      normalized.includes(normalizeVehicleSearchValue(pattern)),
     );
     if (hit) {
       return {
@@ -181,7 +169,7 @@ function classifyByDimensions(specs: VehicleSpecs): VehicleClassification | null
   const length = specs.lengthMm ?? 0;
   const width = specs.widthMm ?? 0;
   const height = specs.heightMm ?? 0;
-  const bodyType = normalizeSearchText(specs.bodyType ?? "");
+  const bodyType = normalizeVehicleSearchValue(specs.bodyType ?? "");
   const similarSizes = (specs.similarVehicles ?? [])
     .map(findLocalVehicleSize)
     .filter((size): size is CarSize => Boolean(size));
@@ -253,17 +241,27 @@ function parseSpecsFromGemini(rawText: string): VehicleSpecs | null {
   if (!jsonBlock) return null;
 
   try {
-    const parsed = JSON.parse(jsonBlock) as VehicleSpecs;
+    const parsed: unknown = JSON.parse(jsonBlock);
+    if (!parsed || typeof parsed !== "object") return null;
+
+    const specs = parsed as Record<string, unknown>;
     return {
-      vehicleName: parsed.vehicleName,
-      lengthMm: typeof parsed.lengthMm === "number" ? parsed.lengthMm : null,
-      widthMm: typeof parsed.widthMm === "number" ? parsed.widthMm : null,
-      heightMm: typeof parsed.heightMm === "number" ? parsed.heightMm : null,
-      bodyType: parsed.bodyType ?? "",
-      similarVehicles: Array.isArray(parsed.similarVehicles)
-        ? parsed.similarVehicles.slice(0, 5)
+      vehicleName: typeof specs.vehicleName === "string" ? specs.vehicleName : "",
+      lengthMm: typeof specs.lengthMm === "number" ? specs.lengthMm : null,
+      widthMm: typeof specs.widthMm === "number" ? specs.widthMm : null,
+      heightMm: typeof specs.heightMm === "number" ? specs.heightMm : null,
+      bodyType: typeof specs.bodyType === "string" ? specs.bodyType : "",
+      similarVehicles: Array.isArray(specs.similarVehicles)
+        ? specs.similarVehicles
+            .filter((vehicle): vehicle is string => typeof vehicle === "string")
+            .slice(0, 5)
         : [],
-      confidence: parsed.confidence,
+      confidence:
+        specs.confidence === "high" ||
+        specs.confidence === "medium" ||
+        specs.confidence === "low"
+          ? specs.confidence
+          : undefined,
     };
   } catch {
     return null;
@@ -272,8 +270,14 @@ function parseSpecsFromGemini(rawText: string): VehicleSpecs | null {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json().catch(() => null) as { carName?: string } | null;
-    const carName = body?.carName?.trim();
+    const body: unknown = await request.json().catch(() => null);
+    const carName =
+      body &&
+      typeof body === "object" &&
+      "carName" in body &&
+      typeof body.carName === "string"
+        ? body.carName.trim()
+        : "";
 
     if (!carName) {
       return NextResponse.json(
