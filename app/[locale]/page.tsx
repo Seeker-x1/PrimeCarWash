@@ -71,7 +71,7 @@ export default async function LocalePage({ params }: PageProps) {
         </div>
         <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-32 sm:pb-20">
           <BlurFade delay={0}>
-            <p className="font-serif text-sm text-[#999999]">{content.brandTagline}</p>
+            <p className="font-serif text-sm text-white">{content.brandTagline}</p>
           </BlurFade>
           <BlurFade delay={0.12}>
             <h1 className="mt-4 font-serif text-5xl leading-none tracking-[0.08em] sm:text-7xl md:text-8xl">{content.heroTitle}</h1>
