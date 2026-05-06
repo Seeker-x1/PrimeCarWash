@@ -1,28 +1,26 @@
 ﻿import type { MetadataRoute } from "next";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://primecarwash.vercel.app";
+  const base = getSiteOrigin();
+  const ja = `${base}/ja`;
+  const en = `${base}/en`;
+  const hrefLang = {
+    "x-default": ja,
+    ja,
+    en,
+  };
 
   return [
     {
-      url: `${base}/ja`,
+      url: ja,
       lastModified: new Date(),
-      alternates: {
-        languages: {
-          ja: `${base}/ja`,
-          en: `${base}/en`,
-        },
-      },
+      alternates: { languages: hrefLang },
     },
     {
-      url: `${base}/en`,
+      url: en,
       lastModified: new Date(),
-      alternates: {
-        languages: {
-          ja: `${base}/ja`,
-          en: `${base}/en`,
-        },
-      },
+      alternates: { languages: hrefLang },
     },
   ];
 }

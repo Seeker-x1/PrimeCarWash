@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, locales, siteContent } from "@/lib/site-content";
 import { getLineConsultationUrl } from "@/lib/line-consultation";
+import { getSiteOrigin } from "@/lib/site-url";
 import BlurFade from "@/components/BlurFade";
 import AmanBookingForm from "@/components/AmanBookingForm";
 
@@ -20,6 +21,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: content.heroTitle,
     description: content.heroDescription,
+    alternates: {
+      canonical: `/${resolvedLocale}`,
+      languages: {
+        ja: "/ja",
+        en: "/en",
+      },
+    },
     openGraph: {
       title: content.heroTitle,
       description: content.heroDescription,
@@ -45,7 +53,7 @@ export default async function LocalePage({ params }: PageProps) {
     name: "PRIME CAR WASH",
     serviceType: "Mobile Car Wash",
     areaServed: "Japan",
-    url: `https://primecarwash.vercel.app/${currentLocale}`,
+    url: `${getSiteOrigin()}/${currentLocale}`,
   };
 
   return (

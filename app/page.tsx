@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
+// No duplicate homepage: permanently consolidate `/` → `/ja` for crawlers.
 export default function Home() {
-  redirect("/ja");
+  permanentRedirect("/ja");
 }

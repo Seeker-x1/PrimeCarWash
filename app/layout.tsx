@@ -3,6 +3,7 @@ import { Noto_Sans_JP, Noto_Serif_JP } from "next/font/google";
 import Script from "next/script";
 import { cookies } from "next/headers";
 import LineFloat from "@/components/LineFloat";
+import { getSiteOrigin } from "@/lib/site-url";
 import "./globals.css";
 
 const notoSans = Noto_Sans_JP({
@@ -18,7 +19,7 @@ const notoSerif = Noto_Serif_JP({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://primecarwash.vercel.app"),
+  metadataBase: new URL(getSiteOrigin()),
   title: {
     default: "PRIME CAR WASH",
     template: "%s | PRIME CAR WASH",
