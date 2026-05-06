@@ -28,6 +28,7 @@ export const metadata: Metadata = {
     "Premium mobile valeting service with subscription plans for exterior and interior care.",
   alternates: {
     languages: {
+      "x-default": "/ja",
       ja: "/ja",
       en: "/en",
     },

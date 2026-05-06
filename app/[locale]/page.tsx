@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: `/${resolvedLocale}`,
       languages: {
+        "x-default": "/ja",
         ja: "/ja",
         en: "/en",
       },
