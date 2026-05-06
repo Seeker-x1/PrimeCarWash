@@ -1,5 +1,8 @@
-/** Local / CI fallback when no Vercel env (本番ドメイン: 出張洗車.jp). */
-const FALLBACK_ORIGIN = "https://xn--79q753awyk7z6a.jp";
+/** Local / CI fallback: www host matches Vercel (apex redirects with 308). */
+const FALLBACK_ORIGIN = "https://www.xn--79q753awyk7z6a.jp";
+
+/** Apex punycode for 出張洗車.jp — production redirects this host to www. */
+const IDN_APEX_HOST = "xn--79q753awyk7z6a.jp";
 
 function originFrom(input: string): string | null {
   try {
@@ -9,10 +12,23 @@ function originFrom(input: string): string | null {
   }
 }
 
+/** Use the hostname that returns 200 so sitemap/canonical match crawlers (unless NEXT_PUBLIC_SITE_URL overrides). */
+function alignWithWwwRedirect(origin: string): string {
+  try {
+    const u = new URL(origin);
+    if (u.hostname === IDN_APEX_HOST) {
+      u.hostname = `www.${IDN_APEX_HOST}`;
+      return u.origin;
+    }
+    return origin;
+  } catch {
+    return origin;
+  }
+}
+
 /**
  * Canonical origin for metadata, sitemap, JSON-LD.
  * Priority: explicit env → Vercel production hostname → current deployment → fallback.
- * Match Search Console property host (custom domain vs *.vercel.app).
  */
 export function getSiteOrigin(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -21,17 +37,19 @@ export function getSiteOrigin(): string {
     if (o) return o;
   }
 
+  let resolved = FALLBACK_ORIGIN;
+
   const prodHost = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
   if (prodHost) {
     const o = originFrom(`https://${prodHost}`);
-    if (o) return o;
+    if (o) resolved = o;
+  } else {
+    const vercelHost = process.env.VERCEL_URL?.trim();
+    if (vercelHost) {
+      const o = originFrom(`https://${vercelHost}`);
+      if (o) resolved = o;
+    }
   }
 
-  const vercelHost = process.env.VERCEL_URL?.trim();
-  if (vercelHost) {
-    const o = originFrom(`https://${vercelHost}`);
-    if (o) return o;
-  }
-
-  return FALLBACK_ORIGIN;
+  return alignWithWwwRedirect(resolved);
 }
