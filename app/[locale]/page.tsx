@@ -18,23 +18,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale } = await params;
   const resolvedLocale = locale === "en" ? "en" : "ja";
   const content = siteContent[resolvedLocale];
+  const canonicalPath = resolvedLocale === "ja" ? "/" : "/en";
+  const hrefLang = {
+    "x-default": "/",
+    ja: "/",
+    en: "/en",
+  };
   return {
     title: content.heroTitle,
     description: content.heroDescription,
     alternates: {
-      canonical: `/${resolvedLocale}`,
-      languages: {
-        "x-default": "/ja",
-        ja: "/ja",
-        en: "/en",
-      },
+      canonical: canonicalPath,
+      languages: hrefLang,
     },
     openGraph: {
       title: content.heroTitle,
       description: content.heroDescription,
       type: "website",
       locale: resolvedLocale === "ja" ? "ja_JP" : "en_US",
-      url: `/${resolvedLocale}`,
+      url: canonicalPath,
     },
   };
 }
@@ -48,13 +50,15 @@ export default async function LocalePage({ params }: PageProps) {
   const alternateLocale = currentLocale === "ja" ? "en" : "ja";
   const lineConsultationUrl = getLineConsultationUrl(currentLocale);
 
+  const businessUrl =
+    currentLocale === "ja" ? getSiteOrigin() : `${getSiteOrigin()}/en`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: "PRIME CAR WASH",
     serviceType: "Mobile Car Wash",
     areaServed: "Japan",
-    url: `${getSiteOrigin()}/${currentLocale}`,
+    url: businessUrl,
   };
 
   return (
@@ -62,7 +66,10 @@ export default async function LocalePage({ params }: PageProps) {
       <header className="fixed inset-x-0 top-0 z-20 border-b border-[#999999] bg-black/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <p className="font-mono text-xs tracking-[0.2em]">PRIME CAR WASH</p>
-          <Link href={`/${alternateLocale}`} className="border border-[#999999] px-3 py-1 text-xs tracking-[0.12em] uppercase hover:border-white">
+          <Link
+            href={alternateLocale === "ja" ? "/" : "/en"}
+            className="border border-[#999999] px-3 py-1 text-xs tracking-[0.12em] uppercase hover:border-white"
+          >
             {alternateLocale}
           </Link>
         </div>

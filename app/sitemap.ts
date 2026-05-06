@@ -2,18 +2,18 @@
 import { getSiteOrigin } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = getSiteOrigin();
-  const ja = `${base}/ja`;
+  const base = getSiteOrigin().replace(/\/$/, "");
+  const jaRoot = `${base}/`;
   const en = `${base}/en`;
   const hrefLang = {
-    "x-default": ja,
-    ja,
+    "x-default": jaRoot,
+    ja: jaRoot,
     en,
   };
 
   return [
     {
-      url: ja,
+      url: jaRoot,
       lastModified: new Date(),
       alternates: { languages: hrefLang },
     },

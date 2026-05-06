@@ -9,6 +9,12 @@ export function proxy(request: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
+  if (path === "/ja" || path === "/ja/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url, 308);
+  }
+
   const locale = path.startsWith("/en") ? "en" : "ja";
 
   const response = NextResponse.next();
