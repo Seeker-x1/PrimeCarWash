@@ -31,7 +31,7 @@ export default function FirstVisitCampaignPage() {
           <p>
             LINEでは、
             <strong className="text-white">
-              ご予約に必要な項目（ご希望日時・車種・住所・電話番号）
+              ご予約に必要な項目（ご希望日時・車種・洗車場所・電話番号）
             </strong>
             を、表示された①〜④に
             <strong className="text-white">ご記入のうえ送信</strong>
