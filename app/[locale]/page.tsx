@@ -25,15 +25,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     en: "/en",
   };
   return {
-    title: content.heroTitle,
-    description: content.heroDescription,
+    title: content.searchTitle ?? content.heroTitle,
+    description: content.searchDescription ?? content.heroDescription,
     alternates: {
       canonical: canonicalPath,
       languages: hrefLang,
     },
     openGraph: {
-      title: content.heroTitle,
-      description: content.heroDescription,
+      title: content.searchTitle ?? content.heroTitle,
+      description: content.searchDescription ?? content.heroDescription,
       type: "website",
       locale: resolvedLocale === "ja" ? "ja_JP" : "en_US",
       url: canonicalPath,

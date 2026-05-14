@@ -11,6 +11,10 @@ type SiteContent = {
   brandTagline: string;
   heroTitle: string;
   heroDescription: string;
+  /** Google 検索結果などの `<title>`。未指定時は heroTitle */
+  searchTitle?: string;
+  /** Google 検索結果のスニペット用（目安 70〜155 文字）。未指定時は heroDescription */
+  searchDescription?: string;
   ctaReserve: string;
   ctaContact: string;
   serviceScopeTitle: string;
@@ -98,6 +102,9 @@ export const siteContent: Record<Locale, SiteContent> = {
     brandTagline: "あなたのガレージを、洗車スタジオに。",
     heroTitle: "PREMIUM MOBILE VALETING",
     heroDescription: "完全予約制の出張洗車サービス。車外・車内ケアを上質な体験で提供します。",
+    searchTitle: "PRIME CAR WASH｜出張洗車・完全予約（車外・車内ケア）",
+    searchDescription:
+      "完全予約制の出張洗車。ご指定の洗車場所へ伺い、車外・車内を丁寧にケア。ビジター・月額プランの料金表あり。LINE・フォームからご予約ください。",
     ctaReserve: "LINEで予約",
     ctaContact: "予約フォームへ",
     serviceScopeTitle: "施工内容詳細",
@@ -155,6 +162,9 @@ export const siteContent: Record<Locale, SiteContent> = {
     brandTagline: "Turn your garage into a private valeting studio.",
     heroTitle: "PREMIUM MOBILE VALETING",
     heroDescription: "Appointment-only mobile car wash service with premium exterior and interior care.",
+    searchTitle: "PRIME CAR WASH | Mobile valeting in Japan",
+    searchDescription:
+      "Appointment-only mobile car wash with premium exterior and interior care. Pricing for visitor and subscription plans. Book via LINE or the on-site form.",
     ctaReserve: "Reserve via LINE",
     ctaContact: "Open Reservation Form",
     serviceScopeTitle: "Service Scope",
