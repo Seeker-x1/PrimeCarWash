@@ -82,14 +82,23 @@ export default function FirstVisitCampaignPage() {
           </p>
         </div>
 
-        <p className="mt-16 border-t border-[#333] pt-8 text-xs leading-relaxed text-[#555]">
-          返信が届かない場合は、通信環境をご確認のうえ、時間をおいて再度お試しください。
-        </p>
-
-        <p className="mt-8 text-center text-xs">
-          <Link href="/" className="text-[#888] underline">
-            トップへ戻る
+        <div className="mt-14 border-t border-[#333] pt-10">
+          <p className="text-center text-xs leading-relaxed text-[#999]">
+            このページは<strong className="text-white">初回6,000円</strong>
+            のご案内専用です。
+            <br />
+            メニュー・料金の確認や、通常のご予約は公式サイトトップからどうぞ。
+          </p>
+          <Link
+            href="/"
+            className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-[#666] bg-transparent px-6 py-3.5 text-center text-sm font-medium tracking-wide text-white hover:border-white hover:bg-white/5"
+          >
+            公式サイトトップへ
           </Link>
+        </div>
+
+        <p className="mt-12 text-xs leading-relaxed text-[#555]">
+          返信が届かない場合は、通信環境をご確認のうえ、時間をおいて再度お試しください。
         </p>
       </div>
     </main>
