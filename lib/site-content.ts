@@ -88,7 +88,7 @@ const commonSizeGroups: SizeGroup[] = [
   },
   {
     name: "XL",
-    multiplier: "1.8x",
+    multiplier: "1.6x",
     cars: [
       "レクサス LX / LM", "Gクラス", "LandCruiser 300", "センチュリー",
       "ロールスロイス", "ウルス / ベントレー", "エスカレード", "ディフェンダー 130",
@@ -145,7 +145,7 @@ export const siteContent: Record<Locale, SiteContent> = {
       { size: "SS / S / M (1.0x)", visitorExterior: "¥7,700", visitorFull: "¥9,900", subMonthly1: "¥6,600", subMonthly2Exterior: "¥11,000", subMonthly2Full: "¥15,400" },
       { size: "L Size (1.2x)", visitorExterior: "¥9,240", visitorFull: "¥11,880", subMonthly1: "¥7,920", subMonthly2Exterior: "¥13,200", subMonthly2Full: "¥18,480" },
       { size: "LL Size (1.4x)", visitorExterior: "¥10,780", visitorFull: "¥13,860", subMonthly1: "¥9,240", subMonthly2Exterior: "¥15,400", subMonthly2Full: "¥21,560" },
-      { size: "XL Size (1.8x)", visitorExterior: "¥13,860", visitorFull: "¥17,820", subMonthly1: "¥11,880", subMonthly2Exterior: "¥19,800", subMonthly2Full: "¥27,720" },
+      { size: "XL Size (1.6x)", visitorExterior: "¥12,320", visitorFull: "¥15,840", subMonthly1: "¥10,560", subMonthly2Exterior: "¥17,600", subMonthly2Full: "¥24,640" },
     ],
     vehicleSizeTitle: "車種サイズ一覧表",
     vehicleSizeSubTitle: "Vehicle Classification Standard (10 Examples Per Group)",
@@ -205,7 +205,7 @@ export const siteContent: Record<Locale, SiteContent> = {
       { size: "SS / S / M (1.0x)", visitorExterior: "¥7,700", visitorFull: "¥9,900", subMonthly1: "¥6,600", subMonthly2Exterior: "¥11,000", subMonthly2Full: "¥15,400" },
       { size: "L Size (1.2x)", visitorExterior: "¥9,240", visitorFull: "¥11,880", subMonthly1: "¥7,920", subMonthly2Exterior: "¥13,200", subMonthly2Full: "¥18,480" },
       { size: "LL Size (1.4x)", visitorExterior: "¥10,780", visitorFull: "¥13,860", subMonthly1: "¥9,240", subMonthly2Exterior: "¥15,400", subMonthly2Full: "¥21,560" },
-      { size: "XL Size (1.8x)", visitorExterior: "¥13,860", visitorFull: "¥17,820", subMonthly1: "¥11,880", subMonthly2Exterior: "¥19,800", subMonthly2Full: "¥27,720" },
+      { size: "XL Size (1.6x)", visitorExterior: "¥12,320", visitorFull: "¥15,840", subMonthly1: "¥10,560", subMonthly2Exterior: "¥17,600", subMonthly2Full: "¥24,640" },
     ],
     vehicleSizeTitle: "Vehicle Size Guide",
     vehicleSizeSubTitle: "Vehicle Classification Standard",

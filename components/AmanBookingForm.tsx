@@ -37,7 +37,7 @@ const SIZE_MULTIPLIER: Record<CarSize, number> = {
   M: 1.0,
   L: 1.2,
   LL: 1.4,
-  XL: 1.8,
+  XL: 1.6,
 };
 const LINE_OFFICIAL_ID =
   process.env.NEXT_PUBLIC_LINE_OFFICIAL_ID ?? "@834ecayh";
