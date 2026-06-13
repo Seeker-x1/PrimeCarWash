@@ -7,19 +7,22 @@ Bugatti-inspired premium mobile valeting website with:
 - Basic SEO setup (`metadata`, `robots.txt`, `sitemap.xml`, JSON-LD)
 - GA4 integration via environment variable
 
-## Project Path
+## Project path
 
-This app is in:
-`C:\Users\Takum\.claude\PRIMECARWASH\primecarwash-site`
+Canonical clone for local work (example):
 
-Note: Next.js requires lowercase package naming, so the app is created in a lowercase subdirectory.
+`C:\Users\Takum\Desktop\Cloude\primecarwash-site`
+
+Open this folder in Cursor so agent context matches the repo. Older paths under `\.claude\` should be treated as stale if you have moved the project.
 
 ## Local Development
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
+
+Add or update packages only with `npm install <pkg>`, then commit `package-lock.json`.
 
 Open [http://localhost:3000](http://localhost:3000).  
 Root `/` redirects to `/ja`.
