@@ -1,0 +1,17 @@
+---
+description: PRIME CAR WASH project context and agent rules (always apply)
+alwaysApply: true
+---
+
+# PRIME CAR WASH
+
+- Premium mobile valeting LP + booking. Dark minimal Bugatti-like aesthetic, mobile-first.
+- Copy lives in `lib/site-content.ts` for both `ja` and `en`. Main LP is `app/[locale]/page.tsx`.
+- LINE consultation URLs come from `lib/line-consultation.ts` (prefix `[WEB相談]` for JA, `[WEB CONSULTATION]` for EN). Booking form LINE messages use `[WEB予約]` in `components/AmanBookingForm.tsx`. Official account: `NEXT_PUBLIC_LINE_OFFICIAL_ID`.
+- Vehicle search and AI sizing: `components/VehicleSelector.tsx`, `constants/vehicles.ts`, `app/api/classify-vehicle/route.ts`. Never expose `GEMINI_API_KEY` to the client.
+- Floating widget: `components/LineFloat.tsx` must not block the reservation UI (hide near `#reservation-form`, dismiss persists in session).
+- Never commit `.env.local`. **`POP_PROMO_SECRET` required on Vercel** for `/line-pop`; no hardcoded fallback in code (503 if missing).
+- Vercel/CI: **`npm ci` only**. After dep bumps: `npm ci`, `npm audit --audit-level=high`, `npm run build`.
+- Config files (`vercel.json`, `.github/*`) must be **UTF-8 without BOM** — never UTF-16.
+- Security/POP/incident handoff: read **`docs/agent-handoff.md`** before dependency or deploy changes.
+- Avoid unrelated refactors.
