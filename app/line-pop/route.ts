@@ -9,7 +9,10 @@ const LINE_OFFICIAL_ID =
  * 同じ文字列（または文面の一部）を受け取ったときに初回特典の案内を返す。
  */
 export function GET(request: NextRequest) {
-  const secret = process.env.POP_PROMO_SECRET ?? "PRM-POP-6000";
+  const secret = process.env.POP_PROMO_SECRET?.trim();
+  if (!secret) {
+    return new NextResponse("POP promo is not configured.", { status: 503 });
+  }
   const lang = request.nextUrl.searchParams.get("lang") === "en" ? "en" : "ja";
   const message =
     lang === "en"
