@@ -40,7 +40,7 @@
 
 ## セキュリティ・デプロイ（2026-06 更新）
 
-- **Next.js 16.2.6** / React 19.2.6 — CVE-2026-23870 パッチ済み。勝手に major/minor 跨ぎ bump しない。
+- **Next.js 16.2.9** / React 19.2.7 — CVE-2026-23870 パッチ済み（Skiresort フリートと同ライン）。勝手に major 跨ぎ bump しない。
 - Vercel / CI は **`npm ci` のみ**（`vercel.json` の `installCommand`）。lock 更新時のみローカル `npm install`。
 - `.github/workflows/security-audit.yml` が PR/push で `npm audit --audit-level=high`。
 - **`vercel.json` / `.github/*.yml` は UTF-8（BOM なし）必須**。UTF-16 化すると Vercel / Dependabot が壊れる。

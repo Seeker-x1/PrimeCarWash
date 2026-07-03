@@ -22,7 +22,7 @@ Vercel: prime-car-wash
 
 1. Vercel / CI の install は npm ci のみ。npm install に変更しない。
 2. vercel.json と .github/**/*.yml は UTF-8（BOM なし）で保存。PowerShell の > / Out-File デフォルトは使わない。
-3. next / react / eslint-config-next は 16.2.6 / 19.2.6 をセット維持。勝手に major/minor 跨ぎ bump しない。
+3. next / react / eslint-config-next は 16.2.9 / 19.2.7 をセット維持（Skiresort フリートと同ライン）。勝手に major 跨ぎ bump しない。
 4. POP_PROMO_SECRET をソースに書かない。フォールバック PRM-POP-6000 は削除済み。復活禁止。
 5. .env.local と秘密値を commit しない。GEMINI_API_KEY はサーバー専用。
 6. 依頼範囲外の大規模リファクタ禁止。変更後は npm run lint / npm run build を可能なら実行。
@@ -44,7 +44,8 @@ POP / LINE 変更:
 
 ## 直近の変更（2026-06）
 
-60002a1 — next 16.2.6 / react 19.2.6 / eslint-config-next 16.2.6（CVE-2026-23870）
+60002a1 — next 16.2.6 / react 19.2.6（CVE-2026-23870 初回パッチ）
+（以降）16.2.9 / 19.2.7 にフリート統一
 86cd1f6 — vercel.json を UTF-8 化（UTF-16 が Invalid vercel.json の原因）
 47f6f9a — dependabot.yml を UTF-8 化
 4113c2b — POP_PROMO_SECRET 必須化（コード内 PRM-POP-6000 削除）
