@@ -46,19 +46,26 @@ export async function GET(request: Request) {
     schedule: {
       window: slot.window,
       todayHourJst: slot.targetHourJst,
+      todayMinuteJst: slot.targetMinuteJst,
+      todayTimeLabel: slot.targetLabel,
       currentHourJst: slot.hourJst,
-      note: "日付ごとに窓内の1時間が決まり、その時にだけ自動投稿します。削除すると以降の予定が繰り上がります。",
+      currentMinuteJst: slot.minuteJst,
+      note: slot.precisionNote,
     },
     today: today
       ? {
           post: today,
           theme: theme ?? null,
           hourJst: slot.targetHourJst,
+          minuteJst: slot.targetMinuteJst,
+          timeLabel: slot.targetLabel,
         }
       : null,
-    upcoming: upcoming.map(({ date, post, hourJst }) => ({
+    upcoming: upcoming.map(({ date, post, hourJst, minuteJst, timeLabel }) => ({
       date,
       hourJst,
+      minuteJst,
+      timeLabel,
       postId: post.id,
       themeId: post.themeId,
       themeName: getThemeById(post.themeId)?.nameJa ?? post.themeId,

@@ -75,6 +75,8 @@ export async function GET(request: Request) {
       source: "cron",
       date: jstDateKey(),
       targetHourJst: slot.targetHourJst,
+      targetMinuteJst: slot.targetMinuteJst,
+      targetLabel: slot.targetLabel,
       ...result,
     });
   } catch (e) {

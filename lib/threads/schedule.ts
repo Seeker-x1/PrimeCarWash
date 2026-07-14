@@ -29,6 +29,16 @@ export function jstHour(date = new Date()): number {
   return Number(hour ?? "0");
 }
 
+export function jstMinute(date = new Date()): number {
+  const minute = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tokyo",
+    minute: "numeric",
+  })
+    .formatToParts(date)
+    .find((p) => p.type === "minute")?.value;
+  return Number(minute ?? "0");
+}
+
 /**
  * Auto-post window in JST hours [start, end).
  * Defaults: 8–12 → candidates 8,9,10,11.
@@ -42,30 +52,63 @@ export function getPostWindowHours(): { start: number; end: number } {
   return { start, end };
 }
 
+/** Stable scramble from day index (not crypto; just day-to-day variety). */
+function dayMix(dayIndex: number, salt: number): number {
+  let x = (dayIndex + 1) * 1103515245 + salt;
+  x = Math.imul(x ^ (x >>> 16), 2246822507);
+  x = Math.imul(x ^ (x >>> 13), 3266489909);
+  return (x >>> 0) % 1_000_000;
+}
+
 /**
- * That day's post hour (JST), picked deterministically from the date
- * so it looks random across days but needs no DB.
+ * That day's post hour (JST), picked deterministically from the date.
  */
 export function pickPostHourJstForDate(date = new Date()): number {
   const { start, end } = getPostWindowHours();
   const span = end - start;
-  return start + (jstDayIndex(date) % span);
+  return start + (dayMix(jstDayIndex(date), 17) % span);
+}
+
+/**
+ * That day's post minute (JST 0–59), deterministic from the date.
+ * Exact-minute firing needs frequent cron (Pro). Hobby only guarantees
+ * "sometime during the target hour", so this is the intended/display minute.
+ */
+export function pickPostMinuteJstForDate(date = new Date()): number {
+  return dayMix(jstDayIndex(date), 91) % 60;
+}
+
+export function formatJstHm(hour: number, minute: number): string {
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
 export function shouldAutoPublishNow(date = new Date()): {
   yes: boolean;
   hourJst: number;
+  minuteJst: number;
   targetHourJst: number;
+  targetMinuteJst: number;
+  targetLabel: string;
   window: { start: number; end: number };
+  precisionNote: string;
 } {
   const window = getPostWindowHours();
   const hourJst = jstHour(date);
+  const minuteJst = jstMinute(date);
   const targetHourJst = pickPostHourJstForDate(date);
+  const targetMinuteJst = pickPostMinuteJstForDate(date);
   return {
+    // Hobby: one daily cron per hour; publish when that hour is the day's slot.
+    // Minute is planned for UI / future Pro precise mode (see docs).
     yes: hourJst === targetHourJst,
     hourJst,
+    minuteJst,
     targetHourJst,
+    targetMinuteJst,
+    targetLabel: formatJstHm(targetHourJst, targetMinuteJst),
     window,
+    precisionNote:
+      "時は日付でランダム。分も日付で決めますが、Hobby の Cron は同時台内で前後するため厳密なちょうどMM分起動は保証されません。",
   };
 }
 
@@ -83,16 +126,28 @@ export async function pickPostForDate(date = new Date()): Promise<ThreadsPost | 
 export async function peekUpcoming(
   days = 7,
   from = new Date(),
-): Promise<Array<{ date: string; post: ThreadsPost; hourJst: number }>> {
-  const out: Array<{ date: string; post: ThreadsPost; hourJst: number }> = [];
+): Promise<
+  Array<{ date: string; post: ThreadsPost; hourJst: number; minuteJst: number; timeLabel: string }>
+> {
+  const out: Array<{
+    date: string;
+    post: ThreadsPost;
+    hourJst: number;
+    minuteJst: number;
+    timeLabel: string;
+  }> = [];
   for (let i = 0; i < days; i += 1) {
     const d = new Date(from.getTime() + i * 86_400_000);
     const post = await pickPostForDate(d);
     if (!post) continue;
+    const hourJst = pickPostHourJstForDate(d);
+    const minuteJst = pickPostMinuteJstForDate(d);
     out.push({
       date: jstDateKey(d),
       post,
-      hourJst: pickPostHourJstForDate(d),
+      hourJst,
+      minuteJst,
+      timeLabel: formatJstHm(hourJst, minuteJst),
     });
   }
   return out;

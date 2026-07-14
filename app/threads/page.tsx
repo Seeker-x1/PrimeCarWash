@@ -11,17 +11,24 @@ type PreviewResponse = {
   schedule?: {
     window: { start: number; end: number };
     todayHourJst: number;
+    todayMinuteJst?: number;
+    todayTimeLabel?: string;
     currentHourJst: number;
+    currentMinuteJst?: number;
     note: string;
   };
   today?: {
     post: { id: string; themeId: string; text: string };
     theme: { id: string; nameJa: string; description: string } | null;
     hourJst?: number;
+    minuteJst?: number;
+    timeLabel?: string;
   } | null;
   upcoming?: Array<{
     date: string;
     hourJst?: number;
+    minuteJst?: number;
+    timeLabel?: string;
     postId: string;
     themeId: string;
     themeName: string;
@@ -225,10 +232,16 @@ export default function ThreadsOpsPage() {
                   </h2>
                   {data.schedule ? (
                     <p className="mt-1 text-xs text-neutral-400">
-                      自動投稿予定: 今日 {data.schedule.todayHourJst}:00 JST（窓{" "}
-                      {data.schedule.window.start}–{data.schedule.window.end}時／いま{" "}
-                      {data.schedule.currentHourJst}時台）
+                      自動投稿の目安: 今日{" "}
+                      {data.schedule.todayTimeLabel ??
+                        `${data.schedule.todayHourJst}:00`}{" "}
+                      JST（窓 {data.schedule.window.start}–{data.schedule.window.end}
+                      時／いま {String(data.schedule.currentHourJst).padStart(2, "0")}:
+                      {String(data.schedule.currentMinuteJst ?? 0).padStart(2, "0")}）
                     </p>
+                  ) : null}
+                  {data.schedule?.note ? (
+                    <p className="mt-1 text-xs text-neutral-600">{data.schedule.note}</p>
                   ) : null}
                   {data.canPersistDeletes === false ? (
                     <p className="mt-1 text-xs text-amber-500/90">
@@ -303,8 +316,9 @@ export default function ThreadsOpsPage() {
                 {data.upcoming?.map((u) => (
                   <li key={u.date} className="flex gap-2 border-b border-neutral-900 py-2">
                     <span className="w-24 shrink-0 text-neutral-500">{u.date}</span>
-                    <span className="w-12 shrink-0 text-neutral-500">
-                      {u.hourJst != null ? `${u.hourJst}:00` : "—"}
+                    <span className="w-14 shrink-0 text-neutral-500">
+                      {u.timeLabel ??
+                        (u.hourJst != null ? `${u.hourJst}:00` : "—")}
                     </span>
                     <span className="w-24 shrink-0 text-neutral-400">{u.themeName}</span>
                     <span className="min-w-0 flex-1 truncate text-neutral-300">{u.preview}</span>
