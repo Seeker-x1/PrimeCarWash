@@ -42,6 +42,11 @@ const SIZE_MULTIPLIER: Record<CarSize, number> = {
 const LINE_OFFICIAL_ID =
   process.env.NEXT_PUBLIC_LINE_OFFICIAL_ID ?? "@834ecayh";
 
+type AmanBookingFormProps = {
+  /** LP embeds use h2 to avoid competing with the page hero h1. */
+  headingLevel?: "h1" | "h2";
+};
+
 function formatDate(date: string) {
   if (!date) return "";
   const dt = new Date(`${date}T00:00:00`);
@@ -92,7 +97,9 @@ function buildCalendarDays(baseDate: Date): CalendarDay[] {
   return days;
 }
 
-export default function AmanBookingForm() {
+export default function AmanBookingForm({
+  headingLevel = "h1",
+}: AmanBookingFormProps) {
   const [selectedPlanId, setSelectedPlanId] = useState(PLAN_OPTIONS[0].id);
   const [selectedVehicleSize, setSelectedVehicleSize] = useState<CarSize | null>(
     null,
@@ -202,7 +209,11 @@ JPY ${totalPrice.toLocaleString()}`;
       <div className="grid gap-8 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <BlurFade>
-            <h1 className="font-serif text-3xl tracking-[0.12em]">ご予約情報入力</h1>
+            {headingLevel === "h2" ? (
+              <h2 className="font-serif text-3xl tracking-[0.12em]">ご予約情報入力</h2>
+            ) : (
+              <h1 className="font-serif text-3xl tracking-[0.12em]">ご予約情報入力</h1>
+            )}
           </BlurFade>
           <p className="mt-3 text-sm text-[#999999]">
             プラン選択後に日付と時間帯を選択してください。必要な情報だけを段階的に表示します。

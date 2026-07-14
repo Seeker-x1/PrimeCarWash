@@ -1,0 +1,92 @@
+import { NextResponse } from "next/server";
+import { assertPostBank, getPostById } from "@/lib/threads/content";
+import { authorizeThreadsRequest, threadsAuthConfigured } from "@/lib/threads/auth";
+import { isThreadsDryRun, publishTextPost } from "@/lib/threads/client";
+import { jstDateKey, pickPostForDate } from "@/lib/threads/schedule";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+
+export const runtime = "nodejs";
+
+type PublishBody = {
+  postId?: string;
+  /** force dry-run even when credentials exist */
+  dryRun?: boolean;
+};
+
+export async function POST(request: Request) {
+  if (!threadsAuthConfigured()) {
+    return NextResponse.json(
+      { ok: false, message: "THREADS_PUBLISH_SECRET (or CRON_SECRET) is not configured." },
+      { status: 503 },
+    );
+  }
+  if (!authorizeThreadsRequest(request)) {
+    return NextResponse.json({ ok: false, message: "Unauthorized." }, { status: 401 });
+  }
+
+  const ip = getClientIp(request);
+  const limited = checkRateLimit(`threads-publish:${ip}`, 10, 60_000);
+  if (!limited.ok) {
+    return NextResponse.json(
+      { ok: false, message: "Rate limited." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+    );
+  }
+
+  let body: PublishBody = {};
+  try {
+    const raw = await request.text();
+    if (raw.trim()) body = JSON.parse(raw) as PublishBody;
+  } catch {
+    return NextResponse.json({ ok: false, message: "Invalid JSON body." }, { status: 400 });
+  }
+
+  try {
+    assertPostBank();
+  } catch (e) {
+    return NextResponse.json(
+      { ok: false, message: e instanceof Error ? e.message : "Invalid post bank." },
+      { status: 500 },
+    );
+  }
+
+  const post = body.postId?.trim()
+    ? getPostById(body.postId.trim())
+    : pickPostForDate();
+
+  if (!post) {
+    return NextResponse.json(
+      { ok: false, message: body.postId ? "Post not found." : "No enabled posts in bank." },
+      { status: 404 },
+    );
+  }
+  if (!post.enabled && body.postId) {
+    return NextResponse.json(
+      { ok: false, message: `Post "${post.id}" is disabled.` },
+      { status: 400 },
+    );
+  }
+
+  const dryRun = body.dryRun === true || (body.dryRun !== false && isThreadsDryRun());
+
+  try {
+    const result = await publishTextPost({
+      postId: post.id,
+      themeId: post.themeId,
+      text: post.text,
+      dryRun,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      date: jstDateKey(),
+      ...result,
+    });
+  } catch (e) {
+    console.error("[threads/publish]", e);
+    return NextResponse.json(
+      { ok: false, message: e instanceof Error ? e.message : "Publish failed." },
+      { status: 502 },
+    );
+  }
+}
