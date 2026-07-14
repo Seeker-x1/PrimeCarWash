@@ -105,8 +105,8 @@ export const siteContent: Record<Locale, SiteContent> = {
     searchTitle: "PRIME CAR WASH｜出張洗車・完全予約（車外・車内ケア）",
     searchDescription:
       "完全予約制の出張洗車。ご指定の洗車場所へ伺い、車外・車内を丁寧にケア。ビジター・月額プランの料金表あり。LINE・フォームからご予約ください。",
-    ctaReserve: "LINEで予約",
-    ctaContact: "予約フォームへ",
+    ctaReserve: "日程を選んで予約",
+    ctaContact: "LINEで相談",
     serviceScopeTitle: "施工内容詳細",
     exteriorTitle: "車外清掃（全プラン共通・基本範囲）",
     interiorTitle: "車内清掃（オプション内容）",
@@ -165,8 +165,8 @@ export const siteContent: Record<Locale, SiteContent> = {
     searchTitle: "PRIME CAR WASH | Mobile valeting in Japan",
     searchDescription:
       "Appointment-only mobile car wash with premium exterior and interior care. Pricing for visitor and subscription plans. Book via LINE or the on-site form.",
-    ctaReserve: "Reserve via LINE",
-    ctaContact: "Open Reservation Form",
+    ctaReserve: "Choose a time",
+    ctaContact: "Ask via LINE",
     serviceScopeTitle: "Service Scope",
     exteriorTitle: "Exterior cleaning (included in all plans)",
     interiorTitle: "Interior cleaning (optional)",

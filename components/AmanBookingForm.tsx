@@ -100,8 +100,6 @@ export default function AmanBookingForm() {
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [activeDate, setActiveDate] = useState<string>("");
   const [slotSelections, setSlotSelections] = useState<Record<string, string[]>>({});
-  const [firstChoice, setFirstChoice] = useState<ChoiceSlot | null>(null);
-  const [secondChoice, setSecondChoice] = useState<ChoiceSlot | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [lineUrl, setLineUrl] = useState("");
   const [selectedVehicleName, setSelectedVehicleName] = useState("");
@@ -135,8 +133,20 @@ export default function AmanBookingForm() {
 
   const activeSlots = activeDate ? slotSelections[activeDate] ?? [] : [];
   const activeDateIndex = selectedDates.findIndex((date) => date === activeDate);
-  const canSetFirstChoice = activeDateIndex === 0 && activeSlots.length > 0;
-  const canSetSecondChoice = activeDateIndex === 1 && activeSlots.length > 0;
+  const firstChoice = useMemo((): ChoiceSlot | null => {
+    const date = selectedDates[0];
+    if (!date) return null;
+    const slots = slotSelections[date] ?? [];
+    if (slots.length === 0) return null;
+    return { date, slot: slots.join(" / "), plan: selectedPlan.label };
+  }, [selectedDates, slotSelections, selectedPlan.label]);
+  const secondChoice = useMemo((): ChoiceSlot | null => {
+    const date = selectedDates[1];
+    if (!date) return null;
+    const slots = slotSelections[date] ?? [];
+    if (slots.length === 0) return null;
+    return { date, slot: slots.join(" / "), plan: selectedPlan.label };
+  }, [selectedDates, slotSelections, selectedPlan.label]);
   const totalPrice = Math.round(selectedPlan.price * multiplier);
   const canConfirm = Boolean(firstChoice || secondChoice);
 
@@ -326,8 +336,8 @@ JPY ${totalPrice.toLocaleString()}`;
                 <h2 className="text-xs tracking-[0.14em] uppercase text-[#999999]">STEP 3 - 時間帯選択</h2>
                 <p className="mt-2 text-xs text-[#999999]">
                   {activeDateIndex === 0
-                    ? `第1希望日 ${formatDate(activeDate)} を編集中（白）`
-                    : `第2希望日 ${formatDate(activeDate)} を編集中（グレー）`}
+                    ? `第1希望日 ${formatDate(activeDate)} — 時間を選ぶと右側に自動反映されます`
+                    : `第2希望日 ${formatDate(activeDate)} — 時間を選ぶと右側に自動反映されます`}
                 </p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {TIME_SLOTS.map((slot) => {
@@ -357,45 +367,6 @@ JPY ${totalPrice.toLocaleString()}`;
                       </button>
                     );
                   })}
-                </div>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    disabled={!canSetFirstChoice}
-                    onClick={() =>
-                      setFirstChoice({
-                        date: activeDate,
-                        slot: activeSlots.join(" / "),
-                        plan: selectedPlan.label,
-                      })
-                    }
-                    className={`rounded-full border px-5 py-3 text-xs tracking-[0.12em] uppercase transition ${
-                      canSetFirstChoice
-                        ? "border-white bg-white text-black"
-                        : "border-[#555] text-[#777]"
-                    }`}
-                  >
-                    第1希望に設定
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!canSetSecondChoice}
-                    onClick={() =>
-                      setSecondChoice({
-                        date: activeDate,
-                        slot: activeSlots.join(" / "),
-                        plan: selectedPlan.label,
-                      })
-                    }
-                    className={`rounded-full border px-5 py-3 text-xs tracking-[0.12em] uppercase transition ${
-                      canSetSecondChoice
-                        ? "border-[#999999] bg-[#555555] text-white"
-                        : "border-[#555] text-[#777]"
-                    }`}
-                  >
-                    第2希望に設定
-                  </button>
                 </div>
               </BlurFade>
             ) : null}

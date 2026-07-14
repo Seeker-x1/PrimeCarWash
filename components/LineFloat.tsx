@@ -5,28 +5,17 @@ import { usePathname } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useMemo, useState } from "react";
 import { getLineConsultationUrl } from "@/lib/line-consultation";
+
 const LINE_FLOAT_DISMISSED_KEY = "line-float-dismissed";
 
 const consultationContent = {
   ja: {
-    label: (
-      <>
-        愛車のケアを、
-        <br />
-        専属コンシェルジュに相談
-      </>
-    ),
-    mobileLabel: "愛車のケアを、専属コンシェルジュに相談",
+    label: "専属コンシェルジュに相談",
+    hint: "フォーカスでQR",
   },
   en: {
-    label: (
-      <>
-        Consult your dedicated concierge
-        <br />
-        about your car care
-      </>
-    ),
-    mobileLabel: "Consult your concierge about your car care",
+    label: "Ask your concierge",
+    hint: "Focus for QR",
   },
 };
 
@@ -41,6 +30,7 @@ export default function LineFloat() {
     }
   });
   const [isReservationFormInView, setIsReservationFormInView] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const pathname = usePathname();
   const locale = pathname?.startsWith("/en") ? "en" : "ja";
   const content = consultationContent[locale];
@@ -58,6 +48,7 @@ export default function LineFloat() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
   useEffect(() => {
     const target = document.getElementById("reservation-form");
     if (!target) return;
@@ -71,7 +62,7 @@ export default function LineFloat() {
 
     observer.observe(target);
     return () => observer.disconnect();
-  }, []);
+  }, [pathname]);
 
   const shouldShow = isVisible && !isDismissed && !isReservationFormInView;
   const handleDismiss = () => {
@@ -88,48 +79,80 @@ export default function LineFloat() {
       {shouldShow ? (
         <motion.div
           key="line-float"
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 16 }}
-          transition={{ duration: 0.28, ease: "easeOut" }}
-          className="fixed bottom-5 right-4 z-50 md:bottom-16 md:right-8"
+          exit={{ opacity: 0, y: 12 }}
+          transition={{ duration: 0.24, ease: "easeOut" }}
+          className="fixed bottom-5 right-4 z-50 md:bottom-10 md:right-6"
         >
           <button
             type="button"
             onClick={handleDismiss}
             aria-label="Close LINE consultation widget"
-            className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#999999] bg-black text-[11px] text-white hover:border-white"
+            className="absolute -right-1.5 -top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-[#999999] bg-black text-[10px] text-white hover:border-white"
           >
             x
           </button>
-          <div className="hidden items-center gap-5 rounded-[20px] border border-[#999999] bg-black/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-sm md:flex">
-            <div className="rounded-[12px] bg-white p-3">
-              <QRCodeSVG
-                value={lineConsultationUrl}
-                size={120}
-                bgColor="#ffffff"
-                fgColor="#000000"
-                marginSize={2}
-                title="LINE concierge consultation QR"
-              />
+
+          {/* Desktop: slim bar; QR only while focused */}
+          <div
+            tabIndex={0}
+            onFocus={() => setIsFocused(true)}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                setIsFocused(false);
+              }
+            }}
+            className="hidden outline-none md:block"
+          >
+            <div className="flex max-w-[280px] items-stretch overflow-hidden rounded-full border border-[#999999] bg-black/90 backdrop-blur-sm">
+              <AnimatePresence initial={false}>
+                {isFocused ? (
+                  <motion.div
+                    key="qr"
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 72, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex h-full items-center bg-white p-1.5">
+                      <QRCodeSVG
+                        value={lineConsultationUrl}
+                        size={56}
+                        bgColor="#ffffff"
+                        fgColor="#000000"
+                        marginSize={1}
+                        title="LINE concierge consultation QR"
+                      />
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+              <a
+                href={lineConsultationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-[40px] flex-1 items-center justify-center bg-[#06C755] px-4 py-2 text-center text-[11px] font-medium leading-snug tracking-[0.06em] text-black"
+              >
+                {content.label}
+              </a>
             </div>
-            <a
-              href={lineConsultationUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-[18px] bg-[#06C755] px-8 py-6 text-center text-sm font-medium leading-relaxed tracking-[0.08em] text-black"
-            >
-              {content.label}
-            </a>
+            {!isFocused ? (
+              <p className="mt-1 text-right text-[10px] tracking-[0.08em] text-[#777]">
+                {content.hint}
+              </p>
+            ) : null}
           </div>
 
+          {/* Mobile: compact link only (no QR) */}
           <a
             href={lineConsultationUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex rounded-[18px] bg-[#06C755] px-5 py-4 text-center text-xs font-medium leading-relaxed tracking-[0.08em] text-black md:hidden"
+            className="inline-flex min-h-[40px] max-w-[220px] items-center rounded-full bg-[#06C755] px-4 py-2 text-center text-[11px] font-medium leading-snug tracking-[0.06em] text-black md:hidden"
           >
-            {content.mobileLabel}
+            {content.label}
           </a>
         </motion.div>
       ) : null}

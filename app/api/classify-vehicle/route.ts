@@ -1,6 +1,7 @@
 ﻿import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { vehicles, type CarSize } from "@/constants/vehicles";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import {
   buildVehicleSearchText,
   getVehicleQueryVariants,
@@ -10,6 +11,9 @@ import {
 const MODEL_NAME = "gemini-1.5-flash";
 const MAX_CAR_NAME_LENGTH = 80;
 const GEMINI_TIMEOUT_MS = 8000;
+/** Soft caps per IP (per serverless isolate). */
+const RATE_LIMIT_ALL = { limit: 40, windowMs: 60_000 };
+const RATE_LIMIT_GEMINI = { limit: 8, windowMs: 60_000 };
 const SIZE_GUIDE = `
 M: 標準/コンパクト/スポーツ。例: プリウス, フィット, 911, 718, Golf, Model 3
 L: 中型SUV/大型セダン/幅広スポーツ。例: ハリアー, RAV4, Macan, Panamera, Corvette, Mustang, Model Y
@@ -268,8 +272,28 @@ function parseSpecsFromGemini(rawText: string): VehicleSpecs | null {
   }
 }
 
+function tooManyRequests(retryAfterSec: number) {
+  return NextResponse.json(
+    { error: "Too many requests. Please try again shortly." },
+    {
+      status: 429,
+      headers: { "Retry-After": String(retryAfterSec) },
+    },
+  );
+}
+
 export async function POST(request: Request) {
   try {
+    const clientIp = getClientIp(request);
+    const allLimit = checkRateLimit(
+      `classify:${clientIp}`,
+      RATE_LIMIT_ALL.limit,
+      RATE_LIMIT_ALL.windowMs,
+    );
+    if (!allLimit.ok) {
+      return tooManyRequests(allLimit.retryAfterSec);
+    }
+
     const body: unknown = await request.json().catch(() => null);
     const carName =
       body &&
@@ -298,15 +322,24 @@ export async function POST(request: Request) {
       return NextResponse.json(localClassification);
     }
 
+    const heuristicClassification = classifyByHeuristic(carName);
+    if (heuristicClassification) {
+      return NextResponse.json(heuristicClassification);
+    }
+
+    const geminiLimit = checkRateLimit(
+      `classify-gemini:${clientIp}`,
+      RATE_LIMIT_GEMINI.limit,
+      RATE_LIMIT_GEMINI.windowMs,
+    );
+    if (!geminiLimit.ok) {
+      return tooManyRequests(geminiLimit.retryAfterSec);
+    }
+
     const safeCarName = carName.replace(/[\r\n]+/g, " ");
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      const heuristicClassification = classifyByHeuristic(carName);
-      if (heuristicClassification) {
-        return NextResponse.json(heuristicClassification);
-      }
-
       return NextResponse.json(
         { error: "GEMINI_API_KEY is not configured." },
         { status: 503 },
@@ -351,11 +384,6 @@ ${REFERENCE_VEHICLES}
     const specClassification = specs ? classifyByDimensions(specs) : null;
 
     if (!specClassification) {
-      const heuristicClassification = classifyByHeuristic(carName);
-      if (heuristicClassification) {
-        return NextResponse.json(heuristicClassification);
-      }
-
       return NextResponse.json(
         { error: "Failed to classify vehicle size." },
         { status: 502 },
