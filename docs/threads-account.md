@@ -130,9 +130,9 @@ PRIME CAR WASH です。
 | `THREADS_POST_WINDOW_START` | 任意・既定 `8`（JST） |
 | `THREADS_POST_WINDOW_END` | 任意・既定 `12`（JST・この時刻は含まない） |
 
-- Cron: **毎時**チェック → 日付ごとに窓内の1時間が決まり、その時だけ1本投稿  
+- Cron: **毎日 JST 8/9/10/11 時**にチェック → 日付ごとに窓内の1時間が決まり、その時だけ1本投稿  
 - 例: 窓 8–12 → 当日は 8 / 9 / 10 / 11 時台のいずれか（日によって変わる）  
 - 手動 Publish はいつでも即時投稿（窓と無関係）  
-- Hobby プランだと毎時 Cron が使えない場合あり（そのときは Pro かプラン制限を確認）
+- Vercel Hobby でも動く（毎時 Cron は Hobby 不可のため daily×4）
 
 詳細手順: `docs/threads-posting.md`

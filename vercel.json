@@ -5,7 +5,19 @@
   "crons": [
     {
       "path": "/api/threads/cron",
-      "schedule": "0 * * * *"
+      "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/threads/cron",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/threads/cron",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/threads/cron",
+      "schedule": "0 2 * * *"
     }
   ]
 }

@@ -14,8 +14,10 @@ PRIME CAR WASH 向け。テーマ＋投稿バンクをコードで管理し、Ve
 | `GET /api/threads/cron` | 日次自動投稿（Vercel Cron） |
 | `/threads` | Ops UI（noindex・シークレットで解錠） |
 
-Cron スケジュール: 毎時（`0 * * * *` UTC）。JST の投稿窓内で日付ごとに1時間を選び、その時だけ投稿。
-既定窓: **8:00〜12:00 JST**（`THREADS_POST_WINDOW_START` / `THREADS_POST_WINDOW_END`）。
+Cron スケジュール（Hobby 対応）: 毎日 JST 8 / 9 / 10 / 11 時台に各1回チェック。
+日付ごとに決めた1時間だけ実投稿（他の時は skip）。窓は `THREADS_POST_WINDOW_START` / `END`（既定 8–12）。
+
+> Hobby プランは「1日1回」の Cron のみ。毎時 Cron はデプロイ失敗するため、窓内の各時に daily Cron を並べています。
 
 ### 気に入らない投稿の削除（繰り上げ）
 

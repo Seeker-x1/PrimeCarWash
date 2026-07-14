@@ -11,8 +11,8 @@ import {
 export const runtime = "nodejs";
 
 /**
- * Vercel Cron: hourly tick; posts once/day when JST hour matches
- * the date-seeded slot in [THREADS_POST_WINDOW_START, THREADS_POST_WINDOW_END).
+ * Vercel Cron: daily ticks at JST 8–11 (Hobby allows once/day per expression).
+ * Posts once when JST hour matches the date-seeded slot in the window.
  * Auth: Bearer CRON_SECRET|THREADS_PUBLISH_SECRET, or x-vercel-cron: 1
  */
 export async function GET(request: Request) {
