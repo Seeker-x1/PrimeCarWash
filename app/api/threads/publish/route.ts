@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { assertPostBank, getPostById } from "@/lib/threads/content";
 import { authorizeThreadsRequest, threadsAuthConfigured } from "@/lib/threads/auth";
 import { isThreadsDryRun, publishTextPost } from "@/lib/threads/client";
+import { getDisabledPostIds } from "@/lib/threads/disabled-store";
 import { jstDateKey, pickPostForDate } from "@/lib/threads/schedule";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
 
   const post = body.postId?.trim()
     ? getPostById(body.postId.trim())
-    : pickPostForDate();
+    : await pickPostForDate();
 
   if (!post) {
     return NextResponse.json(
@@ -60,9 +61,9 @@ export async function POST(request: Request) {
       { status: 404 },
     );
   }
-  if (!post.enabled && body.postId) {
+  if ((!post.enabled || (await getDisabledPostIds()).has(post.id)) && body.postId) {
     return NextResponse.json(
-      { ok: false, message: `Post "${post.id}" is disabled.` },
+      { ok: false, message: `Post "${post.id}" is disabled or deleted from rotation.` },
       { status: 400 },
     );
   }

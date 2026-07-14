@@ -57,7 +57,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const post = pickPostForDate();
+  const post = await pickPostForDate();
   if (!post) {
     return NextResponse.json({ ok: false, message: "No enabled posts." }, { status: 404 });
   }

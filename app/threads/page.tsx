@@ -6,6 +6,7 @@ type PreviewResponse = {
   ok: boolean;
   message?: string;
   dryRunDefault?: boolean;
+  canPersistDeletes?: boolean;
   date?: string;
   schedule?: {
     window: { start: number; end: number };
@@ -36,9 +37,11 @@ type PreviewResponse = {
     id: string;
     themeId: string;
     enabled: boolean;
+    deleted?: boolean;
     length: number;
     preview: string;
   }>;
+  deletedIds?: string[];
 };
 
 type PublishResponse = {
@@ -60,7 +63,6 @@ export default function ThreadsOpsPage() {
   async function loadPreview(token: string) {
     setLoading(true);
     setError(null);
-    setPublishMsg(null);
     try {
       const res = await fetch("/api/threads/preview", {
         headers: { Authorization: `Bearer ${token}` },
@@ -84,6 +86,7 @@ export default function ThreadsOpsPage() {
     e.preventDefault();
     const token = secret.trim();
     if (!token) return;
+    setPublishMsg(null);
     await loadPreview(token);
   }
 
@@ -117,6 +120,67 @@ export default function ThreadsOpsPage() {
     }
   }
 
+  async function removeFromRotation(postId: string) {
+    if (
+      !confirm(
+        `${postId} をローテーションから削除しますか？\n以降の予定が繰り上がります（本文ファイル自体は残ります）。`,
+      )
+    ) {
+      return;
+    }
+    setError(null);
+    setPublishMsg(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/threads/posts", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${secret.trim()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ postId }),
+      });
+      const json = (await res.json()) as { ok: boolean; message?: string; note?: string };
+      if (!res.ok || !json.ok) {
+        setError(json.message ?? `HTTP ${res.status}`);
+        return;
+      }
+      setPublishMsg(json.note ?? `Deleted ${postId} from rotation`);
+      await loadPreview(secret.trim());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Delete failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function restoreToRotation(postId: string) {
+    setError(null);
+    setPublishMsg(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/threads/posts", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${secret.trim()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ postId }),
+      });
+      const json = (await res.json()) as { ok: boolean; message?: string };
+      if (!res.ok || !json.ok) {
+        setError(json.message ?? `HTTP ${res.status}`);
+        return;
+      }
+      setPublishMsg(`Restored ${postId}`);
+      await loadPreview(secret.trim());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Restore failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const unlocked = data !== null;
 
   return (
@@ -126,7 +190,7 @@ export default function ThreadsOpsPage() {
           <p className="text-xs tracking-[0.2em] text-neutral-500 uppercase">Internal</p>
           <h1 className="font-serif text-2xl tracking-wide text-white">Threads Ops</h1>
           <p className="text-sm text-neutral-400">
-            PRIME CAR WASH — テーマ確認・本日分投稿・ドライラン
+            PRIME CAR WASH — テーマ確認・投稿・削除（繰り上げ）
           </p>
         </header>
 
@@ -166,16 +230,30 @@ export default function ThreadsOpsPage() {
                       {data.schedule.currentHourJst}時台）
                     </p>
                   ) : null}
+                  {data.canPersistDeletes === false ? (
+                    <p className="mt-1 text-xs text-amber-500/90">
+                      削除の永続化には Vercel Blob（BLOB_READ_WRITE_TOKEN）が必要です。
+                    </p>
+                  ) : null}
                   {data.dryRunDefault ? (
                     <p className="mt-1 text-xs text-amber-500/90">
-                      いまは練習モード（DRY_RUN=true、または
-                      USER_ID/TOKEN未設定）。本物の投稿には Vercel で
-                      THREADS_USER_ID・THREADS_ACCESS_TOKEN を入れ、THREADS_DRY_RUN=false
-                      にして Redeploy。
+                      いまは練習モード（DRY_RUN=true、または USER_ID/TOKEN未設定）。
                     </p>
                   ) : null}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={loading || !data.today?.post.id}
+                    onClick={() => {
+                      const id = data.today?.post.id;
+                      if (!id) return;
+                      void removeFromRotation(id);
+                    }}
+                    className="border border-red-900/80 px-3 py-1.5 text-xs tracking-wide text-red-300 hover:bg-red-950/40 disabled:opacity-40"
+                  >
+                    Delete today
+                  </button>
                   <button
                     type="button"
                     disabled={loading}
@@ -217,28 +295,18 @@ export default function ThreadsOpsPage() {
             ) : null}
 
             <section className="space-y-3">
-              <h2 className="text-sm tracking-wide text-neutral-400">Themes</h2>
-              <ul className="space-y-3">
-                {data.themes?.map((t) => (
-                  <li key={t.id} className="border-b border-neutral-900 pb-3">
-                    <p className="text-sm text-white">{t.nameJa}</p>
-                    <p className="text-xs text-neutral-500">{t.description}</p>
-                    <p className="mt-1 text-xs text-neutral-600">{t.postingTips}</p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section className="space-y-3">
               <h2 className="text-sm tracking-wide text-neutral-400">Next 14 days</h2>
+              <p className="text-xs text-neutral-600">
+                delete でキューから外すと、あとの日が繰り上がります。
+              </p>
               <ul className="space-y-2 text-sm">
                 {data.upcoming?.map((u) => (
-                  <li key={u.date} className="flex gap-3 border-b border-neutral-900 py-2">
+                  <li key={u.date} className="flex gap-2 border-b border-neutral-900 py-2">
                     <span className="w-24 shrink-0 text-neutral-500">{u.date}</span>
-                    <span className="w-14 shrink-0 text-neutral-500">
+                    <span className="w-12 shrink-0 text-neutral-500">
                       {u.hourJst != null ? `${u.hourJst}:00` : "—"}
                     </span>
-                    <span className="w-28 shrink-0 text-neutral-400">{u.themeName}</span>
+                    <span className="w-24 shrink-0 text-neutral-400">{u.themeName}</span>
                     <span className="min-w-0 flex-1 truncate text-neutral-300">{u.preview}</span>
                     <button
                       type="button"
@@ -251,6 +319,14 @@ export default function ThreadsOpsPage() {
                     >
                       post
                     </button>
+                    <button
+                      type="button"
+                      disabled={loading}
+                      className="shrink-0 text-xs text-red-400/90 underline hover:text-red-300"
+                      onClick={() => void removeFromRotation(u.postId)}
+                    >
+                      delete
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -262,11 +338,32 @@ export default function ThreadsOpsPage() {
               </h2>
               <ul className="max-h-80 space-y-2 overflow-y-auto text-xs text-neutral-400">
                 {data.posts?.map((p) => (
-                  <li key={p.id} className="flex gap-2">
+                  <li
+                    key={p.id}
+                    className={`flex gap-2 ${p.deleted ? "opacity-40 line-through" : ""}`}
+                  >
                     <span className="w-16 shrink-0 text-neutral-500">{p.id}</span>
                     <span className="w-28 shrink-0">{p.themeId}</span>
-                    <span className="truncate">{p.preview}</span>
-                    <span className="shrink-0 text-neutral-600">{p.length}字</span>
+                    <span className="min-w-0 flex-1 truncate">{p.preview}</span>
+                    {p.deleted ? (
+                      <button
+                        type="button"
+                        disabled={loading}
+                        className="shrink-0 text-neutral-400 underline"
+                        onClick={() => void restoreToRotation(p.id)}
+                      >
+                        restore
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={loading}
+                        className="shrink-0 text-red-400/80 underline"
+                        onClick={() => void removeFromRotation(p.id)}
+                      >
+                        delete
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

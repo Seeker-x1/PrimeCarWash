@@ -17,6 +17,18 @@ PRIME CAR WASH 向け。テーマ＋投稿バンクをコードで管理し、Ve
 Cron スケジュール: 毎時（`0 * * * *` UTC）。JST の投稿窓内で日付ごとに1時間を選び、その時だけ投稿。
 既定窓: **8:00〜12:00 JST**（`THREADS_POST_WINDOW_START` / `THREADS_POST_WINDOW_END`）。
 
+### 気に入らない投稿の削除（繰り上げ）
+
+`/threads` の **delete** / **Delete today** でローテーションから外すと、以降の日付の予定が繰り上がります（元の本文は `lib/threads/content.ts` に残り、restore 可能）。
+
+本番で削除を残すには **Vercel Blob** が必要です。
+
+1. Vercel → Storage → Blob ストア作成  
+2. プロジェクトに `BLOB_READ_WRITE_TOKEN` が付く（自動が多い）  
+3. Redeploy  
+
+ローカル開発は `data/threads-disabled.json` に保存（gitignore）。
+
 ## Meta 側の準備
 
 1. [Meta for Developers](https://developers.facebook.com/) でアプリ作成 → **Threads API** を追加

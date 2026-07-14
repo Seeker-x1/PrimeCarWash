@@ -1,4 +1,4 @@
-import { listEnabledPosts } from "@/lib/threads/content";
+import { listRotatingPosts } from "@/lib/threads/content";
 import type { ThreadsPost } from "@/lib/threads/types";
 
 /** JST の年月日キー（例: 2026-07-14） */
@@ -70,24 +70,24 @@ export function shouldAutoPublishNow(date = new Date()): {
 }
 
 /**
- * その日の投稿を決定的に選ぶ（DB 不要）。
- * enabled な投稿を id 順で並べ、通算日で剰余。
+ * その日の投稿を決定的に選ぶ。
+ * 削除済みを除いたキューを id 順にし、通算日で剰余 → 削除すると以降が繰り上がる。
  */
-export function pickPostForDate(date = new Date()): ThreadsPost | null {
-  const enabled = listEnabledPosts().slice().sort((a, b) => a.id.localeCompare(b.id));
+export async function pickPostForDate(date = new Date()): Promise<ThreadsPost | null> {
+  const enabled = await listRotatingPosts();
   if (enabled.length === 0) return null;
   const index = jstDayIndex(date) % enabled.length;
   return enabled[index] ?? null;
 }
 
-export function peekUpcoming(
+export async function peekUpcoming(
   days = 7,
   from = new Date(),
-): Array<{ date: string; post: ThreadsPost; hourJst: number }> {
+): Promise<Array<{ date: string; post: ThreadsPost; hourJst: number }>> {
   const out: Array<{ date: string; post: ThreadsPost; hourJst: number }> = [];
   for (let i = 0; i < days; i += 1) {
     const d = new Date(from.getTime() + i * 86_400_000);
-    const post = pickPostForDate(d);
+    const post = await pickPostForDate(d);
     if (!post) continue;
     out.push({
       date: jstDateKey(d),

@@ -281,6 +281,14 @@ export function listEnabledPosts(): ThreadsPost[] {
   return THREADS_POSTS.filter((p) => p.enabled);
 }
 
+export async function listRotatingPosts(): Promise<ThreadsPost[]> {
+  const { getDisabledPostIds } = await import("@/lib/threads/disabled-store");
+  const disabled = await getDisabledPostIds();
+  return THREADS_POSTS.filter((p) => p.enabled && !disabled.has(p.id)).sort((a, b) =>
+    a.id.localeCompare(b.id),
+  );
+}
+
 export function getPostById(postId: string): ThreadsPost | undefined {
   return THREADS_POSTS.find((p) => p.id === postId);
 }
