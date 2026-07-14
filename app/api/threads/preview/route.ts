@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { assertPostBank, getThemeById, THREADS_POSTS, THREADS_THEMES } from "@/lib/threads/content";
 import { authorizeThreadsRequest, threadsAuthConfigured } from "@/lib/threads/auth";
 import { isThreadsDryRun } from "@/lib/threads/client";
-import { jstDateKey, peekUpcoming, pickPostForDate } from "@/lib/threads/schedule";
+import { jstDateKey, peekUpcoming, pickPostForDate, shouldAutoPublishNow } from "@/lib/threads/schedule";
 
 export const runtime = "nodejs";
 
@@ -28,19 +28,28 @@ export async function GET(request: Request) {
 
   const today = pickPostForDate();
   const theme = today ? getThemeById(today.themeId) : undefined;
+  const slot = shouldAutoPublishNow();
 
   return NextResponse.json({
     ok: true,
     dryRunDefault: isThreadsDryRun(),
     date: jstDateKey(),
+    schedule: {
+      window: slot.window,
+      todayHourJst: slot.targetHourJst,
+      currentHourJst: slot.hourJst,
+      note: "日付ごとに窓内の1時間が決まり、その時にだけ自動投稿します（見た目ランダム）。",
+    },
     today: today
       ? {
           post: today,
           theme: theme ?? null,
+          hourJst: slot.targetHourJst,
         }
       : null,
-    upcoming: peekUpcoming(14).map(({ date, post }) => ({
+    upcoming: peekUpcoming(14).map(({ date, post, hourJst }) => ({
       date,
+      hourJst,
       postId: post.id,
       themeId: post.themeId,
       themeName: getThemeById(post.themeId)?.nameJa ?? post.themeId,

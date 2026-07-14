@@ -7,12 +7,20 @@ type PreviewResponse = {
   message?: string;
   dryRunDefault?: boolean;
   date?: string;
+  schedule?: {
+    window: { start: number; end: number };
+    todayHourJst: number;
+    currentHourJst: number;
+    note: string;
+  };
   today?: {
     post: { id: string; themeId: string; text: string };
     theme: { id: string; nameJa: string; description: string } | null;
+    hourJst?: number;
   } | null;
   upcoming?: Array<{
     date: string;
+    hourJst?: number;
     postId: string;
     themeId: string;
     themeName: string;
@@ -151,6 +159,13 @@ export default function ThreadsOpsPage() {
                   <h2 className="text-lg text-white">
                     {data.today?.theme?.nameJa ?? "—"} · {data.today?.post.id}
                   </h2>
+                  {data.schedule ? (
+                    <p className="mt-1 text-xs text-neutral-400">
+                      自動投稿予定: 今日 {data.schedule.todayHourJst}:00 JST（窓{" "}
+                      {data.schedule.window.start}–{data.schedule.window.end}時／いま{" "}
+                      {data.schedule.currentHourJst}時台）
+                    </p>
+                  ) : null}
                   {data.dryRunDefault ? (
                     <p className="mt-1 text-xs text-amber-500/90">
                       いまは練習モード（DRY_RUN=true、または
@@ -220,6 +235,9 @@ export default function ThreadsOpsPage() {
                 {data.upcoming?.map((u) => (
                   <li key={u.date} className="flex gap-3 border-b border-neutral-900 py-2">
                     <span className="w-24 shrink-0 text-neutral-500">{u.date}</span>
+                    <span className="w-14 shrink-0 text-neutral-500">
+                      {u.hourJst != null ? `${u.hourJst}:00` : "—"}
+                    </span>
                     <span className="w-28 shrink-0 text-neutral-400">{u.themeName}</span>
                     <span className="min-w-0 flex-1 truncate text-neutral-300">{u.preview}</span>
                     <button

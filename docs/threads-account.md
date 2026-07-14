@@ -122,13 +122,17 @@ PRIME CAR WASH です。
 
 | Key | Value |
 |-----|--------|
-| `THREADS_USER_ID` | Meta で取った id |
+| `THREADS_USER_ID` | Meta で取った **数字の** id（ユーザー名不可） |
 | `THREADS_ACCESS_TOKEN` | Meta の長いトークン |
 | `THREADS_PUBLISH_SECRET` | 管理画面用（例: testpass1234） |
 | `THREADS_DRY_RUN` | **`false`**（または変数ごと削除） |
 | `THREADS_CRON_ENABLED` | 入れない／または `true`（`false` だと止まる） |
+| `THREADS_POST_WINDOW_START` | 任意・既定 `8`（JST） |
+| `THREADS_POST_WINDOW_END` | 任意・既定 `12`（JST・この時刻は含まない） |
 
-- Cron: 毎日 **10:00 JST**（`vercel.json` → `/api/threads/cron`）
-- トークンが無い／`DRY_RUN=true` のままだと実投稿されない
+- Cron: **毎時**チェック → 日付ごとに窓内の1時間が決まり、その時だけ1本投稿  
+- 例: 窓 8–12 → 当日は 8 / 9 / 10 / 11 時台のいずれか（日によって変わる）  
+- 手動 Publish はいつでも即時投稿（窓と無関係）  
+- Hobby プランだと毎時 Cron が使えない場合あり（そのときは Pro かプラン制限を確認）
 
 詳細手順: `docs/threads-posting.md`

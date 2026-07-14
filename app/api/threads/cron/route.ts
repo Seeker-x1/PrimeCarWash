@@ -2,12 +2,17 @@ import { NextResponse } from "next/server";
 import { assertPostBank } from "@/lib/threads/content";
 import { authorizeThreadsCron, threadsAuthConfigured } from "@/lib/threads/auth";
 import { isThreadsDryRun, publishTextPost } from "@/lib/threads/client";
-import { jstDateKey, pickPostForDate } from "@/lib/threads/schedule";
+import {
+  jstDateKey,
+  pickPostForDate,
+  shouldAutoPublishNow,
+} from "@/lib/threads/schedule";
 
 export const runtime = "nodejs";
 
 /**
- * Vercel Cron: daily auto-post (see vercel.json) — 10:00 JST.
+ * Vercel Cron: hourly tick; posts once/day when JST hour matches
+ * the date-seeded slot in [THREADS_POST_WINDOW_START, THREADS_POST_WINDOW_END).
  * Auth: Bearer CRON_SECRET|THREADS_PUBLISH_SECRET, or x-vercel-cron: 1
  */
 export async function GET(request: Request) {
@@ -27,6 +32,19 @@ export async function GET(request: Request) {
       skipped: true,
       reason: "THREADS_CRON_ENABLED=false",
       date: jstDateKey(),
+    });
+  }
+
+  const slot = shouldAutoPublishNow();
+  if (!slot.yes) {
+    return NextResponse.json({
+      ok: true,
+      skipped: true,
+      reason: "outside_daily_random_slot",
+      date: jstDateKey(),
+      hourJst: slot.hourJst,
+      targetHourJst: slot.targetHourJst,
+      window: slot.window,
     });
   }
 
@@ -56,6 +74,7 @@ export async function GET(request: Request) {
       ok: true,
       source: "cron",
       date: jstDateKey(),
+      targetHourJst: slot.targetHourJst,
       ...result,
     });
   } catch (e) {
