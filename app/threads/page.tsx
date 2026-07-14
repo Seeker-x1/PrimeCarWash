@@ -153,8 +153,10 @@ export default function ThreadsOpsPage() {
                   </h2>
                   {data.dryRunDefault ? (
                     <p className="mt-1 text-xs text-amber-500/90">
-                      Credentials missing or THREADS_DRY_RUN — live publish needs tokens + dryRun
-                      false.
+                      いまは練習モード（DRY_RUN=true、または
+                      USER_ID/TOKEN未設定）。本物の投稿には Vercel で
+                      THREADS_USER_ID・THREADS_ACCESS_TOKEN を入れ、THREADS_DRY_RUN=false
+                      にして Redeploy。
                     </p>
                   ) : null}
                 </div>

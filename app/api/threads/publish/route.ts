@@ -84,9 +84,15 @@ export async function POST(request: Request) {
     });
   } catch (e) {
     console.error("[threads/publish]", e);
-    return NextResponse.json(
-      { ok: false, message: e instanceof Error ? e.message : "Publish failed." },
-      { status: 502 },
-    );
+    const raw = e instanceof Error ? e.message : "Publish failed.";
+    let message = raw;
+    if (/failed to decrypt/i.test(raw)) {
+      message =
+        "Threads のアクセストークンが無効です（Failed to decrypt）。Vercel の THREADS_ACCESS_TOKEN を、Graph API Explorer の Threads 用トークンで入れ直して Redeploy してください（引用符や改行を付けない）。";
+    } else if (/THREADS_USER_ID|THREADS_ACCESS_TOKEN are required/i.test(raw)) {
+      message =
+        "THREADS_USER_ID / THREADS_ACCESS_TOKEN が Vercel に未設定です。両方入れて Redeploy してください。";
+    }
+    return NextResponse.json({ ok: false, message }, { status: 502 });
   }
 }
