@@ -61,10 +61,7 @@ async function streamToText(stream: ReadableStream<Uint8Array>): Promise<string>
 
 async function readBlob(): Promise<DisabledStore> {
   const result = await get(BLOB_PATHNAME, { access: "private" });
-  if (!result || result.statusCode === 404 || !result.stream) {
-    return emptyStore();
-  }
-  if (result.statusCode !== 200) {
+  if (!result || result.statusCode !== 200 || !result.stream) {
     return emptyStore();
   }
   const text = await streamToText(result.stream);
