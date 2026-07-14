@@ -1,4 +1,4 @@
-import { put, list } from "@vercel/blob";
+import { get, put } from "@vercel/blob";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -18,15 +18,20 @@ function hasBlobToken(): boolean {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
 }
 
+function parseStore(raw: unknown): DisabledStore {
+  const parsed = raw as DisabledStore;
+  if (!parsed || !Array.isArray(parsed.ids)) return emptyStore();
+  return {
+    ids: parsed.ids.filter((id) => typeof id === "string" && id.trim()),
+    updatedAt:
+      typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date().toISOString(),
+  };
+}
+
 async function readLocal(): Promise<DisabledStore> {
   try {
     const raw = await readFile(LOCAL_PATH, "utf8");
-    const parsed = JSON.parse(raw) as DisabledStore;
-    if (!Array.isArray(parsed.ids)) return emptyStore();
-    return {
-      ids: parsed.ids.filter((id) => typeof id === "string" && id.trim()),
-      updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date().toISOString(),
-    };
+    return parseStore(JSON.parse(raw));
   } catch {
     return emptyStore();
   }
@@ -37,23 +42,39 @@ async function writeLocal(store: DisabledStore): Promise<void> {
   await writeFile(LOCAL_PATH, `${JSON.stringify(store, null, 2)}\n`, "utf8");
 }
 
+async function streamToText(stream: ReadableStream<Uint8Array>): Promise<string> {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) chunks.push(value);
+  }
+  const merged = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
+  let offset = 0;
+  for (const c of chunks) {
+    merged.set(c, offset);
+    offset += c.length;
+  }
+  return new TextDecoder().decode(merged);
+}
+
 async function readBlob(): Promise<DisabledStore> {
-  const result = await list({ prefix: BLOB_PATHNAME, limit: 10 });
-  const hit = result.blobs.find((b) => b.pathname === BLOB_PATHNAME);
-  if (!hit?.url) return emptyStore();
-  const res = await fetch(hit.url, { cache: "no-store" });
-  if (!res.ok) return emptyStore();
-  const parsed = (await res.json()) as DisabledStore;
-  if (!Array.isArray(parsed.ids)) return emptyStore();
-  return {
-    ids: parsed.ids.filter((id) => typeof id === "string" && id.trim()),
-    updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date().toISOString(),
-  };
+  const result = await get(BLOB_PATHNAME, { access: "private" });
+  if (!result || result.statusCode === 404 || !result.stream) {
+    return emptyStore();
+  }
+  if (result.statusCode !== 200) {
+    return emptyStore();
+  }
+  const text = await streamToText(result.stream);
+  if (!text.trim()) return emptyStore();
+  return parseStore(JSON.parse(text));
 }
 
 async function writeBlob(store: DisabledStore): Promise<void> {
   await put(BLOB_PATHNAME, JSON.stringify(store, null, 2), {
-    access: "public",
+    access: "private",
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: "application/json",
@@ -83,7 +104,6 @@ export async function saveDisabledStore(store: DisabledStore): Promise<DisabledS
     return next;
   }
 
-  // Local/dev fallback. On Vercel without Blob this will not persist across instances.
   if (process.env.VERCEL) {
     throw new Error(
       "本番で削除を残すには Vercel Blob を有効化し、BLOB_READ_WRITE_TOKEN を設定してください。",
