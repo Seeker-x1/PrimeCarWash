@@ -32,6 +32,16 @@ export function authorizeThreadsRequest(request: Request): boolean {
   return secrets.some((secret) => safeEqual(token!, secret));
 }
 
+/**
+ * Cron-only: Bearer secret OR Vercel's x-vercel-cron header.
+ * (Vercel sends x-vercel-cron: 1 on scheduled invocations.)
+ */
+export function authorizeThreadsCron(request: Request): boolean {
+  if (authorizeThreadsRequest(request)) return true;
+  if (!threadsAuthConfigured()) return false;
+  return request.headers.get("x-vercel-cron")?.trim() === "1";
+}
+
 export function threadsAuthConfigured(): boolean {
   return Boolean(
     process.env.THREADS_PUBLISH_SECRET?.trim() || process.env.CRON_SECRET?.trim(),

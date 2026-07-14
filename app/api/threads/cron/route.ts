@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { assertPostBank } from "@/lib/threads/content";
-import { authorizeThreadsRequest, threadsAuthConfigured } from "@/lib/threads/auth";
+import { authorizeThreadsCron, threadsAuthConfigured } from "@/lib/threads/auth";
 import { isThreadsDryRun, publishTextPost } from "@/lib/threads/client";
 import { jstDateKey, pickPostForDate } from "@/lib/threads/schedule";
 
 export const runtime = "nodejs";
 
 /**
- * Vercel Cron: daily auto-post (see vercel.json).
- * Authorize with Authorization: Bearer <CRON_SECRET|THREADS_PUBLISH_SECRET>
+ * Vercel Cron: daily auto-post (see vercel.json) — 10:00 JST.
+ * Auth: Bearer CRON_SECRET|THREADS_PUBLISH_SECRET, or x-vercel-cron: 1
  */
 export async function GET(request: Request) {
   if (!threadsAuthConfigured()) {
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
       { status: 503 },
     );
   }
-  if (!authorizeThreadsRequest(request)) {
+  if (!authorizeThreadsCron(request)) {
     return NextResponse.json({ ok: false, message: "Unauthorized." }, { status: 401 });
   }
 
