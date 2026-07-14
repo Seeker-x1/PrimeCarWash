@@ -14,8 +14,15 @@ function emptyStore(): DisabledStore {
   return { ids: [], updatedAt: new Date().toISOString() };
 }
 
+function hasBlobAuth(): boolean {
+  if (process.env.BLOB_READ_WRITE_TOKEN?.trim()) return true;
+  // Connected via Vercel store + OIDC (no static RW token required)
+  if (process.env.VERCEL && process.env.BLOB_STORE_ID?.trim()) return true;
+  return false;
+}
+
 function hasBlobToken(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+  return hasBlobAuth();
 }
 
 function parseStore(raw: unknown): DisabledStore {
@@ -132,5 +139,5 @@ export async function restorePostId(postId: string): Promise<DisabledStore> {
 }
 
 export function disabledStoreConfigured(): boolean {
-  return hasBlobToken() || !process.env.VERCEL;
+  return hasBlobAuth() || !process.env.VERCEL;
 }
