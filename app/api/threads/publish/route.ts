@@ -92,6 +92,9 @@ export async function POST(request: Request) {
     } else if (/THREADS_USER_ID|THREADS_ACCESS_TOKEN are required/i.test(raw)) {
       message =
         "THREADS_USER_ID / THREADS_ACCESS_TOKEN が Vercel に未設定です。両方入れて Redeploy してください。";
+    } else if (/does not exist|missing permissions|Unsupported post request/i.test(raw)) {
+      message =
+        "THREADS_USER_ID が違う可能性が高いです。ユーザー名（例: primecarwashjapan）ではなく、Graph API Explorer で me?fields=id,username を実行して返ってきた数字の id を入れて Redeploy してください。";
     }
     return NextResponse.json({ ok: false, message }, { status: 502 });
   }
