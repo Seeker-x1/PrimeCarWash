@@ -7,7 +7,13 @@ import {
   getDisabledPostIds,
   loadDisabledStore,
 } from "@/lib/threads/disabled-store";
-import { jstDateKey, peekUpcoming, pickPostForDate, shouldAutoPublishNow } from "@/lib/threads/schedule";
+import { getPostedForDate, postedStoreConfigured } from "@/lib/threads/posted-store";
+import {
+  evaluatePublishSlot,
+  jstDateKey,
+  peekUpcoming,
+  pickPostForDate,
+} from "@/lib/threads/schedule";
 
 export const runtime = "nodejs";
 
@@ -33,7 +39,12 @@ export async function GET(request: Request) {
 
   const today = await pickPostForDate();
   const theme = today ? getThemeById(today.themeId) : undefined;
-  const slot = shouldAutoPublishNow();
+  const dateKey = jstDateKey();
+  const postedToday = await getPostedForDate(dateKey);
+  const slot = evaluatePublishSlot(new Date(), {
+    alreadyPostedToday: Boolean(postedToday),
+    catchUpEnabled: postedStoreConfigured(),
+  });
   const disabled = await getDisabledPostIds();
   const disabledStore = await loadDisabledStore();
   const upcoming = await peekUpcoming(14);
@@ -43,6 +54,7 @@ export async function GET(request: Request) {
     dryRunDefault: isThreadsDryRun(),
     date: jstDateKey(),
     canPersistDeletes: disabledStoreConfigured(),
+    canTrackPosted: postedStoreConfigured(),
     schedule: {
       window: slot.window,
       todayHourJst: slot.targetHourJst,
@@ -51,6 +63,13 @@ export async function GET(request: Request) {
       currentHourJst: slot.hourJst,
       currentMinuteJst: slot.minuteJst,
       note: slot.precisionNote,
+    },
+    publish: {
+      postedToday,
+      eligibleNow: slot.yes,
+      mode: slot.mode,
+      skipReason: slot.skipReason,
+      catchUpEnabled: postedStoreConfigured(),
     },
     today: today
       ? {

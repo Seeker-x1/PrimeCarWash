@@ -45,7 +45,7 @@ export function jstMinute(date = new Date()): number {
  */
 export function getPostWindowHours(): { start: number; end: number } {
   const rawStart = Number.parseInt(process.env.THREADS_POST_WINDOW_START ?? "8", 10);
-  const rawEnd = Number.parseInt(process.env.THREADS_POST_WINDOW_END ?? "12", 10);
+  const rawEnd = Number.parseInt(process.env.THREADS_POST_WINDOW_END ?? "13", 10);
   const start = Number.isFinite(rawStart) ? Math.min(23, Math.max(0, rawStart)) : 8;
   let end = Number.isFinite(rawEnd) ? Math.min(24, Math.max(0, rawEnd)) : 12;
   if (end <= start) end = Math.min(24, start + 1);
@@ -82,8 +82,32 @@ export function formatJstHm(hour: number, minute: number): string {
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
-export function shouldAutoPublishNow(date = new Date()): {
+export type PublishSkipReason =
+  | "already_posted_today"
+  | "before_target_slot"
+  | "after_post_window"
+  | "outside_daily_random_slot";
+
+export type PublishMode = "on_time" | "catch_up";
+
+const PRECISION_NOTE =
+  "時は日付でランダム。分も日付で決めますが、Hobby の Cron は同時台内で前後するため厳密なちょうどMM分起動は保証されません。取りこぼし時は窓内の次の Cron で1回だけ追いかけます。";
+
+/**
+ * Decide whether Cron should publish now.
+ * - on_time: JST hour matches the date-seeded slot
+ * - catch_up: past the slot but still inside the window, and not posted today yet
+ */
+export function evaluatePublishSlot(
+  date = new Date(),
+  options: {
+    alreadyPostedToday: boolean;
+    catchUpEnabled: boolean;
+  },
+): {
   yes: boolean;
+  mode: PublishMode | null;
+  skipReason: PublishSkipReason | null;
   hourJst: number;
   minuteJst: number;
   targetHourJst: number;
@@ -97,18 +121,62 @@ export function shouldAutoPublishNow(date = new Date()): {
   const minuteJst = jstMinute(date);
   const targetHourJst = pickPostHourJstForDate(date);
   const targetMinuteJst = pickPostMinuteJstForDate(date);
-  return {
-    // Hobby: one daily cron per hour; publish when that hour is the day's slot.
-    // Minute is planned for UI / future Pro precise mode (see docs).
-    yes: hourJst === targetHourJst,
+  const base = {
     hourJst,
     minuteJst,
     targetHourJst,
     targetMinuteJst,
     targetLabel: formatJstHm(targetHourJst, targetMinuteJst),
     window,
-    precisionNote:
-      "時は日付でランダム。分も日付で決めますが、Hobby の Cron は同時台内で前後するため厳密なちょうどMM分起動は保証されません。",
+    precisionNote: PRECISION_NOTE,
+  };
+
+  if (options.alreadyPostedToday) {
+    return { ...base, yes: false, mode: null, skipReason: "already_posted_today" };
+  }
+
+  if (hourJst >= window.end) {
+    return { ...base, yes: false, mode: null, skipReason: "after_post_window" };
+  }
+
+  if (hourJst === targetHourJst) {
+    return { ...base, yes: true, mode: "on_time", skipReason: null };
+  }
+
+  if (options.catchUpEnabled && hourJst > targetHourJst) {
+    return { ...base, yes: true, mode: "catch_up", skipReason: null };
+  }
+
+  const skipReason: PublishSkipReason =
+    hourJst < targetHourJst ? "before_target_slot" : "outside_daily_random_slot";
+
+  return { ...base, yes: false, mode: null, skipReason };
+}
+
+/** @deprecated Prefer evaluatePublishSlot */
+export function shouldAutoPublishNow(date = new Date()): {
+  yes: boolean;
+  hourJst: number;
+  minuteJst: number;
+  targetHourJst: number;
+  targetMinuteJst: number;
+  targetLabel: string;
+  window: { start: number; end: number };
+  precisionNote: string;
+} {
+  const slot = evaluatePublishSlot(date, {
+    alreadyPostedToday: false,
+    catchUpEnabled: false,
+  });
+  return {
+    yes: slot.yes,
+    hourJst: slot.hourJst,
+    minuteJst: slot.minuteJst,
+    targetHourJst: slot.targetHourJst,
+    targetMinuteJst: slot.targetMinuteJst,
+    targetLabel: slot.targetLabel,
+    window: slot.window,
+    precisionNote: slot.precisionNote,
   };
 }
 

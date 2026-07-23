@@ -49,6 +49,20 @@ type PreviewResponse = {
     preview: string;
   }>;
   deletedIds?: string[];
+  canTrackPosted?: boolean;
+  publish?: {
+    postedToday: {
+      date: string;
+      postId: string;
+      mediaId?: string;
+      publishedAt: string;
+      source: "cron" | "catch_up" | "manual";
+    } | null;
+    eligibleNow: boolean;
+    mode: "on_time" | "catch_up" | null;
+    skipReason: string | null;
+    catchUpEnabled: boolean;
+  };
 };
 
 type PublishResponse = {
@@ -120,6 +134,7 @@ export default function ThreadsOpsPage() {
           ? `Dry-run OK — ${json.postId}\n\n${json.text ?? ""}`
           : `Posted — ${json.postId} (media ${json.mediaId ?? "?"})`,
       );
+      await loadPreview(secret.trim());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Publish failed");
     } finally {
@@ -242,6 +257,22 @@ export default function ThreadsOpsPage() {
                   ) : null}
                   {data.schedule?.note ? (
                     <p className="mt-1 text-xs text-neutral-600">{data.schedule.note}</p>
+                  ) : null}
+                  {data.publish?.postedToday ? (
+                    <p className="mt-1 text-xs text-emerald-400/90">
+                      本日投稿済み: {data.publish.postedToday.postId}（
+                      {data.publish.postedToday.source}）
+                    </p>
+                  ) : data.publish?.eligibleNow ? (
+                    <p className="mt-1 text-xs text-sky-400/90">
+                      次の Cron で投稿予定
+                      {data.publish.mode === "catch_up" ? "（取りこぼし追いかけ）" : "（定刻）"}
+                    </p>
+                  ) : data.publish?.skipReason ? (
+                    <p className="mt-1 text-xs text-neutral-500">
+                      自動投稿: {data.publish.skipReason}
+                      {data.publish.catchUpEnabled ? "" : "（投稿記録ストア未設定）"}
+                    </p>
                   ) : null}
                   {data.canPersistDeletes === false ? (
                     <p className="mt-1 text-xs text-amber-500/90">

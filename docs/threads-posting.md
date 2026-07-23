@@ -14,8 +14,8 @@ PRIME CAR WASH 向け。テーマ＋投稿バンクをコードで管理し、Ve
 | `GET /api/threads/cron` | 日次自動投稿（Vercel Cron） |
 | `/threads` | Ops UI（noindex・シークレットで解錠） |
 
-Cron スケジュール（Hobby 対応）: 毎日 JST 8 / 9 / 10 / 11 時台に各1回チェック。
-日付ごとに決めた1時間だけ実投稿（他の時は skip）。窓は `THREADS_POST_WINDOW_START` / `END`（既定 8–12）。
+Cron スケジュール（Hobby 対応）: 毎日 JST 8 / 9 / 10 / 11 / 12 時台に各1回チェック。
+定刻を逃した日は窓内の次の Cron で1回だけ追いかけ。窓は `THREADS_POST_WINDOW_START` / `END`（既定 8–13＝8〜12時台）。
 
 > Hobby プランは「1日1回」の Cron のみ。毎時 Cron はデプロイ失敗するため、窓内の各時に daily Cron を並べています。
 
@@ -96,8 +96,17 @@ curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
 
 日付ごとの割当は DB なし（通算日 % 有効投稿数）。投稿を足すとローテーション間隔が伸びる。
 
+### 取りこぼし（catch-up）
+
+Vercel Hobby では Cron が予定時刻に間に合わないことがあります。  
+そのため **投稿窓内（既定 JST 8–12）で、当日まだ出していなければ次の Cron で1回だけ追いかけ**ます。
+
+- 記録: Vercel Blob `threads/posted-dates.json`（削除キューと同じ Blob ストア）
+- 手動 Publish も当日分として記録し、同日の自動追いかけを防ぐ
+- Blob 未設定の本番では追いかけは無効（従来どおり「その時間の1回のみ」）
+
 ## 注意
 
-- 同一日に Cron が再実行されると同文が再度選ばれる（冪等な「投稿済み」記録は未実装）。必要なら後続で KV / Blob に `lastPostedDate` を保存する
+- ~~同一日に Cron が再実行されると同文が再度選ばれる~~ → 投稿済み日は `posted-dates.json` でスキップ
 - `/threads` は公開 URL だが secret 必須・noindex。本番では Basic Auth や IP 制限を足してもよい
 - LINE 導線へのハードセルは避け、ブランドトーン（静か・上質）を維持する

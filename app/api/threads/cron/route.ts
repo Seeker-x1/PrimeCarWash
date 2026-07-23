@@ -2,17 +2,18 @@ import { NextResponse } from "next/server";
 import { assertPostBank } from "@/lib/threads/content";
 import { authorizeThreadsCron, threadsAuthConfigured } from "@/lib/threads/auth";
 import { isThreadsDryRun, publishTextPost } from "@/lib/threads/client";
+import { getPostedForDate, markPostedForDate, postedStoreConfigured } from "@/lib/threads/posted-store";
 import {
+  evaluatePublishSlot,
   jstDateKey,
   pickPostForDate,
-  shouldAutoPublishNow,
 } from "@/lib/threads/schedule";
 
 export const runtime = "nodejs";
 
 /**
- * Vercel Cron: daily ticks at JST 8–11 (Hobby allows once/day per expression).
- * Posts once when JST hour matches the date-seeded slot in the window.
+ * Vercel Cron: daily ticks at JST 8–12 (Hobby allows once/day per expression).
+ * Posts on the date-seeded hour, or catch-up later in the window if missed.
  * Auth: Bearer CRON_SECRET|THREADS_PUBLISH_SECRET, or x-vercel-cron: 1
  */
 export async function GET(request: Request) {
@@ -35,16 +36,23 @@ export async function GET(request: Request) {
     });
   }
 
-  const slot = shouldAutoPublishNow();
+  const dateKey = jstDateKey();
+  const postedToday = await getPostedForDate(dateKey);
+  const slot = evaluatePublishSlot(new Date(), {
+    alreadyPostedToday: Boolean(postedToday),
+    catchUpEnabled: postedStoreConfigured(),
+  });
   if (!slot.yes) {
     return NextResponse.json({
       ok: true,
       skipped: true,
-      reason: "outside_daily_random_slot",
-      date: jstDateKey(),
+      reason: slot.skipReason ?? "outside_daily_random_slot",
+      date: dateKey,
       hourJst: slot.hourJst,
       targetHourJst: slot.targetHourJst,
       window: slot.window,
+      postedToday: postedToday ?? null,
+      catchUpEnabled: postedStoreConfigured(),
     });
   }
 
@@ -70,13 +78,29 @@ export async function GET(request: Request) {
       dryRun: isThreadsDryRun(),
     });
 
+    let postedRecord = null;
+    if (!result.dryRun) {
+      try {
+        postedRecord = await markPostedForDate({
+          date: dateKey,
+          postId: post.id,
+          mediaId: result.mediaId,
+          source: slot.mode === "catch_up" ? "catch_up" : "cron",
+        });
+      } catch (e) {
+        console.error("[threads/cron] mark posted failed", e);
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       source: "cron",
-      date: jstDateKey(),
+      publishMode: slot.mode,
+      date: dateKey,
       targetHourJst: slot.targetHourJst,
       targetMinuteJst: slot.targetMinuteJst,
       targetLabel: slot.targetLabel,
+      postedRecord,
       ...result,
     });
   } catch (e) {

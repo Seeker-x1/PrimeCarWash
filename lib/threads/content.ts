@@ -3,13 +3,14 @@ import type { ThreadsPost, ThreadsTheme } from "@/lib/threads/types";
 /**
  * PRIME CAR WASH — Threads 投稿テーマ
  * トーン: 静か・上質・売り込み控えめ。末尾 CTA は控えめに。
+ * 軸: 利便性だけでなく、車へのいたわり・仕上げのこだわりを適宜織り込む。
  */
 export const THREADS_THEMES: ThreadsTheme[] = [
   {
     id: "brand-world",
     nameJa: "ブランド世界観",
     description: "プレミアム出張洗車としての空気感・美学を伝える",
-    postingTips: "価格やプラン名は出さない。短い一行＋短い余韻。",
+    postingTips: "価格やプラン名は出さない。短い一行＋短い余韻。優しさと静けさを両立。",
   },
   {
     id: "time-place",
@@ -20,26 +21,26 @@ export const THREADS_THEMES: ThreadsTheme[] = [
   {
     id: "exterior-craft",
     nameJa: "車外ケアのこだわり",
-    description: "無水洗浄・艶・ホイールなど、目に見える仕上がり",
-    postingTips: "専門用語は1つまで。プロセスより結果の質感。",
+    description: "無水洗浄・艶・ホイールなど、目に見える仕上がりと塗面への配慮",
+    postingTips: "専門用語は1つまで。プロセス自慢より『触れる前の判断』と結果の質感。",
   },
   {
     id: "interior-care",
     nameJa: "車内ケア",
-    description: "乗り降りで目に入る清潔感・内装の整え方",
-    postingTips: "臭いや汚れの強い表現は避け、静かな清潔感で。",
+    description: "乗り降りで目に入る清潔感・内装をいたわる整え方",
+    postingTips: "臭いや汚れの強い表現は避け、静かな清潔感と内装への優しさで。",
   },
   {
     id: "subscription",
     nameJa: "継続プラン",
     description: "月1〜2回で美しさをキープする習慣",
-    postingTips: "割引煽り禁止。『戻らない状態』の価値を語る。",
+    postingTips: "割引煽り禁止。『戻らない状態』と『負荷を溜めない』価値を語る。",
   },
   {
     id: "protect-benefit",
     nameJa: "撥水プロテクト",
     description: "継続特典の防汚・撥水被膜（6ヶ月に1回）",
-    postingTips: "技術自慢より『雨の日のあと』の体験で語る。",
+    postingTips: "技術自慢より『雨の日のあと』と塗装面の負担軽減で語る。",
   },
   {
     id: "faq-trust",
@@ -51,13 +52,13 @@ export const THREADS_THEMES: ThreadsTheme[] = [
     id: "seasonal",
     nameJa: "季節ネタ",
     description: "花粉・黄砂・梅雨・猛暑・落ち葉など季節汚れ",
-    postingTips: "暦に合わせて enabled を見ると効果的。",
+    postingTips: "暦に合わせて enabled を見ると効果的。放置しない＝いたわり、で締める。",
   },
   {
     id: "owner-mindset",
     nameJa: "オーナーのこだわり",
     description: "愛車を大切にする人の共感・静かな矜持",
-    postingTips: "高級車名・価格帯の露出は最小限に。",
+    postingTips: "高級車名・価格帯の露出は最小限に。『大切に扱いたい』感覚に寄り添う。",
   },
   {
     id: "soft-cta",
@@ -76,7 +77,7 @@ export const THREADS_POSTS: ThreadsPost[] = [
   {
     id: "bw-01",
     themeId: "brand-world",
-    text: "洗車は、急ぐものではない。\n仕上がりの静けさまで含めて、体験だと思っています。\n\nPRIME CAR WASH\n完全予約制の出張洗車",
+    text: "洗車は、急ぐものではない。\n塗面に触れる前の判断まで含めて、体験だと思っています。\n\nPRIME CAR WASH\n完全予約制の出張洗車",
     enabled: true,
   },
   {
@@ -89,6 +90,12 @@ export const THREADS_POSTS: ThreadsPost[] = [
     id: "bw-03",
     themeId: "brand-world",
     text: "艶は、偶然には生まれない。\n汚れを落としたあとに残る、均一な光。\n\nそこに時間をかける理由があります。",
+    enabled: true,
+  },
+  {
+    id: "bw-04",
+    themeId: "brand-world",
+    text: "きれいにするだけでなく、車をいたわる洗車でありたい。\n力の入れ方ひとつで、仕上がりの印象は変わります。\n\n静かで、丁寧な一手を大切にしています。",
     enabled: true,
   },
 
@@ -131,6 +138,18 @@ export const THREADS_POSTS: ThreadsPost[] = [
     text: "窓ガラスがクリアだと、運転の気分まで整う。\n外窓の砂埃と指紋を丁寧に落とす——地味ですが、効果は確実です。",
     enabled: true,
   },
+  {
+    id: "ex-04",
+    themeId: "exterior-craft",
+    text: "乾いた砂埃を、そのままこすらない。\n塗面へのいちばんのいたわりは、順番を守ることだと思っています。\n\n落とす前に、まず優しくほどく。",
+    enabled: true,
+  },
+  {
+    id: "ex-05",
+    themeId: "exterior-craft",
+    text: "ミラー裏やドアの窪みは、見逃しやすい場所。\n見えないところまで整えると、車全体に統一感が生まれます。\n\nこだわりは、細部に静かに出ます。",
+    enabled: true,
+  },
 
   // —— interior-care ——
   {
@@ -149,6 +168,12 @@ export const THREADS_POSTS: ThreadsPost[] = [
     id: "in-03",
     themeId: "interior-care",
     text: "内窓の曇りや指紋は、視界だけでなく気分にも影響する。\nクリアなガラスは、小さな贅沢です。",
+    enabled: true,
+  },
+  {
+    id: "in-04",
+    themeId: "interior-care",
+    text: "ハンドルやスイッチ周りは、触れる回数が多い分、傷みやすい。\n強くこすらず、汚れだけをそっと持ち上げる。\n\n内装へのいたわりも、仕上げのこだわりです。",
     enabled: true,
   },
 
@@ -171,6 +196,12 @@ export const THREADS_POSTS: ThreadsPost[] = [
     text: "汚れは一気に溜まるより、少しずつ積み重なる。\n定期メンテは、汚れとの追いかけっこから降りる選択です。",
     enabled: true,
   },
+  {
+    id: "sub-04",
+    themeId: "subscription",
+    text: "溜めてから一気に落とすより、負担が軽い段階で整える。\nそれが、愛車へのいちばん地味で確実ないたわりかもしれません。\n\n継続は、無理のないケアのリズムです。",
+    enabled: true,
+  },
 
   // —— protect-benefit ——
   {
@@ -183,6 +214,12 @@ export const THREADS_POSTS: ThreadsPost[] = [
     id: "pr-02",
     themeId: "protect-benefit",
     text: "防汚・撥水の被膜は、目立たない保険のようなもの。\n砂埃や雨汚れの付着を抑え、美しさの持ちを伸ばします。",
+    enabled: true,
+  },
+  {
+    id: "pr-03",
+    themeId: "protect-benefit",
+    text: "撥水は見た目の変化だけでなく、塗装面への負担を減らす手伝いでもある。\n雨染みが残りにくいと、次のケアもやさしくなります。",
     enabled: true,
   },
 
@@ -210,7 +247,7 @@ export const THREADS_POSTS: ThreadsPost[] = [
   {
     id: "se-pollen",
     themeId: "seasonal",
-    text: "花粉の季節、ボディの黄ばんだ膜は放っておくと固着しやすい。\n早めのリセットで、塗装面の負担も見た目も変わります。",
+    text: "花粉の季節、ボディの黄ばんだ膜は放っておくと固着しやすい。\n早めのリセットは、見た目だけでなく塗装面へのいたわりにもなります。",
     enabled: true,
   },
   {
@@ -249,6 +286,12 @@ export const THREADS_POSTS: ThreadsPost[] = [
     id: "ow-03",
     themeId: "owner-mindset",
     text: "愛車は、移動手段以上のものであることが多い。\nだから仕上げに、丁寧さの余白を残したいのです。",
+    enabled: true,
+  },
+  {
+    id: "ow-04",
+    themeId: "owner-mindset",
+    text: "『きれいにしてほしい』の奥には、傷つけることへの気遣いがある。\nその感覚を尊重して、力任せではないケアを心がけています。",
     enabled: true,
   },
 

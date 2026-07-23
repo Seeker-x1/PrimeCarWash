@@ -3,6 +3,7 @@ import { assertPostBank, getPostById } from "@/lib/threads/content";
 import { authorizeThreadsRequest, threadsAuthConfigured } from "@/lib/threads/auth";
 import { isThreadsDryRun, publishTextPost } from "@/lib/threads/client";
 import { getDisabledPostIds } from "@/lib/threads/disabled-store";
+import { markPostedForDate } from "@/lib/threads/posted-store";
 import { jstDateKey, pickPostForDate } from "@/lib/threads/schedule";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -12,6 +13,8 @@ type PublishBody = {
   postId?: string;
   /** force dry-run even when credentials exist */
   dryRun?: boolean;
+  /** Threads に既に出している日を記録だけする（重複防止） */
+  markPostedOnly?: boolean;
 };
 
 export async function POST(request: Request) {
@@ -70,6 +73,35 @@ export async function POST(request: Request) {
 
   const dryRun = body.dryRun === true || (body.dryRun !== false && isThreadsDryRun());
 
+  if (body.markPostedOnly === true) {
+    try {
+      const record = await markPostedForDate({
+        date: jstDateKey(),
+        postId: post.id,
+        source: "manual",
+      });
+      return NextResponse.json({
+        ok: true,
+        date: jstDateKey(),
+        markPostedOnly: true,
+        postId: post.id,
+        record,
+      });
+    } catch (e) {
+      console.error("[threads/publish] mark posted only failed", e);
+      return NextResponse.json(
+        {
+          ok: false,
+          message:
+            e instanceof Error
+              ? e.message
+              : "Failed to mark today as posted (Blob 設定を確認してください).",
+        },
+        { status: 502 },
+      );
+    }
+  }
+
   try {
     const result = await publishTextPost({
       postId: post.id,
@@ -77,6 +109,19 @@ export async function POST(request: Request) {
       text: post.text,
       dryRun,
     });
+
+    if (!result.dryRun) {
+      try {
+        await markPostedForDate({
+          date: jstDateKey(),
+          postId: post.id,
+          mediaId: result.mediaId,
+          source: "manual",
+        });
+      } catch (e) {
+        console.error("[threads/publish] mark posted failed", e);
+      }
+    }
 
     return NextResponse.json({
       ok: true,

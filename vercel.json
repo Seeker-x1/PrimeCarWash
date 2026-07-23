@@ -18,6 +18,10 @@
     {
       "path": "/api/threads/cron",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/threads/cron",
+      "schedule": "0 3 * * *"
     }
   ]
 }
