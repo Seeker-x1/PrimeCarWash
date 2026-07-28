@@ -96,18 +96,23 @@ export default async function LocalePage({ params }: PageProps) {
           <div className="absolute inset-0 bg-black/40" />
         </div>
         <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-32 sm:pb-20">
-          <BlurFade delay={0}>
+          <BlurFade delay={0} immediate>
             <p className="font-serif text-sm text-white">{content.brandTagline}</p>
           </BlurFade>
-          <BlurFade delay={0.12}>
+          <BlurFade delay={0.12} immediate>
             <h1 className="mt-4 font-serif text-4xl leading-tight tracking-[0.06em] sm:text-5xl md:text-6xl">{content.heroTitle}</h1>
           </BlurFade>
           {content.heroSubtitle ? (
-            <BlurFade delay={0.18}>
+            <BlurFade delay={0.18} immediate>
               <p className="mt-3 font-serif text-lg tracking-[0.12em] text-[#d9d9d9] sm:text-xl">{content.heroSubtitle}</p>
             </BlurFade>
           ) : null}
-          <BlurFade delay={0.24}>
+          {content.heroArea ? (
+            <BlurFade delay={0.22} immediate>
+              <p className="mt-3 text-sm tracking-[0.08em] text-white sm:text-base">{content.heroArea}</p>
+            </BlurFade>
+          ) : null}
+          <BlurFade delay={0.28} immediate>
             <p className="mt-6 max-w-xl text-sm leading-7 text-[#d9d9d9]">{content.heroDescription}</p>
           </BlurFade>
           <div className="mt-8 flex flex-wrap gap-3">
