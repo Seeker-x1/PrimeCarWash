@@ -193,7 +193,7 @@ export const siteContent: Record<Locale, SiteContent> = {
       {
         question: "料金の目安は？",
         answer:
-          "Mサイズのボディ洗車は7,700円（税込）から。車種サイズやプランにより変わります。サイズ別料金表をご確認ください。",
+          "Mサイズのボディ洗車は7,700円（税込）から。月2回の継続プランなら11,000円（税込）で、1回あたり5,500円相当—都度利用よりお得に、こまめにキレイを保てます。車種サイズやプランにより変わります。サイズ別料金表もご確認ください。",
       },
       {
         question: "継続プランの解約はいつでもできますか？",
@@ -299,7 +299,7 @@ export const siteContent: Record<Locale, SiteContent> = {
       {
         question: "How much does it cost?",
         answer:
-          "Exterior wash for size M starts at ¥7,700 (tax included). Pricing depends on vehicle size and plan—see the pricing matrix on this page.",
+          "Exterior wash for size M starts at ¥7,700 (tax included). Our twice-monthly plan is ¥11,000 (tax included)—about ¥5,500 per wash, so you save versus pay-as-you-go while keeping your car consistently clean. Pricing varies by size and plan; see the pricing matrix on this page.",
       },
       {
         question: "Can I cancel a subscription anytime?",
