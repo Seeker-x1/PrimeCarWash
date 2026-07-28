@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_JP, Noto_Serif_JP } from "next/font/google";
 import Script from "next/script";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import LineFloat from "@/components/LineFloat";
 import { getSiteOrigin } from "@/lib/site-url";
 import "./globals.css";
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s | PRIME CAR WASH",
   },
   description:
-    "Premium mobile valeting service with subscription plans for exterior and interior care.",
+    "完全予約制の出張洗車。ご指定の洗車場所へ伺い、車外・車内を丁寧にケア。ビジター・月額プランあり。",
   alternates: {
     languages: {
       "x-default": "/",
@@ -35,14 +35,26 @@ export const metadata: Metadata = {
   },
 };
 
+function resolveHtmlLang(
+  headerLocale: string | null,
+  cookieLocale: string | undefined,
+): "ja" | "en" {
+  if (headerLocale === "en" || headerLocale === "ja") return headerLocale;
+  if (cookieLocale === "en") return "en";
+  return "ja";
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headerStore = await headers();
   const cookieStore = await cookies();
-  const localeCookie = cookieStore.get("site-locale")?.value;
-  const lang = localeCookie === "en" ? "en" : "ja";
+  const lang = resolveHtmlLang(
+    headerStore.get("x-site-locale"),
+    cookieStore.get("site-locale")?.value,
+  );
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   return (

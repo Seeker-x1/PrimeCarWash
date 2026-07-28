@@ -94,7 +94,7 @@ export default function LineFloat() {
             x
           </button>
 
-          {/* Desktop: slim bar; QR only while focused */}
+          {/* Desktop: slim bar; larger QR panel only while focused */}
           <div
             tabIndex={0}
             onFocus={() => setIsFocused(true)}
@@ -105,30 +105,30 @@ export default function LineFloat() {
             }}
             className="hidden outline-none md:block"
           >
-            <div className="flex max-w-[280px] items-stretch overflow-hidden rounded-full border border-[#999999] bg-black/90 backdrop-blur-sm">
-              <AnimatePresence initial={false}>
-                {isFocused ? (
-                  <motion.div
-                    key="qr"
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: 72, opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="overflow-hidden"
-                  >
-                    <div className="flex h-full items-center bg-white p-1.5">
-                      <QRCodeSVG
-                        value={lineConsultationUrl}
-                        size={56}
-                        bgColor="#ffffff"
-                        fgColor="#000000"
-                        marginSize={1}
-                        title="LINE concierge consultation QR"
-                      />
-                    </div>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
+            <AnimatePresence initial={false}>
+              {isFocused ? (
+                <motion.div
+                  key="qr"
+                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="mb-2 flex justify-end"
+                >
+                  <div className="rounded-[14px] border border-[#999999] bg-white p-3 shadow-[0_12px_40px_rgba(0,0,0,0.4)]">
+                    <QRCodeSVG
+                      value={lineConsultationUrl}
+                      size={132}
+                      bgColor="#ffffff"
+                      fgColor="#000000"
+                      marginSize={2}
+                      title="LINE concierge consultation QR"
+                    />
+                  </div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+            <div className="flex max-w-[260px] overflow-hidden rounded-full border border-[#999999] bg-black/90 backdrop-blur-sm">
               <a
                 href={lineConsultationUrl}
                 target="_blank"

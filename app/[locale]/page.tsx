@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, locales, siteContent } from "@/lib/site-content";
 import { getLineConsultationUrl } from "@/lib/line-consultation";
-import { getSiteOrigin } from "@/lib/site-url";
+import { buildLocaleJsonLd, getOgImageUrl } from "@/lib/seo-json-ld";
 import BlurFade from "@/components/BlurFade";
 import AmanBookingForm from "@/components/AmanBookingForm";
 
@@ -18,25 +18,43 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { locale } = await params;
   const resolvedLocale = locale === "en" ? "en" : "ja";
   const content = siteContent[resolvedLocale];
+  const title = content.searchTitle ?? content.heroTitle;
+  const description = content.searchDescription ?? content.heroDescription;
   const canonicalPath = resolvedLocale === "ja" ? "/" : "/en";
   const hrefLang = {
     "x-default": "/",
     ja: "/",
     en: "/en",
   };
+  const ogLocale = resolvedLocale === "ja" ? "ja_JP" : "en_US";
+  const ogImage = {
+    url: getOgImageUrl(),
+    width: 1200,
+    height: 630,
+    alt: content.heroImageAlt,
+  };
   return {
-    title: content.searchTitle ?? content.heroTitle,
-    description: content.searchDescription ?? content.heroDescription,
+    title: { absolute: title },
+    description,
     alternates: {
       canonical: canonicalPath,
       languages: hrefLang,
     },
     openGraph: {
-      title: content.searchTitle ?? content.heroTitle,
-      description: content.searchDescription ?? content.heroDescription,
+      title,
+      description,
       type: "website",
-      locale: resolvedLocale === "ja" ? "ja_JP" : "en_US",
+      siteName: "PRIME CAR WASH",
+      locale: ogLocale,
+      alternateLocale: resolvedLocale === "ja" ? ["en_US"] : ["ja_JP"],
       url: canonicalPath,
+      images: [ogImage],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage.url],
     },
   };
 }
@@ -49,17 +67,7 @@ export default async function LocalePage({ params }: PageProps) {
   const content = siteContent[currentLocale];
   const alternateLocale = currentLocale === "ja" ? "en" : "ja";
   const lineConsultationUrl = getLineConsultationUrl(currentLocale);
-
-  const businessUrl =
-    currentLocale === "ja" ? getSiteOrigin() : `${getSiteOrigin()}/en`;
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name: "PRIME CAR WASH",
-    serviceType: "Mobile Car Wash",
-    areaServed: "Japan",
-    url: businessUrl,
-  };
+  const jsonLd = buildLocaleJsonLd(currentLocale);
 
   return (
     <main className="bg-black text-white">
@@ -92,8 +100,13 @@ export default async function LocalePage({ params }: PageProps) {
             <p className="font-serif text-sm text-white">{content.brandTagline}</p>
           </BlurFade>
           <BlurFade delay={0.12}>
-            <h1 className="mt-4 font-serif text-5xl leading-none tracking-[0.08em] sm:text-7xl md:text-8xl">{content.heroTitle}</h1>
+            <h1 className="mt-4 font-serif text-4xl leading-tight tracking-[0.06em] sm:text-5xl md:text-6xl">{content.heroTitle}</h1>
           </BlurFade>
+          {content.heroSubtitle ? (
+            <BlurFade delay={0.18}>
+              <p className="mt-3 font-serif text-lg tracking-[0.12em] text-[#d9d9d9] sm:text-xl">{content.heroSubtitle}</p>
+            </BlurFade>
+          ) : null}
           <BlurFade delay={0.24}>
             <p className="mt-6 max-w-xl text-sm leading-7 text-[#d9d9d9]">{content.heroDescription}</p>
           </BlurFade>
@@ -226,8 +239,39 @@ export default async function LocalePage({ params }: PageProps) {
         <p className="mt-6 text-xs text-[#999999]">{content.vehicleSizeNote}</p>
       </section>
 
+      <section className="mx-auto max-w-6xl px-4 py-16">
+        <BlurFade>
+          <h2 className="font-serif text-3xl tracking-[0.12em]">{content.serviceAreaTitle}</h2>
+        </BlurFade>
+        <div className="mt-8 grid gap-6 border border-[#999999] p-6 sm:grid-cols-2">
+          <div>
+            <p className="text-xs uppercase tracking-[0.12em] text-[#999999]">{content.serviceAreaPrimaryLabel}</p>
+            <p className="mt-2 text-lg text-white">{content.serviceAreaPrimary}</p>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-[0.12em] text-[#999999]">{content.serviceAreaSecondaryLabel}</p>
+            <p className="mt-2 text-lg text-white">{content.serviceAreaSecondary}</p>
+          </div>
+        </div>
+        <p className="mt-4 text-sm text-[#d9d9d9]">{content.serviceAreaNote}</p>
+      </section>
+
+      <section id="faq" className="mx-auto max-w-6xl px-4 py-16">
+        <BlurFade>
+          <h2 className="font-serif text-3xl tracking-[0.12em]">{content.faqTitle}</h2>
+        </BlurFade>
+        <dl className="mt-8 space-y-6">
+          {content.faqItems.map((item) => (
+            <div key={item.question} className="border border-[#999999] p-5">
+              <dt className="font-semibold text-white">{item.question}</dt>
+              <dd className="mt-3 text-sm leading-7 text-[#d9d9d9]">{item.answer}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
       <section id="reservation-form" className="py-8">
-        <AmanBookingForm />
+        <AmanBookingForm headingLevel="h2" />
       </section>
 
       <footer className="border-t border-[#999999] px-4 py-8 text-center text-xs tracking-[0.1em] text-[#999999]">{content.footer}</footer>

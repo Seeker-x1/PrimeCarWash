@@ -54,6 +54,12 @@ POP / LINE 変更:
 
 ## 環境変数
 
+NEXT_PUBLIC_SITE_URL
+  用途: カノニカル・sitemap・OG・JSON-LD の origin（lib/site-url.ts）
+  推奨: 本番 Vercel に明示（例: https://www.xn--79q753awyk7z6a.jp）
+  未設定時: VERCEL_PROJECT_PRODUCTION_URL → VERCEL_URL → www 出張洗車.jp フォールバック
+  注意: Preview デプロイで sitemap ホストがプレビュー URL になるのを防ぐため本番は明示設定推奨
+
 GEMINI_API_KEY
   用途: 車種サイズ API（app/api/classify-vehicle/route.ts）
   必須: classify 利用時 / サーバーのみ / クライアント露出禁止
@@ -69,6 +75,55 @@ POP_PROMO_SECRET
   必須: 本番 Vercel 必須 / 未設定時 /line-pop は 503（意図的）
   運用: LINE キーワード維持なら Vercel に POP_PROMO_SECRET=PRM-POP-6000 を env で設定
   注意: 値変更時は LINE Official Account Manager のキーワード応答も更新
+
+THREADS_USER_ID / THREADS_ACCESS_TOKEN
+  用途: Threads Graph API 投稿（container → publish）
+  任意: 未設定時は dry-run（実投稿しない）
+
+THREADS_PUBLISH_SECRET
+  用途: /api/threads/* と /threads Ops UI の認可
+  推奨: 自動投稿を使うなら必須（未設定時 API は 503）
+
+CRON_SECRET
+  用途: Vercel Cron の Bearer（THREADS_PUBLISH_SECRET でも可）
+
+詳細: docs/threads-posting.md
+
+---
+
+## Google 検索（Search Console）
+
+技術 SEO（robots / sitemap / メタ / JSON-LD）はリポジトリ側で整備済み。検索掲載には登録が必要。
+
+### リダイレクトについて（登録できないとき）
+
+本番の正規 URL は **`https://www.出張洗車.jp`**（punycode: `https://www.xn--79q753awyk7z6a.jp`）のみ。
+
+| 入力した URL | 結果 |
+|-------------|------|
+| `http://出張洗車.jp` | → https へ 308 |
+| `https://出張洗車.jp`（www なし） | → **www** へ 308 |
+| `https://www.出張洗車.jp` | **200（ここを登録）** |
+
+GSC に **`https://出張洗車.jp` だけ**を入れると「リダイレクトがある」と拒否される。**www 付き**で登録するか、下記ドメインプロパティを使う。
+
+### 登録手順（推奨 2 択）
+
+**A. URL プレフィックス（手早い）**
+
+1. [Search Console](https://search.google.com/search-console) → プロパティを追加
+2. 次を**そのまま**入力: `https://www.出張洗車.jp`（末尾スラッシュ有無はどちらでも可）
+3. 所有権確認: HTML タグ（`app/layout.tsx` に meta 追加可）/ DNS / Vercel 連携
+4. Sitemaps → `https://www.xn--79q753awyk7z6a.jp/sitemap.xml` を送信
+5. URL 検査で `/` と `/en` → インデックス登録をリクエスト
+
+**B. ドメインプロパティ（www 有無を気にしない・推奨）**
+
+1. プロパティタイプ: **ドメイン** → `出張洗車.jp`（または `xn--79q753awyk7z6a.jp`）
+2. ドメイン管理画面に Google の **TXT レコード**を追加して確認
+3. http/https・apex/www すべてが 1 プロパティに含まれる
+
+補足: `/f` `/l` `/reserve` `/ja/pop` `/en/pop` は noindex / robots Disallow。LP 本体のみインデックス対象。
 
 ---
 
@@ -127,6 +182,8 @@ Dependabot PR 失敗 → lock 整合 + YAML が UTF-8 か確認。
 ## 参考（リポジトリ内）
 
 AGENTS.md — プロジェクト文脈
+docs/threads-posting.md — Threads 自動投稿（テーマ / Cron / API）
+docs/web-prompts/ — Web 構築プロンプト 1–9
 .cursor/rules/primecarwash-context.mdc — Cursor 常時ルール
 docs/web-prompts/ — Web 構築プロンプト
 Cloude ルート docs/security/ — 横断セキュリティレポート（本リポ単体には docs/security/ なし）

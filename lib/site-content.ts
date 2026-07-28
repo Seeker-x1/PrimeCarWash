@@ -3,6 +3,7 @@
 export const locales: Locale[] = ["ja", "en"];
 
 type ServiceItem = { label: string; description: string };
+type FaqItem = { question: string; answer: string };
 type Plan = { name: string; price: string; detail: string; highlight?: boolean };
 type MatrixRow = { size: string; visitorExterior: string; visitorFull: string; subMonthly1: string; subMonthly2Exterior: string; subMonthly2Full: string };
 type SizeGroup = { name: string; multiplier: string; cars: string[] };
@@ -10,6 +11,8 @@ type SizeGroup = { name: string; multiplier: string; cars: string[] };
 type SiteContent = {
   brandTagline: string;
   heroTitle: string;
+  /** ヒーロー H1 直下の英語タグライン等 */
+  heroSubtitle?: string;
   heroDescription: string;
   /** Google 検索結果などの `<title>`。未指定時は heroTitle */
   searchTitle?: string;
@@ -41,6 +44,14 @@ type SiteContent = {
   vehicleSizeSubTitle: string;
   sizeGroups: SizeGroup[];
   vehicleSizeNote: string;
+  serviceAreaTitle: string;
+  serviceAreaPrimaryLabel: string;
+  serviceAreaPrimary: string;
+  serviceAreaSecondaryLabel: string;
+  serviceAreaSecondary: string;
+  serviceAreaNote: string;
+  faqTitle: string;
+  faqItems: FaqItem[];
   heroImageAlt: string;
   formTitle: string;
   formDescription: string;
@@ -100,11 +111,12 @@ const commonSizeGroups: SizeGroup[] = [
 export const siteContent: Record<Locale, SiteContent> = {
   ja: {
     brandTagline: "あなたのガレージを、洗車スタジオに。",
-    heroTitle: "PREMIUM MOBILE VALETING",
-    heroDescription: "完全予約制の出張洗車サービス。車外・車内ケアを上質な体験で提供します。",
-    searchTitle: "PRIME CAR WASH｜出張洗車・完全予約（車外・車内ケア）",
+    heroTitle: "出張洗車・完全予約制",
+    heroSubtitle: "PREMIUM MOBILE VALETING",
+    heroDescription: "ご自宅や指定の洗車場所へ伺い、車外・車内を丁寧にケアする出張洗車サービスです。",
+    searchTitle: "出張洗車・完全予約｜PRIME CAR WASH（渋谷・世田谷・目黒）",
     searchDescription:
-      "完全予約制の出張洗車。ご指定の洗車場所へ伺い、車外・車内を丁寧にケア。ビジター・月額プランの料金表あり。LINE・フォームからご予約ください。",
+      "出張洗車・完全予約制。ご自宅や指定場所で車外・車内を丁寧にケア。ビジター／月額プランの料金表あり。LINEまたはフォームから予約。",
     ctaReserve: "日程を選んで予約",
     ctaContact: "LINEで相談",
     serviceScopeTitle: "施工内容詳細",
@@ -151,6 +163,50 @@ export const siteContent: Record<Locale, SiteContent> = {
     vehicleSizeSubTitle: "Vehicle Classification Standard (10 Examples Per Group)",
     sizeGroups: commonSizeGroups,
     vehicleSizeNote: "※掲載のない車種、およびカスタムパーツ装着車は現車確認の上で判断します。",
+    serviceAreaTitle: "対応エリア",
+    serviceAreaPrimaryLabel: "中心エリア",
+    serviceAreaPrimary: "渋谷区・世田谷区・目黒区",
+    serviceAreaSecondaryLabel: "対応例",
+    serviceAreaSecondary: "港区・品川区・中野区ほか",
+    serviceAreaNote:
+      "エリア外もご相談ください。車種とご希望日が分かるとスムーズです。",
+    faqTitle: "よくある質問",
+    faqItems: [
+      {
+        question: "対応エリアはどこですか？",
+        answer:
+          "渋谷区・世田谷区・目黒区を中心に、港区・品川区・中野区などへ伺います。エリア外もまずはご相談ください。",
+      },
+      {
+        question: "水は使いますか？",
+        answer:
+          "基本は無水洗浄を中心に対応します。状況に応じて最適な方法をご案内します。",
+      },
+      {
+        question: "マンションの駐車場でも可能ですか？",
+        answer:
+          "はい。ご自宅・マンション駐車場・勤務先など、洗車可能な場所であれば対応できます。事前に場所をお知らせください。",
+      },
+      {
+        question: "料金の目安は？",
+        answer:
+          "Mサイズのボディ洗車は7,700円（税込）から。車種サイズやプランにより変わります。サイズ別料金表をご確認ください。",
+      },
+      {
+        question: "継続プランの解約はいつでもできますか？",
+        answer: "はい。継続プランはいつでも解約可能です。",
+      },
+      {
+        question: "高級車・カスタムパーツ装着車は対応できますか？",
+        answer:
+          "対応可能です。掲載のない車種やカスタムパーツ装着車は現車確認のうえご案内します。",
+      },
+      {
+        question: "予約の流れは？",
+        answer:
+          "サイトの予約フォーム、またはLINEからご希望日・車種・洗車場所をお送りください。担当より折り返しご連絡します。",
+      },
+    ],
     heroImageAlt: "高級セダンを手作業で拭き上げる出張洗車イメージ",
     formTitle: "予約フォーム",
     formDescription: "以下をご入力ください。担当より折り返しご連絡します。",
@@ -160,8 +216,9 @@ export const siteContent: Record<Locale, SiteContent> = {
   },
   en: {
     brandTagline: "Turn your garage into a private valeting studio.",
-    heroTitle: "PREMIUM MOBILE VALETING",
-    heroDescription: "Appointment-only mobile car wash service with premium exterior and interior care.",
+    heroTitle: "Appointment-only mobile valeting",
+    heroSubtitle: "PREMIUM MOBILE VALETING",
+    heroDescription: "We come to your home or chosen location for premium exterior and interior care.",
     searchTitle: "PRIME CAR WASH | Mobile valeting in Japan",
     searchDescription:
       "Appointment-only mobile car wash with premium exterior and interior care. Pricing for visitor and subscription plans. Book via LINE or the on-site form.",
@@ -211,6 +268,50 @@ export const siteContent: Record<Locale, SiteContent> = {
     vehicleSizeSubTitle: "Vehicle Classification Standard",
     sizeGroups: commonSizeGroups,
     vehicleSizeNote: "Vehicles not listed or with custom parts are assessed after physical inspection.",
+    serviceAreaTitle: "Service area",
+    serviceAreaPrimaryLabel: "Core areas",
+    serviceAreaPrimary: "Shibuya, Setagaya, and Meguro (Tokyo)",
+    serviceAreaSecondaryLabel: "Also serving",
+    serviceAreaSecondary: "Minato, Shinagawa, Nakano, and nearby wards",
+    serviceAreaNote:
+      "Outside these areas? Contact us with your vehicle and preferred dates.",
+    faqTitle: "FAQ",
+    faqItems: [
+      {
+        question: "Which areas do you serve?",
+        answer:
+          "We are based around Shibuya, Setagaya, and Meguro, and also serve Minato, Shinagawa, Nakano, and nearby areas. Ask us if you are outside the listed wards.",
+      },
+      {
+        question: "Do you use water?",
+        answer:
+          "We mainly use waterless cleaning. We will advise the best method for your situation.",
+      },
+      {
+        question: "Can you wash at my apartment parking?",
+        answer:
+          "Yes, at home, apartment parking, or your workplace—wherever washing is permitted. Please share the location in advance.",
+      },
+      {
+        question: "How much does it cost?",
+        answer:
+          "Exterior wash for size M starts at ¥7,700 (tax included). Pricing depends on vehicle size and plan—see the pricing matrix on this page.",
+      },
+      {
+        question: "Can I cancel a subscription anytime?",
+        answer: "Yes. Subscription plans can be canceled at any time.",
+      },
+      {
+        question: "Do you handle luxury or modified vehicles?",
+        answer:
+          "Yes. Unlisted models and cars with custom parts are quoted after inspection.",
+      },
+      {
+        question: "How do I book?",
+        answer:
+          "Use the reservation form or LINE with your preferred dates, vehicle, and location. We will get back to you shortly.",
+      },
+    ],
     heroImageAlt: "Mobile valeting specialist wiping a luxury sedan",
     formTitle: "Reservation Form",
     formDescription: "Please fill in the fields below. Our team will contact you shortly.",
