@@ -115,9 +115,9 @@ export const siteContent: Record<Locale, SiteContent> = {
     brandTagline: "あなたのガレージを、洗車スタジオに。",
     heroTitle: "出張洗車・完全予約制",
     heroSubtitle: "PREMIUM MOBILE VALETING",
-    heroArea: "渋谷・世田谷・目黒ほか付近",
+    heroArea: "渋谷・世田谷・目黒を中心に",
     heroDescription: "ご自宅や指定の洗車場所へ伺い、車外・車内を丁寧にケアする出張洗車サービスです。",
-    searchTitle: "出張洗車・完全予約｜PRIME CAR WASH（渋谷・世田谷・目黒ほか付近）",
+    searchTitle: "出張洗車・完全予約｜PRIME CAR WASH（渋谷・世田谷・目黒周辺）",
     searchDescription:
       "出張洗車・完全予約制。ご自宅や指定場所で車外・車内を丁寧にケア。ビジター／月額プランの料金表あり。LINEまたはフォームから予約。",
     ctaReserve: "日程を選んで予約",
@@ -168,7 +168,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     vehicleSizeNote: "※掲載のない車種、およびカスタムパーツ装着車は現車確認の上で判断します。",
     serviceAreaTitle: "対応エリア",
     serviceAreaPrimaryLabel: "中心エリア",
-    serviceAreaPrimary: "渋谷区・世田谷区・目黒区ほか付近",
+    serviceAreaPrimary: "渋谷区・世田谷区・目黒区を中心に",
     serviceAreaSecondaryLabel: "対応例",
     serviceAreaSecondary: "港区・品川区・中野区など",
     serviceAreaNote:
@@ -178,7 +178,7 @@ export const siteContent: Record<Locale, SiteContent> = {
       {
         question: "対応エリアはどこですか？",
         answer:
-          "渋谷区・世田谷区・目黒区ほか付近を中心に、港区・品川区・中野区などへ伺います。エリア外もまずはご相談ください。",
+          "渋谷区・世田谷区・目黒区を中心に、港区・品川区・中野区などへ伺います。エリア外もまずはご相談ください。",
       },
       {
         question: "水は使いますか？",
@@ -221,7 +221,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     brandTagline: "Turn your garage into a private valeting studio.",
     heroTitle: "Appointment-only mobile valeting",
     heroSubtitle: "PREMIUM MOBILE VALETING",
-    heroArea: "Shibuya, Setagaya, Meguro & nearby",
+    heroArea: "Shibuya, Setagaya & Meguro and surrounding areas",
     heroDescription: "We come to your home or chosen location for premium exterior and interior care.",
     searchTitle: "PRIME CAR WASH | Mobile valeting in Japan",
     searchDescription:
