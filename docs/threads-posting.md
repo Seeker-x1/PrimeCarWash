@@ -81,7 +81,7 @@ curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
 # 特定 ID を本番投稿
 curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
   -H "Content-Type: application/json" \
-  -d '{"postId":"bw-01","dryRun":false}' \
+  -d '{"postId":"loc-01","dryRun":false}' \
   https://YOUR_DOMAIN/api/threads/publish
 ```
 
@@ -96,6 +96,27 @@ curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
 
 日付ごとの割当は DB なし（通算日 % 有効投稿数）。投稿を足すとローテーション間隔が伸びる。
 
+### コンテンツ方針（フォロワー獲得）
+
+自動投稿だけでフォロワーは増えにくい。以下を守る:
+
+| やる | やらない |
+|------|----------|
+| 1行目にフック（問い・数字・断言） | 詩的なブランドコピーだけ |
+| 渋谷・世田谷・目黒など具体エリア | どこでも通じる抽象文だけ |
+| 保存できるチェックリスト | 宣伝文の連投 |
+| 最後に質問（返信・議論を誘う） | 一方的な会社案内 |
+| 月1〜2本の「フォロー価値」投稿 | 毎日の硬い CTA |
+
+**1000フォロワーまでの運用:**
+
+1. 自動投稿は「認知の土台」。伸びるのは手動の返信・引用・エリア系の反応
+2. `/threads` で反応の悪い投稿は delete → ローテーションから外す
+3. 週1は手動で「今日の施工」「質問への回答」を1本足す
+4. プロフィールにエリア・予約導線を明記（`docs/threads-account.md`）
+
+テーマ ID 一覧: `local-authority` `myth-bust` `save-list` `relatable` `process-proof` `hot-take` `faq-engage` `seasonal-tips` `owner-insight` `follow-value`
+
 ### 取りこぼし（catch-up）
 
 Vercel Hobby では Cron が予定時刻に間に合わないことがあります。  
@@ -109,4 +130,4 @@ Vercel Hobby では Cron が予定時刻に間に合わないことがありま�
 
 - ~~同一日に Cron が再実行されると同文が再度選ばれる~~ → 投稿済み日は `posted-dates.json` でスキップ
 - `/threads` は公開 URL だが secret 必須・noindex。本番では Basic Auth や IP 制限を足してもよい
-- LINE 導線へのハードセルは避け、ブランドトーン（静か・上質）を維持する
+- LINE 導線へのハードセルは避ける。売り込みより「役立つ情報＋質問」でフォロー理由を作る
