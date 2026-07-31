@@ -8,6 +8,7 @@ import {
   loadDisabledStore,
 } from "@/lib/threads/disabled-store";
 import { getPostedForDate, postedStoreConfigured } from "@/lib/threads/posted-store";
+import { getOverrideForDate, overridesStoreConfigured } from "@/lib/threads/overrides-store";
 import {
   evaluatePublishSlot,
   jstDateKey,
@@ -48,6 +49,26 @@ export async function GET(request: Request) {
   const disabled = await getDisabledPostIds();
   const disabledStore = await loadDisabledStore();
   const upcoming = await peekUpcoming(14);
+  const todayOverride = await getOverrideForDate(dateKey);
+
+  const upcomingEnriched = await Promise.all(
+    upcoming.map(async ({ date, post, hourJst, minuteJst, timeLabel }) => {
+      const override = await getOverrideForDate(date);
+      return {
+        date,
+        hourJst,
+        minuteJst,
+        timeLabel,
+        postId: post.id,
+        themeId: post.themeId,
+        themeName: getThemeById(post.themeId)?.nameJa ?? post.themeId,
+        text: post.text,
+        preview: post.text.slice(0, 80).replace(/\n/g, " "),
+        refreshCount: override?.refreshCount ?? 0,
+        pickSource: override?.source ?? "schedule",
+      };
+    }),
+  );
 
   return NextResponse.json({
     ok: true,
@@ -55,6 +76,7 @@ export async function GET(request: Request) {
     date: jstDateKey(),
     canPersistDeletes: disabledStoreConfigured(),
     canTrackPosted: postedStoreConfigured(),
+    canRefreshPosts: overridesStoreConfigured(),
     schedule: {
       window: slot.window,
       todayHourJst: slot.targetHourJst,
@@ -78,18 +100,11 @@ export async function GET(request: Request) {
           hourJst: slot.targetHourJst,
           minuteJst: slot.targetMinuteJst,
           timeLabel: slot.targetLabel,
+          refreshCount: todayOverride?.refreshCount ?? 0,
+          pickSource: todayOverride?.source ?? "schedule",
         }
       : null,
-    upcoming: upcoming.map(({ date, post, hourJst, minuteJst, timeLabel }) => ({
-      date,
-      hourJst,
-      minuteJst,
-      timeLabel,
-      postId: post.id,
-      themeId: post.themeId,
-      themeName: getThemeById(post.themeId)?.nameJa ?? post.themeId,
-      preview: post.text.slice(0, 80).replace(/\n/g, " "),
-    })),
+    upcoming: upcomingEnriched,
     themes: THREADS_THEMES,
     posts: THREADS_POSTS.map((p) => ({
       id: p.id,

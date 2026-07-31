@@ -23,6 +23,8 @@ type PreviewResponse = {
     hourJst?: number;
     minuteJst?: number;
     timeLabel?: string;
+    refreshCount?: number;
+    pickSource?: "schedule" | "bank" | "generated";
   } | null;
   upcoming?: Array<{
     date: string;
@@ -32,7 +34,10 @@ type PreviewResponse = {
     postId: string;
     themeId: string;
     themeName: string;
+    text: string;
     preview: string;
+    refreshCount?: number;
+    pickSource?: "schedule" | "bank" | "generated";
   }>;
   themes?: Array<{
     id: string;
@@ -50,6 +55,7 @@ type PreviewResponse = {
   }>;
   deletedIds?: string[];
   canTrackPosted?: boolean;
+  canRefreshPosts?: boolean;
   publish?: {
     postedToday: {
       date: string;
@@ -137,6 +143,42 @@ export default function ThreadsOpsPage() {
       await loadPreview(secret.trim());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Publish failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function refreshPost(date: string) {
+    setError(null);
+    setPublishMsg(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/threads/refresh", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${secret.trim()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ date }),
+      });
+      const json = (await res.json()) as {
+        ok: boolean;
+        message?: string;
+        note?: string;
+        postId?: string;
+        source?: string;
+        text?: string;
+      };
+      if (!res.ok || !json.ok) {
+        setError(json.message ?? `HTTP ${res.status}`);
+        return;
+      }
+      setPublishMsg(
+        `${json.note ?? "Refreshed"} — ${json.postId} (${json.source})\n\n${json.text ?? ""}`,
+      );
+      await loadPreview(secret.trim());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Refresh failed");
     } finally {
       setLoading(false);
     }
@@ -279,6 +321,17 @@ export default function ThreadsOpsPage() {
                       削除の永続化には Vercel Blob（BLOB_READ_WRITE_TOKEN）が必要です。
                     </p>
                   ) : null}
+                  {data.canRefreshPosts === false ? (
+                    <p className="mt-1 text-xs text-amber-500/90">
+                      投稿の差し替え（refresh）には Vercel Blob の接続が必要です。
+                    </p>
+                  ) : null}
+                  {data.today?.refreshCount ? (
+                    <p className="mt-1 text-xs text-neutral-500">
+                      差し替え {data.today.refreshCount} 回
+                      {data.today.pickSource === "generated" ? " · AI生成" : ""}
+                    </p>
+                  ) : null}
                   {data.dryRunDefault ? (
                     <p className="mt-1 text-xs text-amber-500/90">
                       いまは練習モード（DRY_RUN=true、または USER_ID/TOKEN未設定）。
@@ -297,6 +350,22 @@ export default function ThreadsOpsPage() {
                     className="border border-red-900/80 px-3 py-1.5 text-xs tracking-wide text-red-300 hover:bg-red-950/40 disabled:opacity-40"
                   >
                     Delete today
+                  </button>
+                  <button
+                    type="button"
+                    disabled={
+                      loading ||
+                      !data.canRefreshPosts ||
+                      !data.date ||
+                      Boolean(data.publish?.postedToday)
+                    }
+                    onClick={() => {
+                      if (!data.date) return;
+                      void refreshPost(data.date);
+                    }}
+                    className="border border-sky-900/80 px-3 py-1.5 text-xs tracking-wide text-sky-300 hover:bg-sky-950/40 disabled:opacity-40"
+                  >
+                    Refresh
                   </button>
                   <button
                     type="button"
@@ -341,37 +410,57 @@ export default function ThreadsOpsPage() {
             <section className="space-y-3">
               <h2 className="text-sm tracking-wide text-neutral-400">Next 14 days</h2>
               <p className="text-xs text-neutral-600">
-                delete でキューから外すと、あとの日が繰り上がります。
+                delete でキューから外すと繰り上がります。refresh で別案に差し替え（バンク枯渇後は AI 生成）。
               </p>
-              <ul className="space-y-2 text-sm">
+              <ul className="space-y-4 text-sm">
                 {data.upcoming?.map((u) => (
-                  <li key={u.date} className="flex gap-2 border-b border-neutral-900 py-2">
-                    <span className="w-24 shrink-0 text-neutral-500">{u.date}</span>
-                    <span className="w-14 shrink-0 text-neutral-500">
-                      {u.timeLabel ??
-                        (u.hourJst != null ? `${u.hourJst}:00` : "—")}
-                    </span>
-                    <span className="w-24 shrink-0 text-neutral-400">{u.themeName}</span>
-                    <span className="min-w-0 flex-1 truncate text-neutral-300">{u.preview}</span>
-                    <button
-                      type="button"
-                      disabled={loading}
-                      className="shrink-0 text-xs text-neutral-500 underline hover:text-neutral-300"
-                      onClick={() => {
-                        if (!confirm(`${u.postId} を公開しますか？`)) return;
-                        void publish({ postId: u.postId, dryRun: false });
-                      }}
-                    >
-                      post
-                    </button>
-                    <button
-                      type="button"
-                      disabled={loading}
-                      className="shrink-0 text-xs text-red-400/90 underline hover:text-red-300"
-                      onClick={() => void removeFromRotation(u.postId)}
-                    >
-                      delete
-                    </button>
+                  <li key={u.date} className="space-y-2 border-b border-neutral-900 pb-4">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="text-neutral-500">{u.date}</span>
+                      <span className="text-neutral-500">
+                        {u.timeLabel ?? (u.hourJst != null ? `${u.hourJst}:00` : "—")}
+                      </span>
+                      <span className="text-neutral-400">{u.themeName}</span>
+                      <span className="text-neutral-600">{u.postId}</span>
+                      {u.refreshCount ? (
+                        <span className="text-xs text-neutral-600">
+                          差替×{u.refreshCount}
+                          {u.pickSource === "generated" ? " AI" : ""}
+                        </span>
+                      ) : null}
+                      <span className="ml-auto flex shrink-0 gap-2">
+                        <button
+                          type="button"
+                          disabled={loading || !data.canRefreshPosts}
+                          className="text-xs text-sky-400/90 underline hover:text-sky-300 disabled:opacity-40"
+                          onClick={() => void refreshPost(u.date)}
+                        >
+                          refresh
+                        </button>
+                        <button
+                          type="button"
+                          disabled={loading}
+                          className="text-xs text-neutral-500 underline hover:text-neutral-300"
+                          onClick={() => {
+                            if (!confirm(`${u.postId} を公開しますか？`)) return;
+                            void publish({ postId: u.postId, dryRun: false });
+                          }}
+                        >
+                          post
+                        </button>
+                        <button
+                          type="button"
+                          disabled={loading}
+                          className="text-xs text-red-400/90 underline hover:text-red-300"
+                          onClick={() => void removeFromRotation(u.postId)}
+                        >
+                          delete
+                        </button>
+                      </span>
+                    </div>
+                    <pre className="whitespace-pre-wrap border border-neutral-800/80 bg-neutral-900/40 p-3 text-sm leading-relaxed text-neutral-200">
+                      {u.text}
+                    </pre>
                   </li>
                 ))}
               </ul>

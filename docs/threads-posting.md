@@ -12,6 +12,7 @@ PRIME CAR WASH 向け。テーマ＋投稿バンクをコードで管理し、Ve
 | `GET /api/threads/preview` | キュー確認（要シークレット） |
 | `POST /api/threads/publish` | 手動投稿（要シークレット） |
 | `GET /api/threads/cron` | 日次自動投稿（Vercel Cron） |
+| `POST /api/threads/refresh` | 指定日の投稿文を別案に差し替え（要 Blob） |
 | `/threads` | Ops UI（noindex・シークレットで解錠） |
 
 Cron スケジュール（Hobby 対応）: 毎日 JST 8 / 9 / 10 / 11 / 12 時台に各1回チェック。
@@ -30,6 +31,15 @@ Cron スケジュール（Hobby 対応）: 毎日 JST 8 / 9 / 10 / 11 / 12 時�
 3. Redeploy  
 
 ローカル開発は `data/threads-disabled.json` に保存（gitignore）。
+
+### 投稿文の refresh（差し替え）
+
+`/threads` の **Refresh** / **refresh** で、その日の予定投稿を別案に差し替えます（ローテーションから外さない）。
+
+1. まず投稿バンクの未使用候補から選ぶ  
+2. バンクを使い切ったら **Gemini（`GEMINI_API_KEY`）で新規生成** → 何度でも可能  
+
+記録: Vercel Blob `threads/date-overrides.json`（削除キューと同じストア）
 
 ## Meta 側の準備
 

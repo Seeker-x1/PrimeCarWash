@@ -1,4 +1,5 @@
 import { listRotatingPosts } from "@/lib/threads/content";
+import { getOverrideForDate } from "@/lib/threads/overrides-store";
 import type { ThreadsPost } from "@/lib/threads/types";
 
 /** JST の年月日キー（例: 2026-07-14） */
@@ -53,7 +54,7 @@ export function getPostWindowHours(): { start: number; end: number } {
 }
 
 /** Stable scramble from day index (not crypto; just day-to-day variety). */
-function dayMix(dayIndex: number, salt: number): number {
+export function dayMix(dayIndex: number, salt: number): number {
   let x = (dayIndex + 1) * 1103515245 + salt;
   x = Math.imul(x ^ (x >>> 16), 2246822507);
   x = Math.imul(x ^ (x >>> 13), 3266489909);
@@ -185,6 +186,17 @@ export function shouldAutoPublishNow(date = new Date()): {
  * 削除済みを除いたキューを id 順にし、通算日で剰余 → 削除すると以降が繰り上がる。
  */
 export async function pickPostForDate(date = new Date()): Promise<ThreadsPost | null> {
+  const dateKey = jstDateKey(date);
+  const override = await getOverrideForDate(dateKey);
+  if (override) {
+    return {
+      id: override.postId,
+      themeId: override.themeId,
+      text: override.text,
+      enabled: true,
+    };
+  }
+
   const enabled = await listRotatingPosts();
   if (enabled.length === 0) return null;
   const index = jstDayIndex(date) % enabled.length;
