@@ -10,6 +10,8 @@ export type GeneratePostInput = {
   themeName: string;
   postingTips: string;
   avoidSnippets: string[];
+  /** 毎回異なる切り口にするためのシード */
+  variationSeed?: number;
 };
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -57,6 +59,11 @@ export async function generateThreadsPost(input: GeneratePostInput): Promise<Thr
           .join("\n")}`
       : "";
 
+  const variation =
+    input.variationSeed != null
+      ? `\n- バリエーション番号 ${input.variationSeed}。直前の案と被らない切り口・言い回しにすること。`
+      : "";
+
   const prompt = `あなたは PRIME CAR WASH（渋谷・世田谷・目黒中心の出張洗車）の Threads 投稿ライターです。
 
 テーマ: ${input.themeName}（id: ${input.themeId}）
@@ -68,7 +75,7 @@ export async function generateThreadsPost(input: GeneratePostInput): Promise<Thr
 - 渋谷・世田谷・目黒など具体エリアを入れる
 - 最後は質問で締める
 - 価格・割引・硬い営業は禁止
-- 改行で読みやすく${avoidBlock}
+- 改行で読みやすく${variation}${avoidBlock}
 
 JSON のみ返す: {"text":"本文"}`;
 

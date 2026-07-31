@@ -12,7 +12,8 @@ PRIME CAR WASH 向け。テーマ＋投稿バンクをコードで管理し、Ve
 | `GET /api/threads/preview` | キュー確認（要シークレット） |
 | `POST /api/threads/publish` | 手動投稿（要シークレット） |
 | `GET /api/threads/cron` | 日次自動投稿（Vercel Cron） |
-| `POST /api/threads/refresh` | 指定日の投稿文を別案に差し替え（要 Blob） |
+| `POST /api/threads/refresh` | 指定日の投稿文を別案に差し替え（`forceGenerate` で AI 強制） |
+| `lib/threads/resolve-post.ts` | バンク + 日付オーバーライド（AI 生成含む）を Publish 用に解決 |
 | `/threads` | Ops UI（noindex・シークレットで解錠） |
 
 Cron スケジュール（Hobby 対応）: 毎日 JST 8 / 9 / 10 / 11 / 12 時台に各1回チェック。
@@ -32,14 +33,40 @@ Cron スケジュール（Hobby 対応）: 毎日 JST 8 / 9 / 10 / 11 / 12 時�
 
 ローカル開発は `data/threads-disabled.json` に保存（gitignore）。
 
-### 投稿文の refresh（差し替え）
+### 投稿文の refresh（差し替え）と AI 無限生成
 
-`/threads` の **Refresh** / **refresh** で、その日の予定投稿を別案に差し替えます（ローテーションから外さない）。
+| Ops UI | 動作 |
+|--------|------|
+| **別の案** | 投稿バンクの未使用候補に差し替え。枯渇後は自動で Gemini 生成 |
+| **AIで生成** | バンクをスキップし、毎回 Gemini で新規文面（`forceGenerate`） |
+| **再読込** | 画面表示のみ更新（投稿文は変わらない） |
 
-1. まず投稿バンクの未使用候補から選ぶ  
-2. バンクを使い切ったら **Gemini（`GEMINI_API_KEY`）で新規生成** → 何度でも可能  
+1. まず投稿バンクの未使用候補から選ぶ（「別の案」）
+2. バンクを使い切ったら **Gemini（`GEMINI_API_KEY`）で新規生成**
+3. **「AIで生成」** はバンクに関係なく何度でも新規生成できる
 
 記録: Vercel Blob `threads/date-overrides.json`（削除キューと同じストア）
+
+### 投稿済みの日に追加投稿
+
+- **Cron は1日1回**（`posted-dates.json` でスキップ）
+- **手動 Publish は回数制限なし**。投稿済みでも「AIで生成」→「Publish today」で追加投稿できる
+- AI 生成文（`gen-*` ID）は日付オーバーライドに保存。`resolve-post.ts` 経由で Publish 可能
+- `POST /api/threads/publish` に `date`（JST `YYYY-MM-DD`）を渡すと、その日の差し替え文を投稿
+
+```bash
+# 今日の差し替え文を AI で生成
+curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"date":"2026-07-31","forceGenerate":true}' \
+  https://YOUR_DOMAIN/api/threads/refresh
+
+# 追加投稿（投稿済みでも可）
+curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"postId":"gen-...","date":"2026-07-31","dryRun":false}' \
+  https://YOUR_DOMAIN/api/threads/publish
+```
 
 ## Meta 側の準備
 
@@ -73,7 +100,7 @@ THREADS_CRON_ENABLED=false # 一時停止したいとき
 
 1. 本番またはローカルで `/threads` を開く
 2. `THREADS_PUBLISH_SECRET` を入力
-3. 本日分のプレビュー → Dry-run / Publish
+3. 本日分のプレビュー → **AIで生成** / **別の案** → Dry-run / Publish（投稿済みでも追加投稿可）
 
 ### curl
 
@@ -133,7 +160,7 @@ Vercel Hobby では Cron が予定時刻に間に合わないことがありま�
 そのため **投稿窓内（既定 JST 8–12）で、当日まだ出していなければ次の Cron で1回だけ追いかけ**ます。
 
 - 記録: Vercel Blob `threads/posted-dates.json`（削除キューと同じ Blob ストア）
-- 手動 Publish も当日分として記録し、同日の自動追いかけを防ぐ
+- 手動 Publish も当日分として記録し、同日の自動追いかけを防ぐ（**手動の追加投稿はブロックしない**）
 - Blob 未設定の本番では追いかけは無効（従来どおり「その時間の1回のみ」）
 
 ## 注意

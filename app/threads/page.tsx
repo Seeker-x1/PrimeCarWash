@@ -78,6 +78,7 @@ type PublishResponse = {
   postId?: string;
   text?: string;
   mediaId?: string;
+  extraPost?: boolean;
 };
 
 export default function ThreadsOpsPage() {
@@ -117,7 +118,11 @@ export default function ThreadsOpsPage() {
     await loadPreview(token);
   }
 
-  async function publish(opts: { postId?: string; dryRun: boolean }) {
+  async function publish(opts: {
+    postId?: string;
+    date?: string;
+    dryRun: boolean;
+  }) {
     setPublishMsg(null);
     setError(null);
     setLoading(true);
@@ -138,7 +143,7 @@ export default function ThreadsOpsPage() {
       setPublishMsg(
         json.dryRun
           ? `Dry-run OK — ${json.postId}\n\n${json.text ?? ""}`
-          : `Posted — ${json.postId} (media ${json.mediaId ?? "?"})`,
+          : `Posted${json.extraPost ? "（追加投稿）" : ""} — ${json.postId} (media ${json.mediaId ?? "?"})`,
       );
       await loadPreview(secret.trim());
     } catch (e) {
@@ -148,7 +153,7 @@ export default function ThreadsOpsPage() {
     }
   }
 
-  async function refreshPost(date: string) {
+  async function refreshPost(date: string, forceGenerate = false) {
     setError(null);
     setPublishMsg(null);
     setLoading(true);
@@ -159,7 +164,7 @@ export default function ThreadsOpsPage() {
           Authorization: `Bearer ${secret.trim()}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ date }),
+        body: JSON.stringify({ date, forceGenerate }),
       });
       const json = (await res.json()) as {
         ok: boolean;
@@ -303,7 +308,8 @@ export default function ThreadsOpsPage() {
                   {data.publish?.postedToday ? (
                     <p className="mt-1 text-xs text-emerald-400/90">
                       本日投稿済み: {data.publish.postedToday.postId}（
-                      {data.publish.postedToday.source}）
+                      {data.publish.postedToday.source}）— 手動 Publish / AI生成で
+                      <span className="text-neutral-300"> 追加投稿できます</span>
                     </p>
                   ) : data.publish?.eligibleNow ? (
                     <p className="mt-1 text-xs text-sky-400/90">
@@ -323,7 +329,7 @@ export default function ThreadsOpsPage() {
                   ) : null}
                   {data.canRefreshPosts === false ? (
                     <p className="mt-1 text-xs text-amber-500/90">
-                      投稿の差し替え（refresh）には Vercel Blob の接続が必要です。
+                      「別の案」には Vercel Blob の接続が必要です（Storage → このプロジェクトに接続 → Redeploy）。
                     </p>
                   ) : null}
                   {data.today?.refreshCount ? (
@@ -353,24 +359,38 @@ export default function ThreadsOpsPage() {
                   </button>
                   <button
                     type="button"
-                    disabled={
-                      loading ||
-                      !data.canRefreshPosts ||
-                      !data.date ||
-                      Boolean(data.publish?.postedToday)
-                    }
+                    disabled={loading || !data.canRefreshPosts || !data.date}
+                    onClick={() => {
+                      if (!data.date) return;
+                      void refreshPost(data.date, true);
+                    }}
+                    className="border border-violet-900/80 px-3 py-1.5 text-xs tracking-wide text-violet-300 hover:bg-violet-950/40 disabled:opacity-40"
+                    title="Gemini で新規文面を生成（何度でも）"
+                  >
+                    AIで生成
+                  </button>
+                  <button
+                    type="button"
+                    disabled={loading || !data.canRefreshPosts || !data.date}
                     onClick={() => {
                       if (!data.date) return;
                       void refreshPost(data.date);
                     }}
                     className="border border-sky-900/80 px-3 py-1.5 text-xs tracking-wide text-sky-300 hover:bg-sky-950/40 disabled:opacity-40"
+                    title="別の投稿案に差し替え（バンク→AI）"
                   >
-                    Refresh
+                    別の案
                   </button>
                   <button
                     type="button"
                     disabled={loading}
-                    onClick={() => void publish({ dryRun: true })}
+                    onClick={() =>
+                      void publish({
+                        postId: data.today?.post.id,
+                        date: data.date,
+                        dryRun: true,
+                      })
+                    }
                     className="border border-neutral-600 px-3 py-1.5 text-xs tracking-wide hover:bg-neutral-900 disabled:opacity-40"
                   >
                     Dry-run today
@@ -379,8 +399,15 @@ export default function ThreadsOpsPage() {
                     type="button"
                     disabled={loading}
                     onClick={() => {
-                      if (!confirm("本日の投稿を Threads に公開しますか？")) return;
-                      void publish({ dryRun: false });
+                      const msg = data.publish?.postedToday
+                        ? "本日は既に投稿済みです。プレビュー文を追加で Threads に公開しますか？"
+                        : "本日の投稿を Threads に公開しますか？";
+                      if (!confirm(msg)) return;
+                      void publish({
+                        postId: data.today?.post.id,
+                        date: data.date,
+                        dryRun: false,
+                      });
                     }}
                     className="border border-white/70 bg-white px-3 py-1.5 text-xs tracking-wide text-neutral-950 hover:bg-neutral-200 disabled:opacity-40"
                   >
@@ -391,8 +418,9 @@ export default function ThreadsOpsPage() {
                     disabled={loading}
                     onClick={() => void loadPreview(secret.trim())}
                     className="border border-neutral-700 px-3 py-1.5 text-xs text-neutral-400 hover:bg-neutral-900 disabled:opacity-40"
+                    title="画面の表示だけ更新（投稿文は変わりません）"
                   >
-                    Refresh
+                    再読込
                   </button>
                 </div>
               </div>
@@ -408,9 +436,10 @@ export default function ThreadsOpsPage() {
             ) : null}
 
             <section className="space-y-3">
-              <h2 className="text-sm tracking-wide text-neutral-400">Next 14 days</h2>
+              <h2 className="text-sm tracking-wide text-neutral-400">Next 14 days（明日以降）</h2>
               <p className="text-xs text-neutral-600">
-                delete でキューから外すと繰り上がります。refresh で別案に差し替え（バンク枯渇後は AI 生成）。
+                「別の案」でバンクから差し替え、「AIで生成」で Gemini
+                新規文面（何度でも）。投稿済みの日も手動 Publish で追加投稿できます。
               </p>
               <ul className="space-y-4 text-sm">
                 {data.upcoming?.map((u) => (
@@ -432,10 +461,20 @@ export default function ThreadsOpsPage() {
                         <button
                           type="button"
                           disabled={loading || !data.canRefreshPosts}
+                          className="text-xs text-violet-400/90 underline hover:text-violet-300 disabled:opacity-40"
+                          title="Gemini で新規文面を生成"
+                          onClick={() => void refreshPost(u.date, true)}
+                        >
+                          AI生成
+                        </button>
+                        <button
+                          type="button"
+                          disabled={loading || !data.canRefreshPosts}
                           className="text-xs text-sky-400/90 underline hover:text-sky-300 disabled:opacity-40"
+                          title="別の投稿案に差し替え"
                           onClick={() => void refreshPost(u.date)}
                         >
-                          refresh
+                          別の案
                         </button>
                         <button
                           type="button"
@@ -443,7 +482,7 @@ export default function ThreadsOpsPage() {
                           className="text-xs text-neutral-500 underline hover:text-neutral-300"
                           onClick={() => {
                             if (!confirm(`${u.postId} を公開しますか？`)) return;
-                            void publish({ postId: u.postId, dryRun: false });
+                            void publish({ postId: u.postId, date: u.date, dryRun: false });
                           }}
                         >
                           post

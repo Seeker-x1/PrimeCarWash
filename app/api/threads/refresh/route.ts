@@ -7,7 +7,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
-type Body = { date?: string };
+type Body = { date?: string; forceGenerate?: boolean };
 
 export async function POST(request: Request) {
   if (!threadsAuthConfigured()) {
@@ -51,7 +51,9 @@ export async function POST(request: Request) {
   const dateKey = body.date?.trim() || jstDateKey();
 
   try {
-    const result = await refreshPickForDate(dateKey);
+    const result = await refreshPickForDate(dateKey, {
+      forceGenerate: body.forceGenerate === true,
+    });
     return NextResponse.json({
       ok: true,
       date: dateKey,
@@ -60,8 +62,10 @@ export async function POST(request: Request) {
       text: result.post.text,
       source: result.source,
       refreshCount: result.refreshCount,
-      note:
-        result.source === "generated"
+      forceGenerate: body.forceGenerate === true,
+      note: body.forceGenerate
+        ? "AI で新規文面を生成しました（何度でも再生成できます）。"
+        : result.source === "generated"
           ? "バンク候補を使い切ったため AI で新規生成しました。"
           : "投稿バンクから別案に差し替えました。",
     });

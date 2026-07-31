@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
-import { assertPostBank, getPostById } from "@/lib/threads/content";
+import { assertPostBank } from "@/lib/threads/content";
 import { authorizeThreadsRequest, threadsAuthConfigured } from "@/lib/threads/auth";
 import { isThreadsDryRun, publishTextPost } from "@/lib/threads/client";
 import { getDisabledPostIds } from "@/lib/threads/disabled-store";
-import { markPostedForDate } from "@/lib/threads/posted-store";
-import { jstDateKey, pickPostForDate } from "@/lib/threads/schedule";
+import { getPostedForDate, markPostedForDate } from "@/lib/threads/posted-store";
+import { resolvePostForPublish } from "@/lib/threads/resolve-post";
+import { jstDateKey } from "@/lib/threads/schedule";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
 type PublishBody = {
   postId?: string;
+  /** JST 日付キー（YYYY-MM-DD）。省略時は今日 */
+  date?: string;
   /** force dry-run even when credentials exist */
   dryRun?: boolean;
   /** Threads に既に出している日を記録だけする（重複防止） */
@@ -54,13 +57,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const post = body.postId?.trim()
-    ? getPostById(body.postId.trim())
-    : await pickPostForDate();
+  const dateKey = body.date?.trim() || jstDateKey();
+
+  const post = await resolvePostForPublish({
+    postId: body.postId?.trim(),
+    date: dateKey,
+  });
 
   if (!post) {
     return NextResponse.json(
-      { ok: false, message: body.postId ? "Post not found." : "No enabled posts in bank." },
+      {
+        ok: false,
+        message: body.postId
+          ? "Post not found (バンクにも日付差し替えにもありません)."
+          : "No enabled posts in bank.",
+      },
       { status: 404 },
     );
   }
@@ -76,13 +87,13 @@ export async function POST(request: Request) {
   if (body.markPostedOnly === true) {
     try {
       const record = await markPostedForDate({
-        date: jstDateKey(),
+        date: dateKey,
         postId: post.id,
         source: "manual",
       });
       return NextResponse.json({
         ok: true,
-        date: jstDateKey(),
+        date: dateKey,
         markPostedOnly: true,
         postId: post.id,
         record,
@@ -103,6 +114,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    const hadPostedBefore = Boolean(await getPostedForDate(dateKey));
     const result = await publishTextPost({
       postId: post.id,
       themeId: post.themeId,
@@ -113,7 +125,7 @@ export async function POST(request: Request) {
     if (!result.dryRun) {
       try {
         await markPostedForDate({
-          date: jstDateKey(),
+          date: dateKey,
           postId: post.id,
           mediaId: result.mediaId,
           source: "manual",
@@ -125,7 +137,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      date: jstDateKey(),
+      date: dateKey,
+      extraPost: hadPostedBefore,
       ...result,
     });
   } catch (e) {

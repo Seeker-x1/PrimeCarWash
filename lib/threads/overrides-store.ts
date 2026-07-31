@@ -12,6 +12,8 @@ export type DateOverride = {
   themeId: string;
   text: string;
   rejectedIds: string[];
+  /** AI 生成の重複回避用（直近の本文） */
+  recentTexts?: string[];
   source: "bank" | "generated";
   refreshCount: number;
   updatedAt: string;
@@ -51,6 +53,11 @@ function parseStore(raw: unknown): OverridesStore {
       text: o.text,
       rejectedIds: Array.isArray(o.rejectedIds)
         ? o.rejectedIds.filter((id): id is string => typeof id === "string")
+        : [],
+      recentTexts: Array.isArray(o.recentTexts)
+        ? o.recentTexts.filter(
+            (t): t is string => typeof t === "string" && t.trim().length > 0,
+          )
         : [],
       source: (o.source === "generated" ? "generated" : "bank") as "bank" | "generated",
       refreshCount: typeof o.refreshCount === "number" ? o.refreshCount : 0,

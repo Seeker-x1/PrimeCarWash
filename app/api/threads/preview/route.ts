@@ -48,7 +48,8 @@ export async function GET(request: Request) {
   });
   const disabled = await getDisabledPostIds();
   const disabledStore = await loadDisabledStore();
-  const upcoming = await peekUpcoming(14);
+  const upcomingAll = await peekUpcoming(15);
+  const upcoming = upcomingAll.filter((u) => u.date !== dateKey).slice(0, 14);
   const todayOverride = await getOverrideForDate(dateKey);
 
   const upcomingEnriched = await Promise.all(
