@@ -64,6 +64,13 @@ type PreviewResponse = {
       publishedAt: string;
       source: "cron" | "catch_up" | "manual";
     } | null;
+    recentPosted?: Array<{
+      date: string;
+      postId: string;
+      mediaId?: string;
+      publishedAt: string;
+      source: "cron" | "catch_up" | "manual";
+    }>;
     eligibleNow: boolean;
     mode: "on_time" | "catch_up" | null;
     skipReason: string | null;
@@ -318,7 +325,10 @@ export default function ThreadsOpsPage() {
                     </p>
                   ) : data.publish?.skipReason ? (
                     <p className="mt-1 text-xs text-neutral-500">
-                      自動投稿: {data.publish.skipReason}
+                      自動投稿:{" "}
+                      {data.publish.skipReason === "before_target_slot"
+                        ? `本日 ${data.schedule?.todayTimeLabel ?? "—"} 頃に Cron 実行予定（いまは待機中）`
+                        : data.publish.skipReason}
                       {data.publish.catchUpEnabled ? "" : "（投稿記録ストア未設定）"}
                     </p>
                   ) : null}
@@ -428,6 +438,33 @@ export default function ThreadsOpsPage() {
                 {data.today?.post.text ?? "（投稿なし）"}
               </pre>
             </section>
+
+            {data.publish?.recentPosted && data.publish.recentPosted.length > 0 ? (
+              <section className="space-y-2">
+                <h2 className="text-sm tracking-wide text-neutral-400">直近の投稿記録（Blob）</h2>
+                <p className="text-xs text-neutral-600">
+                  Cron / 手動 Publish の記録。ここに無い日は自動投稿されていません。
+                </p>
+                <ul className="space-y-1 text-xs text-neutral-400">
+                  {data.publish.recentPosted.map((r) => (
+                    <li key={r.date}>
+                      <span className="text-neutral-500">{r.date}</span> · {r.postId} ·{" "}
+                      <span
+                        className={
+                          r.source === "manual"
+                            ? "text-amber-400/90"
+                            : r.source === "catch_up"
+                              ? "text-sky-400/90"
+                              : "text-emerald-400/90"
+                        }
+                      >
+                        {r.source}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
 
             {publishMsg ? (
               <pre className="whitespace-pre-wrap border border-emerald-900/50 bg-emerald-950/30 p-4 text-sm text-emerald-100">

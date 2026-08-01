@@ -16,8 +16,8 @@ PRIME CAR WASH 向け。テーマ＋投稿バンクをコードで管理し、Ve
 | `lib/threads/resolve-post.ts` | バンク + 日付オーバーライド（AI 生成含む）を Publish 用に解決 |
 | `/threads` | Ops UI（noindex・シークレットで解錠） |
 
-Cron スケジュール（Hobby 対応）: 毎日 JST 8 / 9 / 10 / 11 / 12 時台に各1回チェック。
-定刻を逃した日は窓内の次の Cron で1回だけ追いかけ。窓は `THREADS_POST_WINDOW_START` / `END`（既定 8–13＝8〜12時台）。
+Cron スケジュール（Hobby 対応）: 毎日 JST 8時・12時・13時台にチェック（13時台は取りこぼし救済）。
+定刻を逃した日は窓内の次の Cron で1回だけ追いかけ。窓は `THREADS_POST_WINDOW_START` / `END`（既定 8–14＝8〜13時台）。
 
 > Hobby プランは「1日1回」の Cron のみ。毎時 Cron はデプロイ失敗するため、窓内の各時に daily Cron を並べています。
 

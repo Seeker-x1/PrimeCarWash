@@ -7,7 +7,7 @@ import {
   getDisabledPostIds,
   loadDisabledStore,
 } from "@/lib/threads/disabled-store";
-import { getPostedForDate, postedStoreConfigured } from "@/lib/threads/posted-store";
+import { getPostedForDate, loadPostedStore, postedStoreConfigured } from "@/lib/threads/posted-store";
 import { getOverrideForDate, overridesStoreConfigured } from "@/lib/threads/overrides-store";
 import {
   evaluatePublishSlot,
@@ -42,6 +42,12 @@ export async function GET(request: Request) {
   const theme = today ? getThemeById(today.themeId) : undefined;
   const dateKey = jstDateKey();
   const postedToday = await getPostedForDate(dateKey);
+  const postedStore = postedStoreConfigured() ? await loadPostedStore() : null;
+  const recentPosted = postedStore
+    ? [...postedStore.records]
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, 14)
+    : [];
   const slot = evaluatePublishSlot(new Date(), {
     alreadyPostedToday: Boolean(postedToday),
     catchUpEnabled: postedStoreConfigured(),
@@ -89,6 +95,7 @@ export async function GET(request: Request) {
     },
     publish: {
       postedToday,
+      recentPosted,
       eligibleNow: slot.yes,
       mode: slot.mode,
       skipReason: slot.skipReason,

@@ -42,11 +42,11 @@ export function jstMinute(date = new Date()): number {
 
 /**
  * Auto-post window in JST hours [start, end).
- * Defaults: 8–12 → candidates 8,9,10,11.
+ * Defaults: 8–13 → candidates 8,9,10,11,12（13時台は取りこぼし救済用）。
  */
 export function getPostWindowHours(): { start: number; end: number } {
   const rawStart = Number.parseInt(process.env.THREADS_POST_WINDOW_START ?? "8", 10);
-  const rawEnd = Number.parseInt(process.env.THREADS_POST_WINDOW_END ?? "13", 10);
+  const rawEnd = Number.parseInt(process.env.THREADS_POST_WINDOW_END ?? "14", 10);
   const start = Number.isFinite(rawStart) ? Math.min(23, Math.max(0, rawStart)) : 8;
   let end = Number.isFinite(rawEnd) ? Math.min(24, Math.max(0, rawEnd)) : 12;
   if (end <= start) end = Math.min(24, start + 1);
