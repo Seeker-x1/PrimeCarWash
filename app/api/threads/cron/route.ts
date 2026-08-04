@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { assertPostBank } from "@/lib/threads/content";
 import { authorizeThreadsCron, threadsAuthConfigured } from "@/lib/threads/auth";
 import { isThreadsDryRun, publishTextPost } from "@/lib/threads/client";
-import { getPostedForDate, markPostedForDate, postedStoreConfigured } from "@/lib/threads/posted-store";
+import {
+  cronBlockedByPostedToday,
+  getPostedForDate,
+  markPostedForDate,
+  postedStoreConfigured,
+} from "@/lib/threads/posted-store";
 import {
   evaluatePublishSlot,
   jstDateKey,
@@ -37,11 +42,15 @@ export async function GET(request: Request) {
   }
 
   const dateKey = jstDateKey();
+  const scheduledPost = await pickPostForDate();
   const postedToday = await getPostedForDate(dateKey);
+  const cronBlocked = cronBlockedByPostedToday(postedToday, scheduledPost?.id ?? null);
+  const catchUpEnabled = postedStoreConfigured();
   const slot = evaluatePublishSlot(new Date(), {
-    alreadyPostedToday: Boolean(postedToday),
-    catchUpEnabled: postedStoreConfigured(),
+    alreadyPostedToday: cronBlocked,
+    catchUpEnabled,
   });
+
   if (!slot.yes) {
     return NextResponse.json({
       ok: true,
@@ -53,6 +62,8 @@ export async function GET(request: Request) {
       targetHourJst: slot.targetHourJst,
       window: slot.window,
       postedToday: postedToday ?? null,
+      scheduledPostId: scheduledPost?.id ?? null,
+      cronBlocked,
       catchUpEnabled: postedStoreConfigured(),
     });
   }
@@ -66,7 +77,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const post = await pickPostForDate();
+  const post = scheduledPost;
   if (!post) {
     return NextResponse.json({ ok: false, message: "No enabled posts." }, { status: 404 });
   }

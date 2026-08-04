@@ -161,6 +161,20 @@ export async function getPostedForDate(dateKey: string): Promise<PostedRecord | 
   return store.records.find((r) => r.date === dateKey) ?? null;
 }
 
+/**
+ * Cron は「その日の予定投稿がまだ出ていない」なら動く。
+ * 手動で別 ID を出しただけではブロックしない（予定 take-04 / 手動 save-03 など）。
+ */
+export function cronBlockedByPostedToday(
+  postedToday: PostedRecord | null,
+  scheduledPostId: string | null,
+): boolean {
+  if (!postedToday) return false;
+  if (postedToday.source === "cron" || postedToday.source === "catch_up") return true;
+  if (scheduledPostId && postedToday.postId === scheduledPostId) return true;
+  return false;
+}
+
 export async function markPostedForDate(input: {
   date: string;
   postId: string;

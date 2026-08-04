@@ -15,6 +15,7 @@ type PreviewResponse = {
     todayTimeLabel?: string;
     currentHourJst: number;
     currentMinuteJst?: number;
+    cronHoursJst?: number[];
     note: string;
   };
   today?: {
@@ -75,6 +76,8 @@ type PreviewResponse = {
     mode: "on_time" | "catch_up" | null;
     skipReason: string | null;
     catchUpEnabled: boolean;
+    cronBlocked?: boolean;
+    scheduledPostId?: string | null;
   };
 };
 
@@ -301,22 +304,34 @@ export default function ThreadsOpsPage() {
                   </h2>
                   {data.schedule ? (
                     <p className="mt-1 text-xs text-neutral-400">
-                      自動投稿の目安: 今日{" "}
-                      {data.schedule.todayTimeLabel ??
-                        `${data.schedule.todayHourJst}:00`}{" "}
-                      JST（窓 {data.schedule.window.start}–{data.schedule.window.end}
-                      時／いま {String(data.schedule.currentHourJst).padStart(2, "0")}:
-                      {String(data.schedule.currentMinuteJst ?? 0).padStart(2, "0")}）
+                      自動投稿: Cron{" "}
+                      {(data.schedule.cronHoursJst ?? [8, 12, 13])
+                        .map((h) => `${h}時`)
+                        .join("・")}
+                      台（窓 {data.schedule.window.start}–{data.schedule.window.end}時）／
+                      定刻目安 {data.schedule.todayTimeLabel ?? `${data.schedule.todayHourJst}:00`}{" "}
+                      JST／いま {String(data.schedule.currentHourJst).padStart(2, "0")}:
+                      {String(data.schedule.currentMinuteJst ?? 0).padStart(2, "0")}
                     </p>
                   ) : null}
                   {data.schedule?.note ? (
-                    <p className="mt-1 text-xs text-neutral-600">{data.schedule.note}</p>
+                    <p className="mt-1 text-xs text-neutral-600">
+                      定刻目安は日付でランダム。Hobby の Cron は 8・12・13 時に実際に起動（分は前後します）。
+                      Blob 接続時は取りこぼしを次の Cron で追いかけます。
+                    </p>
                   ) : null}
                   {data.publish?.postedToday ? (
                     <p className="mt-1 text-xs text-emerald-400/90">
                       本日投稿済み: {data.publish.postedToday.postId}（
-                      {data.publish.postedToday.source}）— 手動 Publish / AI生成で
-                      <span className="text-neutral-300"> 追加投稿できます</span>
+                      {data.publish.postedToday.source}）
+                      {(data.publish.cronBlocked === false ||
+                        (data.publish.cronBlocked === undefined &&
+                          data.publish.postedToday.source === "manual" &&
+                          data.today?.post.id &&
+                          data.publish.postedToday.postId !== data.today.post.id)) &&
+                      data.today?.post.id
+                        ? ` — 予定 ${data.today.post.id} は自動投稿待ち（13時 Cron またはデプロイ後に追いかけ）`
+                        : " — 手動 Publish / AI生成で追加投稿できます"}
                     </p>
                   ) : data.publish?.eligibleNow ? (
                     <p className="mt-1 text-xs text-sky-400/90">
@@ -328,8 +343,18 @@ export default function ThreadsOpsPage() {
                       自動投稿:{" "}
                       {data.publish.skipReason === "before_target_slot"
                         ? `本日 ${data.schedule?.todayTimeLabel ?? "—"} 頃に Cron 実行予定（いまは待機中）`
-                        : data.publish.skipReason}
-                      {data.publish.catchUpEnabled ? "" : "（投稿記録ストア未設定）"}
+                        : data.publish.skipReason === "outside_daily_random_slot" &&
+                            !data.publish.catchUpEnabled
+                          ? "Cron 時刻と投稿予定時刻が一致しません（Blob 未設定）。デプロイ更新後は 8/12/13 時に揃います"
+                        : data.publish.skipReason === "already_posted_today" &&
+                            data.publish.postedToday &&
+                            data.today?.post.id &&
+                            data.publish.postedToday.postId !== data.today.post.id
+                          ? `手動 ${data.publish.postedToday.postId} 済み。予定 ${data.today.post.id} は旧版では自動停止（要デプロイ）`
+                          : data.publish.skipReason}
+                      {data.publish.catchUpEnabled
+                        ? ""
+                        : " · 取りこぼし救済には Vercel Blob が必要"}
                     </p>
                   ) : null}
                   {data.canPersistDeletes === false ? (

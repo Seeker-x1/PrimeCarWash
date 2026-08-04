@@ -1,6 +1,13 @@
 import { listRotatingPosts } from "@/lib/threads/content";
 import { getOverrideForDate } from "@/lib/threads/overrides-store";
+import { postedStoreConfigured } from "@/lib/threads/posted-store";
 import type { ThreadsPost } from "@/lib/threads/types";
+
+/**
+ * JST hours that vercel.json Cron hits on Vercel Hobby (UTC 23 / 3 / 4).
+ * Blob 未設定の本番では catch-up が無効なので、target もこの時刻に限定する。
+ */
+export const HOBBY_CRON_HOURS_JST = [8, 12, 13];
 
 /** JST の年月日キー（例: 2026-07-14） */
 export function jstDateKey(date = new Date()): string {
@@ -63,8 +70,13 @@ export function dayMix(dayIndex: number, salt: number): number {
 
 /**
  * That day's post hour (JST), picked deterministically from the date.
+ * Blob 未設定の Vercel 本番は Cron 時刻（8/12/13）に合わせる。
  */
 export function pickPostHourJstForDate(date = new Date()): number {
+  if (!postedStoreConfigured()) {
+    const idx = dayMix(jstDayIndex(date), 17) % HOBBY_CRON_HOURS_JST.length;
+    return HOBBY_CRON_HOURS_JST[idx];
+  }
   const { start, end } = getPostWindowHours();
   const span = end - start;
   return start + (dayMix(jstDayIndex(date), 17) % span);

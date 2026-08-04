@@ -7,10 +7,16 @@ import {
   getDisabledPostIds,
   loadDisabledStore,
 } from "@/lib/threads/disabled-store";
-import { getPostedForDate, loadPostedStore, postedStoreConfigured } from "@/lib/threads/posted-store";
+import {
+  cronBlockedByPostedToday,
+  getPostedForDate,
+  loadPostedStore,
+  postedStoreConfigured,
+} from "@/lib/threads/posted-store";
 import { getOverrideForDate, overridesStoreConfigured } from "@/lib/threads/overrides-store";
 import {
   evaluatePublishSlot,
+  HOBBY_CRON_HOURS_JST,
   jstDateKey,
   peekUpcoming,
   pickPostForDate,
@@ -42,6 +48,7 @@ export async function GET(request: Request) {
   const theme = today ? getThemeById(today.themeId) : undefined;
   const dateKey = jstDateKey();
   const postedToday = await getPostedForDate(dateKey);
+  const cronBlocked = cronBlockedByPostedToday(postedToday, today?.id ?? null);
   const postedStore = postedStoreConfigured() ? await loadPostedStore() : null;
   const recentPosted = postedStore
     ? [...postedStore.records]
@@ -49,7 +56,7 @@ export async function GET(request: Request) {
         .slice(0, 14)
     : [];
   const slot = evaluatePublishSlot(new Date(), {
-    alreadyPostedToday: Boolean(postedToday),
+    alreadyPostedToday: cronBlocked,
     catchUpEnabled: postedStoreConfigured(),
   });
   const disabled = await getDisabledPostIds();
@@ -91,11 +98,14 @@ export async function GET(request: Request) {
       todayTimeLabel: slot.targetLabel,
       currentHourJst: slot.hourJst,
       currentMinuteJst: slot.minuteJst,
+      cronHoursJst: HOBBY_CRON_HOURS_JST,
       note: slot.precisionNote,
     },
     publish: {
       postedToday,
       recentPosted,
+      cronBlocked,
+      scheduledPostId: today?.id ?? null,
       eligibleNow: slot.yes,
       mode: slot.mode,
       skipReason: slot.skipReason,
