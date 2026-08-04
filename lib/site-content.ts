@@ -52,6 +52,9 @@ type SiteContent = {
   serviceAreaSecondaryLabel: string;
   serviceAreaSecondary: string;
   serviceAreaNote: string;
+  areaPageLinksTitle: string;
+  seoIntroTitle: string;
+  seoIntroBody: string;
   faqTitle: string;
   faqItems: FaqItem[];
   heroImageAlt: string;
@@ -119,7 +122,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     heroDescription: "ご自宅や指定の洗車場所へ伺い、車外・車内を丁寧にケアする出張洗車サービスです。",
     searchTitle: "出張洗車・完全予約｜PRIME CAR WASH（渋谷・世田谷・目黒周辺）",
     searchDescription:
-      "出張洗車・完全予約制。ご自宅や指定場所で車外・車内を丁寧にケア。ビジター／月額プランの料金表あり。LINEまたはフォームから予約。",
+      "東京・渋谷・世田谷・目黒の出張洗車。完全予約制でご自宅・駐車場へ伺い、無水洗浄で車外・車内をケア。月2回プランは1回5,500円相当。料金表・LINE予約あり。",
     ctaReserve: "日程を選んで予約",
     ctaContact: "LINEで相談",
     serviceScopeTitle: "施工内容詳細",
@@ -173,6 +176,10 @@ export const siteContent: Record<Locale, SiteContent> = {
     serviceAreaSecondary: "港区・品川区・中野区など",
     serviceAreaNote:
       "エリア外もご相談ください。車種とご希望日が分かるとスムーズです。",
+    areaPageLinksTitle: "エリア別の出張洗車",
+    seoIntroTitle: "東京の出張洗車サービスについて",
+    seoIntroBody:
+      "PRIME CAR WASHは、東京都内を中心にご指定の場所へ伺う出張洗車（モバイルベレッティング）です。コイン洗車やガソリンスタンドに行く手間なく、ご自宅・マンション駐車場・勤務先でプレミアムな車両ケアを。無水洗浄を基本とし、高級車・輸入車にも対応。ビジター（都度）と月額プランからお選びいただけます。",
     faqTitle: "よくある質問",
     faqItems: [
       {
@@ -208,6 +215,21 @@ export const siteContent: Record<Locale, SiteContent> = {
         question: "予約の流れは？",
         answer:
           "サイトの予約フォーム、またはLINEからご希望日・車種・洗車場所をお送りください。担当より折り返しご連絡します。",
+      },
+      {
+        question: "出張洗車とコイン洗車の違いは？",
+        answer:
+          "出張洗車はご指定の場所へプロが伺い、手作業で丁寧に施工します。移動・待ち時間がなく、高級洗浄剤と無水洗浄で塗装面への負担も抑えられます。",
+      },
+      {
+        question: "東京23区内でも出張洗車は可能ですか？",
+        answer:
+          "渋谷・世田谷・目黒を中心に、港区・品川区・中野区などへ伺います。エリア外もまずはご相談ください。",
+      },
+      {
+        question: "月2回プランはどれくらいお得ですか？",
+        answer:
+          "Mサイズの場合、都度7,700円のボディ洗車が月2回11,000円（税込）—1回あたり5,500円相当。こまめに洗車したい方に人気です。",
       },
     ],
     heroImageAlt: "高級セダンを手作業で拭き上げる出張洗車イメージ",
@@ -279,6 +301,10 @@ export const siteContent: Record<Locale, SiteContent> = {
     serviceAreaSecondary: "Minato, Shinagawa, Nakano, and nearby wards",
     serviceAreaNote:
       "Outside these areas? Contact us with your vehicle and preferred dates.",
+    areaPageLinksTitle: "Valeting by area",
+    seoIntroTitle: "Mobile valeting in Tokyo",
+    seoIntroBody:
+      "PRIME CAR WASH is an appointment-only mobile car wash serving Tokyo. We come to your home, apartment parking, or workplace—no trip to the coin wash. Waterless exterior care and optional interior cleaning; visitor and subscription plans available.",
     faqTitle: "FAQ",
     faqItems: [
       {
@@ -314,6 +340,21 @@ export const siteContent: Record<Locale, SiteContent> = {
         question: "How do I book?",
         answer:
           "Use the reservation form or LINE with your preferred dates, vehicle, and location. We will get back to you shortly.",
+      },
+      {
+        question: "How is mobile valeting different from a coin wash?",
+        answer:
+          "We come to you and hand-finish your car with premium products—no travel or waiting, and gentler on your paint with waterless methods.",
+      },
+      {
+        question: "Do you serve central Tokyo?",
+        answer:
+          "We are based around Shibuya, Setagaya, and Meguro, and also serve Minato, Shinagawa, Nakano, and nearby wards.",
+      },
+      {
+        question: "Is the twice-monthly plan worth it?",
+        answer:
+          "For size M, ¥11,000/month for two exterior washes is about ¥5,500 per visit versus ¥7,700 pay-as-you-go.",
       },
     ],
     heroImageAlt: "Mobile valeting specialist wiping a luxury sedan",

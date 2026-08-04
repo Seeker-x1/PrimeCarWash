@@ -1,7 +1,8 @@
 import type { Locale } from "@/lib/site-content";
 import { siteContent } from "@/lib/site-content";
 import { getSiteOrigin } from "@/lib/site-url";
-
+import type { AreaPageContent } from "@/lib/area-pages";
+import { getAreaCanonicalPath, getAreaContent } from "@/lib/area-pages";
 const LINE_OFFICIAL_ID =
   process.env.NEXT_PUBLIC_LINE_OFFICIAL_ID ?? "@834ecayh";
 
@@ -103,6 +104,18 @@ export function buildLocaleJsonLd(locale: Locale) {
         url: origin,
         inLanguage: ["ja-JP", "en-US"],
         publisher: { "@id": orgId },
+        potentialAction: {
+          "@type": "ReserveAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${pageUrl}#reservation-form`,
+            actionPlatform: [
+              "http://schema.org/DesktopWebPlatform",
+              "http://schema.org/MobileWebPlatform",
+            ],
+          },
+          name: locale === "ja" ? "出張洗車を予約" : "Book mobile valeting",
+        },
       },
       {
         "@type": "LocalBusiness",
@@ -146,6 +159,95 @@ export function buildLocaleJsonLd(locale: Locale) {
         isPartOf: { "@id": websiteId },
         about: { "@id": businessId },
         primaryImageOfPage: imageUrl,
+      },
+    ],
+  };
+}
+
+/** JSON-LD for ward-level landing pages (local SEO). */
+export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
+  const origin = getSiteOrigin();
+  const content = getAreaContent(locale, page);
+  const canonicalPath = getAreaCanonicalPath(locale, page.slug);
+  const pageUrl = `${origin}${canonicalPath}`;
+  const homeUrl = locale === "ja" ? origin : `${origin}/en`;
+  const inLanguage = locale === "ja" ? "ja-JP" : "en-US";
+  const imageUrl = getOgImageUrl();
+  const lineProfileUrl = `https://line.me/R/ti/p/${LINE_OFFICIAL_ID}`;
+  const orgId = `${origin}/#organization`;
+  const wardName = locale === "ja" ? page.wardJa : page.wardEn;
+
+  const faqEntities = content.faq.map((item) => ({
+    "@type": "Question" as const,
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer" as const,
+      text: item.answer,
+    },
+  }));
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: locale === "ja" ? "ホーム" : "Home",
+            item: homeUrl,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: content.h1,
+            item: pageUrl,
+          },
+        ],
+      },
+      {
+        "@type": "Service",
+        "@id": `${pageUrl}#service`,
+        name: content.h1,
+        description: content.searchDescription,
+        url: pageUrl,
+        image: imageUrl,
+        provider: { "@id": orgId },
+        areaServed: {
+          "@type": "City",
+          name: wardName,
+          containedInPlace: {
+            "@type": "AdministrativeArea",
+            name: locale === "ja" ? "東京都" : "Tokyo",
+          },
+        },
+        serviceType:
+          locale === "ja" ? "出張洗車" : "Mobile car wash / mobile valeting",
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${pageUrl}#faq`,
+        url: `${pageUrl}#faq`,
+        inLanguage,
+        mainEntity: faqEntities,
+      },
+      {
+        "@type": "WebPage",
+        "@id": pageUrl,
+        url: pageUrl,
+        name: content.searchTitle,
+        description: content.searchDescription,
+        inLanguage,
+        isPartOf: { "@id": `${origin}/#website` },
+        breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+      },
+      {
+        "@type": "Organization",
+        "@id": orgId,
+        name: "PRIME CAR WASH",
+        url: origin,
+        sameAs: [lineProfileUrl],
       },
     ],
   };

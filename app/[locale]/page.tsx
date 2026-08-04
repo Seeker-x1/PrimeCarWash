@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, locales, siteContent } from "@/lib/site-content";
+import { areaSlugs, getAreaCanonicalPath, getAreaPage } from "@/lib/area-pages";
 import { getLineConsultationUrl } from "@/lib/line-consultation";
 import { buildLocaleJsonLd, getOgImageUrl } from "@/lib/seo-json-ld";
 import BlurFade from "@/components/BlurFade";
@@ -246,6 +247,15 @@ export default async function LocalePage({ params }: PageProps) {
 
       <section className="mx-auto max-w-6xl px-4 py-16">
         <BlurFade>
+          <h2 className="font-serif text-3xl tracking-[0.12em]">{content.seoIntroTitle}</h2>
+        </BlurFade>
+        <BlurFade delay={0.08}>
+          <p className="mt-6 max-w-3xl text-sm leading-8 text-[#d9d9d9]">{content.seoIntroBody}</p>
+        </BlurFade>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-16">
+        <BlurFade>
           <h2 className="font-serif text-3xl tracking-[0.12em]">{content.serviceAreaTitle}</h2>
         </BlurFade>
         <div className="mt-8 grid gap-6 border border-[#999999] p-6 sm:grid-cols-2">
@@ -259,6 +269,26 @@ export default async function LocalePage({ params }: PageProps) {
           </div>
         </div>
         <p className="mt-4 text-sm text-[#d9d9d9]">{content.serviceAreaNote}</p>
+        <div className="mt-8">
+          <h3 className="text-sm tracking-[0.1em] text-[#d9d9d9]">{content.areaPageLinksTitle}</h3>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {areaSlugs.map((slug) => {
+              const area = getAreaPage(slug)!;
+              const label = currentLocale === "ja" ? area.wardJa : area.wardEn;
+              const href = getAreaCanonicalPath(currentLocale, slug);
+              return (
+                <li key={slug}>
+                  <Link
+                    href={href}
+                    className="inline-block border border-[#999999] px-3 py-2 text-sm hover:border-white"
+                  >
+                    {currentLocale === "ja" ? `${label}の出張洗車` : `${label}`}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </section>
 
       <section id="faq" className="mx-auto max-w-6xl px-4 py-16">
