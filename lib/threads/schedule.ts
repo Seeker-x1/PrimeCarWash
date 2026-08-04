@@ -53,7 +53,7 @@ export function jstMinute(date = new Date()): number {
  */
 export function getPostWindowHours(): { start: number; end: number } {
   const rawStart = Number.parseInt(process.env.THREADS_POST_WINDOW_START ?? "8", 10);
-  const rawEnd = Number.parseInt(process.env.THREADS_POST_WINDOW_END ?? "14", 10);
+  const rawEnd = Number.parseInt(process.env.THREADS_POST_WINDOW_END ?? "15", 10);
   const start = Number.isFinite(rawStart) ? Math.min(23, Math.max(0, rawStart)) : 8;
   let end = Number.isFinite(rawEnd) ? Math.min(24, Math.max(0, rawEnd)) : 12;
   if (end <= start) end = Math.min(24, start + 1);
@@ -73,7 +73,7 @@ export function dayMix(dayIndex: number, salt: number): number {
  * Blob 未設定の Vercel 本番は Cron 時刻（8/12/13）に合わせる。
  */
 export function pickPostHourJstForDate(date = new Date()): number {
-  if (!postedStoreConfigured()) {
+  if (!postedStoreConfigured() || process.env.VERCEL) {
     const idx = dayMix(jstDayIndex(date), 17) % HOBBY_CRON_HOURS_JST.length;
     return HOBBY_CRON_HOURS_JST[idx];
   }
@@ -164,6 +164,35 @@ export function evaluatePublishSlot(
     hourJst < targetHourJst ? "before_target_slot" : "outside_daily_random_slot";
 
   return { ...base, yes: false, mode: null, skipReason };
+}
+
+/**
+ * Hobby は同日に Cron が1回しか動かないことがある。
+ * 窓内の Cron 起動時は、予定投稿が未完了ならその tick で出す。
+ */
+export function resolveCronPublish(
+  slot: ReturnType<typeof evaluatePublishSlot>,
+  cronBlocked: boolean,
+): { yes: boolean; mode: PublishMode | null; skipReason: PublishSkipReason | null } {
+  if (cronBlocked) {
+    return { yes: false, mode: null, skipReason: "already_posted_today" };
+  }
+  if (slot.yes) {
+    return { yes: true, mode: slot.mode, skipReason: null };
+  }
+  if (slot.skipReason === "after_post_window") {
+    return { yes: false, mode: null, skipReason: slot.skipReason };
+  }
+  if (
+    process.env.VERCEL &&
+    slot.hourJst >= slot.window.start &&
+    slot.hourJst < slot.window.end
+  ) {
+    const mode: PublishMode =
+      slot.hourJst > slot.targetHourJst ? "catch_up" : "on_time";
+    return { yes: true, mode, skipReason: null };
+  }
+  return { yes: false, mode: null, skipReason: slot.skipReason };
 }
 
 /** @deprecated Prefer evaluatePublishSlot */

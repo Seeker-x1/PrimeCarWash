@@ -12,6 +12,7 @@ import {
   evaluatePublishSlot,
   jstDateKey,
   pickPostForDate,
+  resolveCronPublish,
 } from "@/lib/threads/schedule";
 
 export const runtime = "nodejs";
@@ -50,12 +51,44 @@ export async function GET(request: Request) {
     alreadyPostedToday: cronBlocked,
     catchUpEnabled,
   });
+  const publish = resolveCronPublish(slot, cronBlocked);
 
-  if (!slot.yes) {
+  // #region agent log
+  fetch("http://127.0.0.1:7806/ingest/8b50c3e5-afe6-4dff-86e9-b33c4cf14860", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "83bd9c" },
+    body: JSON.stringify({
+      sessionId: "83bd9c",
+      location: "cron/route.ts:publish-decision",
+      message: "cron publish decision",
+      data: {
+        dateKey,
+        hourJst: slot.hourJst,
+        targetHourJst: slot.targetHourJst,
+        window: slot.window,
+        slotYes: slot.yes,
+        slotSkip: slot.skipReason,
+        publishYes: publish.yes,
+        publishMode: publish.mode,
+        publishSkip: publish.skipReason,
+        cronBlocked,
+        scheduledPostId: scheduledPost?.id ?? null,
+        postedTodayId: postedToday?.postId ?? null,
+        vercelCron: request.headers.get("x-vercel-cron"),
+        cronSchedule: request.headers.get("x-vercel-cron-schedule"),
+      },
+      timestamp: Date.now(),
+      hypothesisId: "H1-H5",
+      runId: "pre-fix",
+    }),
+  }).catch(() => {});
+  // #endregion
+
+  if (!publish.yes) {
     return NextResponse.json({
       ok: true,
       skipped: true,
-      reason: slot.skipReason ?? "outside_daily_random_slot",
+      reason: publish.skipReason ?? slot.skipReason ?? "outside_daily_random_slot",
       cronSchedule: request.headers.get("x-vercel-cron-schedule"),
       date: dateKey,
       hourJst: slot.hourJst,
@@ -97,7 +130,7 @@ export async function GET(request: Request) {
           date: dateKey,
           postId: post.id,
           mediaId: result.mediaId,
-          source: slot.mode === "catch_up" ? "catch_up" : "cron",
+          source: publish.mode === "catch_up" ? "catch_up" : "cron",
         });
       } catch (e) {
         console.error("[threads/cron] mark posted failed", e);
@@ -107,7 +140,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       ok: true,
       source: "cron",
-      publishMode: slot.mode,
+      publishMode: publish.mode,
       cronSchedule: request.headers.get("x-vercel-cron-schedule"),
       date: dateKey,
       targetHourJst: slot.targetHourJst,

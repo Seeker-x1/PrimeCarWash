@@ -20,6 +20,7 @@ import {
   jstDateKey,
   peekUpcoming,
   pickPostForDate,
+  resolveCronPublish,
 } from "@/lib/threads/schedule";
 
 export const runtime = "nodejs";
@@ -59,6 +60,7 @@ export async function GET(request: Request) {
     alreadyPostedToday: cronBlocked,
     catchUpEnabled: postedStoreConfigured(),
   });
+  const publishDecision = resolveCronPublish(slot, cronBlocked);
   const disabled = await getDisabledPostIds();
   const disabledStore = await loadDisabledStore();
   const upcomingAll = await peekUpcoming(15);
@@ -106,9 +108,9 @@ export async function GET(request: Request) {
       recentPosted,
       cronBlocked,
       scheduledPostId: today?.id ?? null,
-      eligibleNow: slot.yes,
-      mode: slot.mode,
-      skipReason: slot.skipReason,
+      eligibleNow: publishDecision.yes,
+      mode: publishDecision.mode,
+      skipReason: publishDecision.skipReason,
       catchUpEnabled: postedStoreConfigured(),
     },
     today: today
