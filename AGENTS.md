@@ -61,6 +61,22 @@
 
 ゼロからのサイト設計テンプレは **`docs/web-prompts/`** に同梱（`web-prompts-1-9.md`、`Get-WebPrompt.ps1`）。
 
+## Threads 運営（AI エージェントチーム）
+
+目標: **1,000フォロワー / 1ヶ月**。オーナーは承認・実投稿・返信送信のみ。
+
+| エージェント | スキル | 役割 |
+|-------------|--------|------|
+| 司令塔 | `threads-orchestrator` | 日次/週次ブリーフ統合 |
+| 編集長 | `threads-content-director` | 投稿企画・バンク |
+| コミュニティ | `threads-community-manager` | 返信・エンゲージ下書き |
+| 現場 | `threads-field-storyteller` | 施工キャプション・撮影指示 |
+| Ops | `threads-ops` | Cron/API/障害 |
+| 成長分析 | `threads-growth-analyst` | 週次KPI |
+
+- 編成: **`docs/threads-agents/TEAM.md`**
+- 起動例: `@threads-orchestrator 今日の運用ブリーフ`
+
 ## Next.js バージョン注意
 
 <!-- BEGIN:nextjs-agent-rules -->

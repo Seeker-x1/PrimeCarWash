@@ -8,6 +8,7 @@ import { getLineConsultationUrl } from "@/lib/line-consultation";
 import { buildLocaleJsonLd, getOgImageUrl } from "@/lib/seo-json-ld";
 import BlurFade from "@/components/BlurFade";
 import AmanBookingForm from "@/components/AmanBookingForm";
+import SiteFooter from "@/components/SiteFooter";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -309,7 +310,7 @@ export default async function LocalePage({ params }: PageProps) {
         <AmanBookingForm headingLevel="h2" />
       </section>
 
-      <footer className="border-t border-[#999999] px-4 py-8 text-center text-xs tracking-[0.1em] text-[#999999]">{content.footer}</footer>
+      <SiteFooter locale={currentLocale} />
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/<\/script>/gi, "<\\/script>") }} />
     </main>

@@ -9,6 +9,8 @@ import { formatAreaUrlsForPost, getAreaPageUrl } from "@/lib/threads/area-links"
  * - 渋谷・世田谷・目黒など具体エリア・シーンを入れる
  * - 保存・返信・フォローの理由を毎回ひとつ入れる
  * - 売り込みは最後に1行まで。価格煽り・割引は出さない
+ * - 極意反映: trust-loop（信頼の仕組み）・neighbor-watch（虫の目）は自動バンク可
+ * - founder-story はオーナー手動専用（バンクに含めない）。紹介のお願いは全テーマ禁止
  */
 export const THREADS_THEMES: ThreadsTheme[] = [
   {
@@ -72,10 +74,36 @@ export const THREADS_THEMES: ThreadsTheme[] = [
     description: "このアカウントをフォローする理由を明示する",
     postingTips: "週1で十分。何が得られるかを箇条書きで約束する。",
   },
+  {
+    id: "trust-loop",
+    nameJa: "信頼の仕組み",
+    description: "お客様第一の判断基準・改善・誠実な施工姿勢（仕組みとして語る）",
+    postingTips:
+      "接客のキビキビ感は文章に入れない（オーナー手動・動画で見せる）。紹介依頼・「ご紹介ください」は禁止。架空のクレーム体験は書かない。施工前後の確認・メモ・基準の話。",
+  },
+  {
+    id: "neighbor-watch",
+    nameJa: "虫の目・現場観察",
+    description: "エリアを歩いて見える汚れ・駐車・季節のパターン（地域密着）",
+    postingTips:
+      "渋谷・世田谷・目黒など具体地名＋観察事実。競合名は出さない。売り込みは最後1行まで。",
+  },
+  {
+    id: "founder-story",
+    nameJa: "ストーリー（手動専用）",
+    description: "なぜ始めたか・想い・人柄。オーナーが Threads アプリから直接投稿",
+    postingTips:
+      "自動バンク・Cron 対象外。オーナー実話のみ。静かなトーン。紹介依頼禁止。接客の熱量は動画で見せ、文章では演じない。",
+  },
 ];
 
+/** Cron・バンク・AI生成の対象（founder-story はオーナー手動専用で除外） */
+export function listAutoThemes(): ThreadsTheme[] {
+  return THREADS_THEMES.filter((t) => t.id !== "founder-story");
+}
+
 /**
- * 投稿バンク（45本 ≒ 45日ローテーション）
+ * 投稿バンク（55本 ≒ 55日ローテーション）
  * 追加時: id ユニーク、text 500字以内、themeId は THREADS_THEMES に存在すること
  */
 export const THREADS_POSTS: ThreadsPost[] = [
@@ -406,6 +434,109 @@ ${formatAreaUrlsForPost(["shibuya", "setagaya", "meguro", "minato", "shinagawa",
     id: "fol-03",
     themeId: "follow-value",
     text: "1000人の愛車オーナーとつながりたい。\n\n洗車場の待ち時間ゼロ。\n渋谷・世田谷・目黒を中心に、\nあなたの駐車場へ伺います。\n\nフォロー＋質問1つくらいでもらえると、\n次に投稿するネタが増えます。\n\n今の愛車、何乗ってます？",
+    enabled: true,
+  },
+
+  // —— trust-loop（信頼の仕組み・紹介依頼なし）——
+  {
+    id: "trust-01",
+    themeId: "trust-loop",
+    text: "出張洗車で最初に聞くのは、\n「今日どこを特に気にしていますか？」\n\n全員同じメニューで終わらせない。\n傷が気になる箇所、ホイール、内装の匂い。\n優先順位を先に決めると、仕上がりの納得感が変わります。\n\n依頼するとき、いちばん気になるのはどこですか？",
+    enabled: true,
+  },
+  {
+    id: "trust-02",
+    themeId: "trust-loop",
+    text: "施工前にやること、3つだけ共有します。\n\n①塗装の状態を一緒に確認\n②水栓・排水・周囲の物の移動\n③仕上がりのイメージを言葉にする\n\n「言ったつもり」がトラブルの元。\n事前に揃えるほど、当日が静かに終わります。\n\n依頼前に確認したいこと、ありますか？",
+    enabled: true,
+  },
+  {
+    id: "trust-03",
+    themeId: "trust-loop",
+    text: "仕上げ前に、光の当たり方を変えて最終チェック。\n\n見えない角度に拭き残しがあると、\nオーナーさんが気づくのは翌日の朝。\n\n自分の目で見つけてから報告する。\n「ここ、念のためもう一度」と言えるかどうかが、\n出張洗車の品質の差です。\n\n仕上がり、どこまで見てもらいたいですか？",
+    enabled: true,
+  },
+  {
+    id: "trust-04",
+    themeId: "trust-loop",
+    text: "「前回よりホイールを重点的に」\nそういう一言、メモに残します。\n\n毎回ゼロから説明しなくていい。\n車の状態も好みも、積み上がっていく。\n\n完全予約制だから、\nその場の判断だけで終わらせない設計にしています。\n\nリピートで変えてほしいポイント、ありますか？",
+    enabled: true,
+  },
+  {
+    id: "trust-05",
+    themeId: "trust-loop",
+    text: "小さな違和感は、その場で言ってもらえると助かります。\n\n我慢して帰るより、\n「ここだけもう一度」が早い。\n\n言いにくいことほど、\n次の施工の精度が上がるヒントになります。\n\n遠慮なく言える関係、作れてますか？",
+    enabled: true,
+  },
+
+  // —— neighbor-watch（虫の目）——
+  {
+    id: "watch-01",
+    themeId: "neighbor-watch",
+    text: `世田谷区のマンション駐車場、11月は「枯れ葉＋花粉」のダブルパンチになりやすい。
+
+屋根なし区画だと、1週間でボディに葉の汁と花粉が重なる。
+見た目はまだマシでも、手触りが変わったら要注意。
+
+世田谷区
+${getAreaPageUrl("setagaya")}
+
+うちの駐車場、屋根あります？`,
+    enabled: true,
+  },
+  {
+    id: "watch-02",
+    themeId: "neighbor-watch",
+    text: `渋谷区、屋根なしのオープン駐車場。
+
+雨のあとの泥はねは、ドア下とリアバンパーに集中しやすい。
+晴れた翌日に洗うと、固着前に落としやすい。
+
+渋谷区
+${getAreaPageUrl("shibuya")}
+
+雨の翌日、洗車する派？放置派？`,
+    enabled: true,
+  },
+  {
+    id: "watch-03",
+    themeId: "neighbor-watch",
+    text: `目黒区の坂道エリア、停車・発進が多いと排気まわりに汚れが乗りやすい。
+
+下回りは見えないけど、ホイール裏に黒ずみが出るサイン。
+走行距離より「止まり方」で汚れ方が変わります。
+
+目黒区
+${getAreaPageUrl("meguro")}
+
+坂の多い道、よく走りますか？`,
+    enabled: true,
+  },
+  {
+    id: "watch-04",
+    themeId: "neighbor-watch",
+    text: `港区・品川のタワマン地下駐車場、湿気で内窓の曇りが出やすい季節。
+
+外装がきれいでも、車内の印象が一段下がるパターン。
+換気の前に内窓を整えると、乗った瞬間が変わります。
+
+港区
+${getAreaPageUrl("minato")}
+
+地下駐車、湿気きついですか？`,
+    enabled: true,
+  },
+  {
+    id: "watch-05",
+    themeId: "neighbor-watch",
+    text: `代官山から池尻まで、週末に洗車場まで車を移動する人、まだ多い。
+
+往復30分＋待ち1時間＋洗車30分。
+帰宅後にまた駐車場の近くに汚れが乗る、という本末転倒も。
+
+「洗車のために車を汚す日」、減らせないかなと思ってます。
+
+週末、洗車場まで行きますか？`,
     enabled: true,
   },
 ];

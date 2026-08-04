@@ -1,0 +1,23 @@
+---
+description: Threads 1,000フォロワー運用 — AIエージェントチームの起動方法
+alwaysApply: false
+---
+
+# Threads 運営エージェント
+
+オーナー以外の Threads 運用は **プロジェクトスキル**（`.cursor/skills/threads-*/`）で担う。
+
+- 編成・使い方: `docs/threads-agents/TEAM.md`
+- 共有コンテキスト: `docs/threads-agents/CONTEXT.md`
+
+## 起動
+
+```
+@threads-orchestrator 今日の運用ブリーフ
+```
+
+個別: `@threads-content-director` `@threads-community-manager` `@threads-field-storyteller` `@threads-ops` `@threads-growth-analyst`
+
+## オーナーのみ
+
+Threads への実投稿・返信送信・撮影・最終判断。エージェントは下書きと調査まで。

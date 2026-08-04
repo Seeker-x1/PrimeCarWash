@@ -30,6 +30,18 @@
 | 保存リスト・チェックリスト | 連続宣伝・割引煽り |
 | 最後に質問（返信誘導） | 一方的な会社案内 |
 | 月1〜2の「フォロー価値」投稿 | 毎日ハードCTA |
+| `trust-loop` / `neighbor-watch` は自動可 | `founder-story` はオーナー手動のみ |
+| 接客の熱量は動画・手動投稿で | 文章でキビキビ・紹介依頼 |
+
+## M&A CAMP 極意の反映（合意済み）
+
+| 極意 | 反映先 |
+|------|--------|
+| 1人を感動・信頼ループ | `trust-loop`（仕組みとして。紹介依頼はしない） |
+| ストーリー・個人発信 | `founder-story`（**オーナー手動**） |
+| 虫の目・地域密着 | `neighbor-watch`（自動バンク） |
+
+手動テンプレ: `docs/threads-agents/templates/founder-story-manual.md`
 
 ## 技術（エージェントが参照）
 
@@ -53,4 +65,4 @@
 
 ## テーマ ID 一覧
 
-`local-authority` `myth-bust` `save-list` `relatable` `process-proof` `hot-take` `faq-engage` `seasonal-tips` `owner-insight` `follow-value`
+`local-authority` `myth-bust` `save-list` `relatable` `process-proof` `hot-take` `faq-engage` `seasonal-tips` `owner-insight` `follow-value` `trust-loop` `neighbor-watch` `founder-story`（手動専用・自動対象外）

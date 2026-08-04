@@ -1,7 +1,7 @@
 import {
   getPostById,
+  listAutoThemes,
   listRotatingPosts,
-  THREADS_THEMES,
 } from "@/lib/threads/content";
 import { generateThreadsPost } from "@/lib/threads/generate-post";
 import {
@@ -56,10 +56,8 @@ async function generateAndSave(
   refreshCount: number,
 ): Promise<{ post: ThreadsPost; refreshCount: number }> {
   const date = dateFromKey(dateKey);
-  const theme =
-    THREADS_THEMES[
-      dayMix(jstDayIndex(date), 7 + refreshCount) % THREADS_THEMES.length
-    ]!;
+  const themes = listAutoThemes();
+  const theme = themes[dayMix(jstDayIndex(date), 7 + refreshCount) % themes.length]!;
 
   const generated = await generateThreadsPost({
     themeId: theme.id,

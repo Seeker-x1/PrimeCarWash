@@ -153,7 +153,17 @@ curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
 3. 週1は手動で「今日の施工」「質問への回答」を1本足す
 4. プロフィールにエリア・予約導線を明記（`docs/threads-account.md`）
 
-テーマ ID 一覧: `local-authority` `myth-bust` `save-list` `relatable` `process-proof` `hot-take` `faq-engage` `seasonal-tips` `owner-insight` `follow-value`
+テーマ ID 一覧: `local-authority` `myth-bust` `save-list` `relatable` `process-proof` `hot-take` `faq-engage` `seasonal-tips` `owner-insight` `follow-value` `trust-loop` `neighbor-watch` — 自動バンク対象。`founder-story` はオーナー手動専用（バンク・Cron・AI生成から除外）。
+
+### 集客極意の反映（2026-08）
+
+| テーマ | 内容 | 投稿方法 |
+|--------|------|----------|
+| `trust-loop` | 信頼の仕組み（確認・改善・誠実な基準） | 自動 |
+| `neighbor-watch` | 虫の目・エリア観察 | 自動 |
+| `founder-story` | ストーリー・想い・BA動画 | **オーナー手動のみ** |
+
+紹介依頼は全テーマ禁止。接客の熱量は文章に入れず、オーナーの動画投稿で見せる。
 
 **エリアLP（日本語）:** `/areas/shibuya` `/areas/setagaya` `/areas/meguro` `/areas/minato` `/areas/shinagawa` `/areas/nakano` — 本文用の完全URLは `lib/threads/area-links.ts`（`getAreaPageUrl`）で生成。LP 本体は `lib/area-pages.ts`。
 

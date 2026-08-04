@@ -75,6 +75,7 @@ type SiteContent = {
     sending: string;
   };
   footer: string;
+  threadsLinkLabel: string;
 };
 
 const commonSizeGroups: SizeGroup[] = [
@@ -238,6 +239,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     labels: { name: "氏名", phone: "電話番号", vehicle: "車種", preferredDate1: "希望日（第1候補）", preferredDate2: "希望日（第2候補）", address: "住所", submit: "送信する" },
     formMessages: { success: "送信が完了しました。折り返しご連絡します。", error: "送信に失敗しました。時間をおいて再度お試しください。", sending: "送信中..." },
     footer: "PRIME CAR WASH | 完全予約制・サブスクリプション型出張無水洗車",
+    threadsLinkLabel: "Threads（最新情報）",
   },
   en: {
     brandTagline: "Turn your garage into a private valeting studio.",
@@ -362,6 +364,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     formDescription: "Please fill in the fields below. Our team will contact you shortly.",
     labels: { name: "Full Name", phone: "Phone Number", vehicle: "Vehicle Model", preferredDate1: "Preferred Date (1st)", preferredDate2: "Preferred Date (2nd)", address: "Address", submit: "Submit" },
     formMessages: { success: "Your request was submitted successfully.", error: "Submission failed. Please try again shortly.", sending: "Submitting..." },
+    threadsLinkLabel: "Threads (updates)",
     footer: "PRIME CAR WASH | Appointment-only subscription mobile waterless wash",
   },
 };
