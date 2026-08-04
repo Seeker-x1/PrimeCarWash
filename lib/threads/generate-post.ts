@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { formatAreaUrlsForPrompt } from "@/lib/threads/area-links";
 import type { ThreadsPost } from "@/lib/threads/types";
 
 const MODEL_NAME = "gemini-1.5-flash";
@@ -64,15 +65,21 @@ export async function generateThreadsPost(input: GeneratePostInput): Promise<Thr
       ? `\n- バリエーション番号 ${input.variationSeed}。直前の案と被らない切り口・言い回しにすること。`
       : "";
 
+  const areaUrls = formatAreaUrlsForPrompt("ja");
+
   const prompt = `あなたは PRIME CAR WASH（渋谷・世田谷・目黒中心の出張洗車）の Threads 投稿ライターです。
 
 テーマ: ${input.themeName}（id: ${input.themeId}）
 メモ: ${input.postingTips}
 
+対応エリアLP（local-authority なら該当区を1つ、複数区に触れる場合は最大2つまで本文にURLを入れる）:
+${areaUrls}
+
 ルール:
 - 日本語、Threads 向け（500文字以内）
 - 1行目にフック（問い・数字・断言）
 - 渋谷・世田谷・目黒など具体エリアを入れる
+- エリア特化テーマでは上記LPの完全URLを入れる（パスは /areas/{slug}）
 - 最後は質問で締める
 - 価格・割引・硬い営業は禁止
 - 改行で読みやすく${variation}${avoidBlock}

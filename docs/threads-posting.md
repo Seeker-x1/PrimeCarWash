@@ -141,6 +141,7 @@ curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
 |------|----------|
 | 1行目にフック（問い・数字・断言） | 詩的なブランドコピーだけ |
 | 渋谷・世田谷・目黒など具体エリア | どこでも通じる抽象文だけ |
+| `local-authority` では区別LP（`/areas/shibuya` 等）を1本に1〜2リンク | リンクなしの地域名だけ |
 | 保存できるチェックリスト | 宣伝文の連投 |
 | 最後に質問（返信・議論を誘う） | 一方的な会社案内 |
 | 月1〜2本の「フォロー価値」投稿 | 毎日の硬い CTA |
@@ -153,6 +154,8 @@ curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
 4. プロフィールにエリア・予約導線を明記（`docs/threads-account.md`）
 
 テーマ ID 一覧: `local-authority` `myth-bust` `save-list` `relatable` `process-proof` `hot-take` `faq-engage` `seasonal-tips` `owner-insight` `follow-value`
+
+**エリアLP（日本語）:** `/areas/shibuya` `/areas/setagaya` `/areas/meguro` `/areas/minato` `/areas/shinagawa` `/areas/nakano` — 本文用の完全URLは `lib/threads/area-links.ts`（`getAreaPageUrl`）で生成。LP 本体は `lib/area-pages.ts`。
 
 ### 取りこぼし（catch-up）
 

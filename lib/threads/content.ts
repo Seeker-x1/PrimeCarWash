@@ -1,4 +1,5 @@
 import type { ThreadsPost, ThreadsTheme } from "@/lib/threads/types";
+import { formatAreaUrlsForPost, getAreaPageUrl } from "@/lib/threads/area-links";
 
 /**
  * PRIME CAR WASH — Threads 投稿テーマ（フォロワー獲得向け）
@@ -14,7 +15,8 @@ export const THREADS_THEMES: ThreadsTheme[] = [
     id: "local-authority",
     nameJa: "エリア特化",
     description: "渋谷・世田谷・目黒周辺の具体シーンで地域の専門家感を出す",
-    postingTips: "マンション駐車場・狭い区画・帰宅後など地名＋状況。最後は「うちの区来れる？」系の問い。",
+    postingTips:
+      "マンション駐車場・狭い区画・帰宅後など地名＋状況。該当区のLP（/areas/shibuya 等）を1本に1リンクまで。最後は「うちの区来れる？」系の問い。",
   },
   {
     id: "myth-bust",
@@ -81,31 +83,71 @@ export const THREADS_POSTS: ThreadsPost[] = [
   {
     id: "loc-01",
     themeId: "local-authority",
-    text: "渋谷区のマンション駐車場、洗車場まで行くの正直しんどくない？\n\n帰宅したらその場で整う出張洗車。\n完全予約制だから、近所に知らせずに済むことも多いです。\n\n世田谷・目黒も同じ。\n「うちの区、来れる？」は気軽に聞いてください。",
+    text: `渋谷区のマンション駐車場、洗車場まで行くの正直しんどくない？
+
+帰宅したらその場で整う出張洗車。
+完全予約制だから、近所に知らせずに済むことも多いです。
+
+渋谷区の詳細はこちら↓
+${getAreaPageUrl("shibuya")}
+
+世田谷・目黒もサイトにまとめてあります。
+「うちの区、来れる？」は気軽に聞いてください。`,
     enabled: true,
   },
   {
     id: "loc-02",
     themeId: "local-authority",
-    text: "目黒区の坂道沿い、風で埃が一晩で乗るやつ。\n\n週末に自分で洗うと2時間溶ける人、多いです。\n出張なら帰宅後30分〜1時間で、翌朝きれいな状態から出発。\n\n港区・品川区のオフィス駐車場も、枠が取れれば対応しています。",
+    text: `目黒区の坂道沿い、風で埃が一晩で乗るやつ。
+
+週末に自分で洗うと2時間溶ける人、多いです。
+出張なら帰宅後30分〜1時間で、翌朝きれいな状態から出発。
+
+目黒区
+${getAreaPageUrl("meguro")}
+
+港区・品川区のオフィス駐車場も対応しています。
+${getAreaPageUrl("minato")}
+${getAreaPageUrl("shinagawa")}`,
     enabled: true,
   },
   {
     id: "loc-03",
     themeId: "local-authority",
-    text: "世田谷区、路肩や自宅前の狭いスペースでも施工できるケースが多いです。\n\n「ここ狭いけど大丈夫？」がいちばん多い相談。\n写真1枚いただけると、ほぼその場で可否が分かります。\n\n中野区・杉並区も、まずは場所と車種を教えてください。",
+    text: `世田谷区、路肩や自宅前の狭いスペースでも施工できるケースが多いです。
+
+「ここ狭いけど大丈夫？」がいちばん多い相談。
+写真1枚いただけると、ほぼその場で可否が分かります。
+
+世田谷区
+${getAreaPageUrl("setagaya")}
+
+中野区
+${getAreaPageUrl("nakano")}`,
     enabled: true,
   },
   {
     id: "loc-04",
     themeId: "local-authority",
-    text: "代官山・恵比寿あたり、外車多いエリアでよく伺います。\n\n輸入車はサイズ区分で料金が変わるので、\n車種名だけ送ってもらえれば目安を返せます（営業電話はしません）。\n\n完全予約制の出張洗車、PRIME CAR WASHです。",
+    text: `代官山・恵比寿あたり、外車多いエリアでよく伺います。
+
+輸入車はサイズ区分で料金が変わるので、
+車種名だけ送ってもらえれば目安を返せます（営業電話はしません）。
+
+渋谷区（代官山・恵比寿含む）
+${getAreaPageUrl("shibuya")}`,
     enabled: true,
   },
   {
     id: "loc-05",
     themeId: "local-authority",
-    text: "「渋谷・世田谷・目黒以外は無理？」\n→ いいえ。中心はこの3区ですが、港・品川・中野なども実績あり。\n\n遠いほど日程の調整は必要ですが、\nまず候補日2つと住所の大まかなエリアを送ってもらえると早いです。",
+    text: `「渋谷・世田谷・目黒以外は無理？」
+→ いいえ。各区ごとのページがあります。
+
+${formatAreaUrlsForPost(["shibuya", "setagaya", "meguro", "minato", "shinagawa", "nakano"])}
+
+遠いほど日程の調整は必要ですが、
+まず候補日2つとエリアを送ってもらえると早いです。`,
     enabled: true,
   },
 
