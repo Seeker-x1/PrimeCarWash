@@ -28,7 +28,7 @@ disable-model-invocation: true
 3. **Preview** — `GET /api/threads/preview`（Bearer シークレット）で `recentPosted` / `dryRunDefault`
 4. **環境変数** — `THREADS_DRY_RUN`, `THREADS_CRON_ENABLED`, `THREADS_USER_ID`, `THREADS_ACCESS_TOKEN`
 5. **投稿済み記録** — 同日 manual で `already_posted_today` スキップ
-6. **Cron** — `vercel.json` の JST 8/12/13 スケジュール
+6. **Cron** — `vercel.json` の JST 6/7 スケジュール（朝固定）
 7. **トークン** — Failed to decrypt / permissions エラー
 
 ## よくある原因と対処

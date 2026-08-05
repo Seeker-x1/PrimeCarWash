@@ -129,7 +129,7 @@ A. 無水洗浄中心なので、水栓がなくてもOKなことが多いです
 1. bio・リンク・アイコンを更新
 2. 手投稿①〜⑥を順に出す
 3. Vercel に本番投稿用の環境変数を入れる（下表）
-4. Redeploy 後、翌朝 10:00 JST から自動投稿
+4. Redeploy 後、翌朝 6〜7 時台（JST）から自動投稿
 
 ### 明日から自動投稿するとき（Vercel Production）
 
@@ -140,14 +140,14 @@ A. 無水洗浄中心なので、水栓がなくてもOKなことが多いです
 | `THREADS_PUBLISH_SECRET` | 管理画面用（例: testpass1234） |
 | `THREADS_DRY_RUN` | **`false`**（または変数ごと削除） |
 | `THREADS_CRON_ENABLED` | 入れない／または `true`（`false` だと止まる） |
-| `THREADS_POST_WINDOW_START` | 任意・既定 `8`（JST） |
-| `THREADS_POST_WINDOW_END` | 任意・既定 `12`（JST・この時刻は含まない） |
+| `THREADS_POST_WINDOW_START` | 任意・既定 `6`（JST） |
+| `THREADS_POST_WINDOW_END` | 任意・既定 `8`（JST・この時刻は含まない） |
 
-- Cron: **毎日 JST 8/9/10/11 時**にチェック → 日付ごとに窓内の時刻（時＋分）が決まる  
+- Cron: **毎日 JST 6・7 時台**にチェック → 日付ごとに 6 か 7 時台＋分が決まる  
 - 例: 今日は `10:37` のように表示される  
 - **分も日付ごとにランダムだが**、Vercel Hobby の Cron は「その時間帯のどこか」起動なので、ちょうどその分ちょうど、は保証できない（同時台内で前後する）  
 - 厳密に分単位で撃ちたい場合は Pro（短間隔 Cron）が必要  
 - 手動 Publish はいつでも即時投稿（窓と無関係）  
-- Vercel Hobby でも動く（毎時 Cron は Hobby 不可のため daily×4）
+- Vercel Hobby でも動く（毎時 Cron は Hobby 不可のため daily×2）
 
 詳細手順: `docs/threads-posting.md`

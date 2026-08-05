@@ -16,8 +16,8 @@ PRIME CAR WASH 向け。テーマ＋投稿バンクをコードで管理し、Ve
 | `lib/threads/resolve-post.ts` | バンク + 日付オーバーライド（AI 生成含む）を Publish 用に解決 |
 | `/threads` | Ops UI（noindex・シークレットで解錠） |
 
-Cron スケジュール（Hobby 対応）: 毎日 JST 8時・12時・13時台にチェック（13時台は取りこぼし救済）。
-定刻を逃した日は窓内の次の Cron で1回だけ追いかけ。窓は `THREADS_POST_WINDOW_START` / `END`（既定 8–15＝8〜14時台まで投稿可能）。
+Cron スケジュール（Hobby 対応）: 毎日 JST **6時・7時台**にチェック（朝固定。7時台は取りこぼし救済）。
+定刻を逃した日は窓内の次の Cron で1回だけ追いかけ。窓は `THREADS_POST_WINDOW_START` / `END`（既定 **6–8**＝6〜7時台まで投稿可能）。
 
 > Hobby プランは「1日1回」の Cron のみ。毎時 Cron はデプロイ失敗するため、窓内の各時に daily Cron を並べています。
 
@@ -170,11 +170,11 @@ curl -s -X POST -H "Authorization: Bearer $THREADS_PUBLISH_SECRET" \
 ### 取りこぼし（catch-up）
 
 Vercel Hobby では Cron が予定時刻に間に合わないことがあります。  
-そのため **投稿窓内（既定 JST 8–12）で、当日まだ出していなければ次の Cron で1回だけ追いかけ**ます。
+そのため **投稿窓内（既定 JST 6–8＝6〜7時台）で、当日まだ出していなければ次の Cron で1回だけ追いかけ**ます。
 
 - 記録: Vercel Blob `threads/posted-dates.json`（削除キューと同じ Blob ストア）
 - 手動 Publish も当日分として記録し、同日の自動追いかけを防ぐ（**手動の追加投稿はブロックしない**）
-- Blob 未設定の本番では追いかけは無効。**投稿予定時刻は Cron と同じ 8 / 12 / 13 時 JST に自動限定**（9〜11 時にずれると Hobby では投稿されない）
+- Blob 未設定の本番では追いかけは無効。**投稿予定時刻は Cron と同じ 6 / 7 時 JST に自動限定**
 - Blob を接続すると任意時刻＋取りこぼし追いかけが有効
 
 ## 注意

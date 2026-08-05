@@ -305,7 +305,7 @@ export default function ThreadsOpsPage() {
                   {data.schedule ? (
                     <p className="mt-1 text-xs text-neutral-400">
                       自動投稿: Cron{" "}
-                      {(data.schedule.cronHoursJst ?? [8, 12, 13])
+                      {(data.schedule.cronHoursJst ?? [6, 7])
                         .map((h) => `${h}時`)
                         .join("・")}
                       台（窓 {data.schedule.window.start}–{data.schedule.window.end}時）／
@@ -316,8 +316,8 @@ export default function ThreadsOpsPage() {
                   ) : null}
                   {data.schedule?.note ? (
                     <p className="mt-1 text-xs text-neutral-600">
-                      定刻目安は日付でランダム。Hobby の Cron は 8・12・13 時に実際に起動（分は前後します）。
-                      Blob 接続時は取りこぼしを次の Cron で追いかけます。
+                      朝6〜7時台固定。定刻目安の時は日付で6か7に決まります。Hobby の Cron は 6・7 時台に起動（分は前後します）。
+                      Blob 接続時は取りこぼしを7時 Cron で追いかけます。
                     </p>
                   ) : null}
                   {data.publish?.postedToday ? (
@@ -330,7 +330,7 @@ export default function ThreadsOpsPage() {
                           data.today?.post.id &&
                           data.publish.postedToday.postId !== data.today.post.id)) &&
                       data.today?.post.id
-                        ? ` — 予定 ${data.today.post.id} は自動投稿待ち（13時 Cron またはデプロイ後に追いかけ）`
+                        ? ` — 予定 ${data.today.post.id} は自動投稿待ち（7時 Cron またはデプロイ後に追いかけ）`
                         : " — 手動 Publish / AI生成で追加投稿できます"}
                     </p>
                   ) : data.publish?.eligibleNow ? (
@@ -345,7 +345,7 @@ export default function ThreadsOpsPage() {
                         ? `本日 ${data.schedule?.todayTimeLabel ?? "—"} 頃に Cron 実行予定（いまは待機中）`
                         : data.publish.skipReason === "outside_daily_random_slot" &&
                             !data.publish.catchUpEnabled
-                          ? "Cron 時刻と投稿予定時刻が一致しません（Blob 未設定）。デプロイ更新後は 8/12/13 時に揃います"
+                          ? "Cron 時刻と投稿予定時刻が一致しません（Blob 未設定）。デプロイ更新後は 6/7 時に揃います"
                         : data.publish.skipReason === "already_posted_today" &&
                             data.publish.postedToday &&
                             data.today?.post.id &&
