@@ -7,6 +7,8 @@ export const areaSlugs = [
   "minato",
   "shinagawa",
   "nakano",
+  "suginami",
+  "ota",
 ] as const;
 
 export type AreaSlug = (typeof areaSlugs)[number];
@@ -313,6 +315,88 @@ export const areaPages: AreaPageContent[] = [
         {
           question: "How soon can you visit Nakano?",
           answer: "Send your preferred dates via the form or LINE—we will confirm availability.",
+        },
+      ],
+    },
+  },
+  {
+    slug: "suginami",
+    wardJa: "杉並区",
+    wardEn: "Suginami",
+    isPrimary: false,
+    ja: {
+      searchTitle: "杉並区の出張洗車｜荻窪・高円寺・阿佐ヶ谷対応",
+      searchDescription:
+        "杉並区の出張洗車。荻窪・高円寺・阿佐ヶ谷・西荻窪・浜田山などへ伺います。無水洗浄・マンション駐車場対応。",
+      h1: "杉並区の出張洗車",
+      lead: "杉並区のご自宅・マンション駐車場へ、完全予約制の出張洗車をお届けします。",
+      body: [
+        "住宅街が広がる杉並区では、路傍駐車やマンション自走式駐車場での施工が中心です。",
+        "水を使わない無水洗浄のため、近隣への配慮もしやすく、こまめな洗車に向いています。",
+      ],
+      spots: "荻窪・高円寺・阿佐ヶ谷・西荻窪・浜田山・永福など",
+      faq: [
+        {
+          question: "杉並区は追加の出張料がありますか？",
+          answer: "区内在住・駐車であれば追加の出張料はいただきません。",
+        },
+      ],
+    },
+    en: {
+      searchTitle: "Mobile car wash in Suginami | PRIME CAR WASH",
+      searchDescription: "Mobile valeting in Suginami—Ogikubo, Koenji, Asagaya, Nishi-Ogikubo, and more.",
+      h1: "Mobile valeting in Suginami",
+      lead: "Appointment-only mobile valeting across Suginami Ward.",
+      body: [
+        "Residential streets and apartment parking—we adapt to your spot.",
+        "Waterless cleaning suits frequent washes with less neighbor impact.",
+      ],
+      spots: "Ogikubo, Koenji, Asagaya, Nishi-Ogikubo, Hamadayama, Eifuku, and nearby",
+      faq: [
+        {
+          question: "Is there an extra travel fee for Suginami?",
+          answer: "No extra travel fee within the ward.",
+        },
+      ],
+    },
+  },
+  {
+    slug: "ota",
+    wardJa: "大田区",
+    wardEn: "Ota",
+    isPrimary: false,
+    ja: {
+      searchTitle: "大田区の出張洗車｜蒲田・大森・羽田周辺対応",
+      searchDescription:
+        "大田区の出張洗車。蒲田・大森・羽田・田園調布・雪が谷などへ伺います。出張無水洗車・車内清掃オプションあり。",
+      h1: "大田区の出張洗車",
+      lead: "大田区のご指定場所へ、プレミアムな出張洗車サービスをお届けします。",
+      body: [
+        "蒲田・大森・羽田エリアのマンション・戸建てまで対応。空港勤務の方の早朝・夕方枠もご相談ください。",
+        "ボディ洗車に加え、内装清掃オプションで一台まるごとケアが可能です。",
+      ],
+      spots: "蒲田・大森・羽田・田園調布・雪が谷・池上など",
+      faq: [
+        {
+          question: "大田区から品川・目黒方面へ出張することはありますか？",
+          answer: "隣接エリアも対応圏内です。車種とご希望日をお知らせください。",
+        },
+      ],
+    },
+    en: {
+      searchTitle: "Mobile car wash in Ota | PRIME CAR WASH",
+      searchDescription: "Mobile valeting in Ota—Kamata, Omori, Haneda area, Den-en-chofu, and more.",
+      h1: "Mobile valeting in Ota",
+      lead: "Premium mobile valeting across Ota Ward.",
+      body: [
+        "Apartments and homes from Kamata to Omori and near Haneda.",
+        "Optional interior cleaning for full-vehicle care.",
+      ],
+      spots: "Kamata, Omori, Haneda, Den-en-chofu, Yukigaya, Ikegami, and nearby",
+      faq: [
+        {
+          question: "Do you serve neighboring wards from Ota?",
+          answer: "Yes—Shinagawa and Meguro are in our service area; share your dates.",
         },
       ],
     },

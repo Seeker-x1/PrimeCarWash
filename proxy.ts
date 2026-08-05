@@ -29,7 +29,43 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
-  if (path.startsWith("/ja/areas/")) {
+  if (path === "/areas") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/ja/areas";
+    const response = NextResponse.rewrite(url, {
+      request: { headers: withLocaleHeaders(request, "ja") },
+    });
+    response.cookies.set("site-locale", "ja", { path: "/" });
+    return response;
+  }
+
+  if (path.startsWith("/guides/")) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/ja${path}`;
+    const response = NextResponse.rewrite(url, {
+      request: { headers: withLocaleHeaders(request, "ja") },
+    });
+    response.cookies.set("site-locale", "ja", { path: "/" });
+    return response;
+  }
+
+  if (path === "/guides") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/ja/guides";
+    const response = NextResponse.rewrite(url, {
+      request: { headers: withLocaleHeaders(request, "ja") },
+    });
+    response.cookies.set("site-locale", "ja", { path: "/" });
+    return response;
+  }
+
+  if (path.startsWith("/ja/areas/") || path === "/ja/areas") {
+    const url = request.nextUrl.clone();
+    url.pathname = path.replace(/^\/ja/, "");
+    return NextResponse.redirect(url, 308);
+  }
+
+  if (path.startsWith("/ja/guides/") || path === "/ja/guides") {
     const url = request.nextUrl.clone();
     url.pathname = path.replace(/^\/ja/, "");
     return NextResponse.redirect(url, 308);

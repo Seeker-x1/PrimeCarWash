@@ -1,5 +1,11 @@
 ﻿import type { MetadataRoute } from "next";
 import { areaSlugs, getAreaCanonicalPath } from "@/lib/area-pages";
+import {
+  getAreasHubPath,
+  getGuideCanonicalPath,
+  getGuidesHubPath,
+  guideSlugs,
+} from "@/lib/guide-posts";
 import { getSiteOrigin } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -25,6 +31,61 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
       alternates: {
         languages: { "x-default": jaRoot, ja: jaRoot, en },
+      },
+    },
+  ];
+
+  const hubEntries: MetadataRoute.Sitemap = [
+    {
+      url: `${base}${getAreasHubPath("ja")}`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.85,
+      alternates: {
+        languages: {
+          "x-default": `${base}${getAreasHubPath("ja")}`,
+          ja: `${base}${getAreasHubPath("ja")}`,
+          en: `${base}${getAreasHubPath("en")}`,
+        },
+      },
+    },
+    {
+      url: `${base}${getAreasHubPath("en")}`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.75,
+      alternates: {
+        languages: {
+          "x-default": `${base}${getAreasHubPath("ja")}`,
+          ja: `${base}${getAreasHubPath("ja")}`,
+          en: `${base}${getAreasHubPath("en")}`,
+        },
+      },
+    },
+    {
+      url: `${base}${getGuidesHubPath("ja")}`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+      alternates: {
+        languages: {
+          "x-default": `${base}${getGuidesHubPath("ja")}`,
+          ja: `${base}${getGuidesHubPath("ja")}`,
+          en: `${base}${getGuidesHubPath("en")}`,
+        },
+      },
+    },
+    {
+      url: `${base}${getGuidesHubPath("en")}`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.75,
+      alternates: {
+        languages: {
+          "x-default": `${base}${getGuidesHubPath("ja")}`,
+          ja: `${base}${getGuidesHubPath("ja")}`,
+          en: `${base}${getGuidesHubPath("en")}`,
+        },
       },
     },
   ];
@@ -56,5 +117,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ];
   });
 
-  return [...homeEntries, ...areaEntries];
+  const guideEntries: MetadataRoute.Sitemap = guideSlugs.flatMap((slug) => {
+    const jaPath = getGuideCanonicalPath("ja", slug);
+    const enPath = getGuideCanonicalPath("en", slug);
+    const jaUrl = `${base}${jaPath}`;
+    const enUrl = `${base}${enPath}`;
+    return [
+      {
+        url: jaUrl,
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.75,
+        alternates: {
+          languages: { "x-default": jaUrl, ja: jaUrl, en: enUrl },
+        },
+      },
+      {
+        url: enUrl,
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.65,
+        alternates: {
+          languages: { "x-default": jaUrl, ja: jaUrl, en: enUrl },
+        },
+      },
+    ];
+  });
+
+  return [...homeEntries, ...hubEntries, ...areaEntries, ...guideEntries];
 }

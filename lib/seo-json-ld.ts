@@ -9,7 +9,13 @@ const LINE_OFFICIAL_ID =
 const OG_IMAGE_PATH = "/hero-carwash.png";
 
 const PRIMARY_WARDS_JA = ["渋谷区", "世田谷区", "目黒区"] as const;
-const SECONDARY_WARDS_JA = ["港区", "品川区", "中野区"] as const;
+const SECONDARY_WARDS_JA = [
+  "港区",
+  "品川区",
+  "中野区",
+  "杉並区",
+  "大田区",
+] as const;
 
 const PRIMARY_WARDS_EN = [
   "Shibuya, Tokyo",
@@ -20,6 +26,8 @@ const SECONDARY_WARDS_EN = [
   "Minato, Tokyo",
   "Shinagawa, Tokyo",
   "Nakano, Tokyo",
+  "Suginami, Tokyo",
+  "Ota, Tokyo",
 ] as const;
 
 /** Absolute OG / schema image URL. */

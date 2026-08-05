@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Locale, locales, siteContent } from "@/lib/site-content";
 import { areaSlugs, getAreaCanonicalPath, getAreaPage } from "@/lib/area-pages";
+import { getAreasHubPath, getGuidesHubPath } from "@/lib/guide-posts";
 import { getLineConsultationUrl } from "@/lib/line-consultation";
 import { buildLocaleJsonLd, getOgImageUrl } from "@/lib/seo-json-ld";
 import BlurFade from "@/components/BlurFade";
@@ -289,6 +290,14 @@ export default async function LocalePage({ params }: PageProps) {
               );
             })}
           </ul>
+          <p className="mt-4 flex flex-wrap gap-4 text-sm">
+            <Link href={getAreasHubPath(currentLocale)} className="text-[#999999] hover:text-white">
+              {currentLocale === "ja" ? "対応エリア一覧 →" : "All service areas →"}
+            </Link>
+            <Link href={getGuidesHubPath(currentLocale)} className="text-[#999999] hover:text-white">
+              {currentLocale === "ja" ? "出張洗車ガイド →" : "Valeting guides →"}
+            </Link>
+          </p>
         </div>
       </section>
 

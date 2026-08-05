@@ -174,7 +174,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     serviceAreaPrimaryLabel: "中心エリア",
     serviceAreaPrimary: "渋谷区・世田谷区・目黒区を中心に",
     serviceAreaSecondaryLabel: "対応例",
-    serviceAreaSecondary: "港区・品川区・中野区など",
+    serviceAreaSecondary: "港区・品川区・中野区・杉並区・大田区など",
     serviceAreaNote:
       "エリア外もご相談ください。車種とご希望日が分かるとスムーズです。",
     areaPageLinksTitle: "エリア別の出張洗車",
@@ -300,7 +300,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     serviceAreaPrimaryLabel: "Core areas",
     serviceAreaPrimary: "Shibuya, Setagaya, and Meguro (Tokyo)",
     serviceAreaSecondaryLabel: "Also serving",
-    serviceAreaSecondary: "Minato, Shinagawa, Nakano, and nearby wards",
+    serviceAreaSecondary: "Minato, Shinagawa, Nakano, Suginami, Ota, and nearby",
     serviceAreaNote:
       "Outside these areas? Contact us with your vehicle and preferred dates.",
     areaPageLinksTitle: "Valeting by area",
