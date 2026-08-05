@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+.tmp-preview.json
 /data/threads-disabled.json
 /data/threads-posted.json
 /data/threads-overrides.json
