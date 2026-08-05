@@ -191,6 +191,7 @@ export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
     "@graph": [
       {
         "@type": "BreadcrumbList",
+        "@id": `${pageUrl}#breadcrumb`,
         itemListElement: [
           {
             "@type": "ListItem",
