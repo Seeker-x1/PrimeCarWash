@@ -10,6 +10,7 @@ import {
 import {
   cronBlockedByPostedToday,
   getPostedForDate,
+  isStaleManualPostedRecord,
   loadPostedStore,
   postedStoreConfigured,
 } from "@/lib/threads/posted-store";
@@ -48,7 +49,9 @@ export async function GET(request: Request) {
   const today = await pickPostForDate();
   const theme = today ? getThemeById(today.themeId) : undefined;
   const dateKey = jstDateKey();
-  const postedToday = await getPostedForDate(dateKey);
+  const postedTodayRaw = await getPostedForDate(dateKey);
+  const staleManual = postedTodayRaw ? isStaleManualPostedRecord(postedTodayRaw) : false;
+  const postedToday = staleManual ? null : postedTodayRaw;
   const cronBlocked = cronBlockedByPostedToday(postedToday, today?.id ?? null);
   const postedStore = postedStoreConfigured() ? await loadPostedStore() : null;
   const recentPosted = postedStore
@@ -61,6 +64,8 @@ export async function GET(request: Request) {
     catchUpEnabled: postedStoreConfigured(),
   });
   const publishDecision = resolveCronPublish(slot, cronBlocked);
+  const publishEligible =
+    publishDecision.yes || (staleManual && Boolean(today));
   const disabled = await getDisabledPostIds();
   const disabledStore = await loadDisabledStore();
   const upcomingAll = await peekUpcoming(15);
@@ -104,13 +109,14 @@ export async function GET(request: Request) {
       note: slot.precisionNote,
     },
     publish: {
-      postedToday,
+      postedToday: postedTodayRaw,
+      staleManual,
       recentPosted,
       cronBlocked,
       scheduledPostId: today?.id ?? null,
-      eligibleNow: publishDecision.yes,
-      mode: publishDecision.mode,
-      skipReason: publishDecision.skipReason,
+      eligibleNow: publishEligible,
+      mode: publishDecision.mode ?? (staleManual ? "catch_up" : null),
+      skipReason: staleManual ? null : publishDecision.skipReason,
       catchUpEnabled: postedStoreConfigured(),
     },
     today: today

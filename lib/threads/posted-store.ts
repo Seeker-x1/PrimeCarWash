@@ -1,6 +1,7 @@
 import { get, put } from "@vercel/blob";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { jstDateKey } from "@/lib/threads/schedule";
 
 const LOCAL_PATH = path.join(process.cwd(), "data", "threads-posted.json");
 const BLOB_PATHNAME = "threads/posted-dates.json";
@@ -161,6 +162,20 @@ export async function getPostedForDate(dateKey: string): Promise<PostedRecord | 
   return store.records.find((r) => r.date === dateKey) ?? null;
 }
 
+/** publishedAt の JST 日付（記録の date キーと照合用） */
+export function postedRecordJstDate(record: PostedRecord): string {
+  return jstDateKey(new Date(record.publishedAt));
+}
+
+/**
+ * 手動記録の date と publishedAt の JST 日が食い違う（先取りマーク等）。
+ * この場合 Cron をブロックしない。
+ */
+export function isStaleManualPostedRecord(record: PostedRecord): boolean {
+  if (record.source !== "manual") return false;
+  return postedRecordJstDate(record) !== record.date;
+}
+
 /**
  * Cron は「その日の予定投稿がまだ出ていない」なら動く。
  * 手動で別 ID を出しただけではブロックしない（予定 take-04 / 手動 save-03 など）。
@@ -170,6 +185,7 @@ export function cronBlockedByPostedToday(
   scheduledPostId: string | null,
 ): boolean {
   if (!postedToday) return false;
+  if (isStaleManualPostedRecord(postedToday)) return false;
   if (postedToday.source === "cron" || postedToday.source === "catch_up") return true;
   if (scheduledPostId && postedToday.postId === scheduledPostId) return true;
   return false;
@@ -181,9 +197,10 @@ export async function markPostedForDate(input: {
   mediaId?: string;
   source: PostedRecord["source"];
 }): Promise<PostedRecord> {
-  const date = input.date.trim();
   const postId = input.postId.trim();
-  if (!date || !postId) throw new Error("date and postId required");
+  if (!postId) throw new Error("postId required");
+  // 記録日は常に投稿実行時の JST 日（クライアント指定の先取り date を防ぐ）
+  const date = jstDateKey();
 
   const store = await loadPostedStore();
   const record: PostedRecord = {

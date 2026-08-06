@@ -5,6 +5,7 @@ import { isThreadsDryRun, publishTextPost } from "@/lib/threads/client";
 import {
   cronBlockedByPostedToday,
   getPostedForDate,
+  isStaleManualPostedRecord,
   markPostedForDate,
   postedStoreConfigured,
 } from "@/lib/threads/posted-store";
@@ -44,14 +45,56 @@ export async function GET(request: Request) {
 
   const dateKey = jstDateKey();
   const scheduledPost = await pickPostForDate();
-  const postedToday = await getPostedForDate(dateKey);
+  const postedTodayRaw = await getPostedForDate(dateKey);
+  const staleManual = postedTodayRaw ? isStaleManualPostedRecord(postedTodayRaw) : false;
+  const postedToday = staleManual ? null : postedTodayRaw;
   const cronBlocked = cronBlockedByPostedToday(postedToday, scheduledPost?.id ?? null);
   const catchUpEnabled = postedStoreConfigured();
   const slot = evaluatePublishSlot(new Date(), {
     alreadyPostedToday: cronBlocked,
     catchUpEnabled,
   });
-  const publish = resolveCronPublish(slot, cronBlocked);
+  let publish = resolveCronPublish(slot, cronBlocked);
+  if (!publish.yes && staleManual && scheduledPost) {
+    publish = { yes: true, mode: "catch_up", skipReason: null };
+  }
+
+  // #region agent log
+  fetch("http://127.0.0.1:7806/ingest/8b50c3e5-afe6-4dff-86e9-b33c4cf14860", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "9b35a5" },
+    body: JSON.stringify({
+      sessionId: "9b35a5",
+      runId: "cron-decision",
+      hypothesisId: "H1-H5",
+      location: "app/api/threads/cron/route.ts:decision",
+      message: "cron publish decision",
+      data: {
+        dateKey,
+        hourJst: slot.hourJst,
+        targetHourJst: slot.targetHourJst,
+        window: slot.window,
+        skipReason: slot.skipReason,
+        publishYes: publish.yes,
+        publishSkip: publish.skipReason,
+        cronBlocked,
+        staleManual,
+        postedTodayRaw: postedTodayRaw
+          ? {
+              postId: postedTodayRaw.postId,
+              source: postedTodayRaw.source,
+              date: postedTodayRaw.date,
+              publishedAt: postedTodayRaw.publishedAt,
+            }
+          : null,
+        scheduledPostId: scheduledPost?.id ?? null,
+        dryRun: isThreadsDryRun(),
+        cronEnabled: process.env.THREADS_CRON_ENABLED?.trim().toLowerCase() !== "false",
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
 
   if (!publish.yes) {
     return NextResponse.json({
@@ -63,7 +106,8 @@ export async function GET(request: Request) {
       hourJst: slot.hourJst,
       targetHourJst: slot.targetHourJst,
       window: slot.window,
-      postedToday: postedToday ?? null,
+      postedToday: postedTodayRaw ?? null,
+      staleManual,
       scheduledPostId: scheduledPost?.id ?? null,
       cronBlocked,
       catchUpEnabled: postedStoreConfigured(),
