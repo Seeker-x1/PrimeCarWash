@@ -1,6 +1,10 @@
 import { listRotatingPosts } from "@/lib/threads/content";
 import { getOverrideForDate } from "@/lib/threads/overrides-store";
-import { postedStoreConfigured } from "@/lib/threads/posted-store";
+import {
+  postedStoreConfigured,
+  wasPostIdPublishedOnPriorJstDay,
+  type PostedRecord,
+} from "@/lib/threads/posted-store";
 import type { ThreadsPost } from "@/lib/threads/types";
 
 /**
@@ -242,6 +246,64 @@ export async function pickPostForDate(date = new Date()): Promise<ThreadsPost | 
   if (enabled.length === 0) return null;
   const index = jstDayIndex(date) % enabled.length;
   return enabled[index] ?? null;
+}
+
+/** ローテーションで次の候補（同日内の先出しスキップ用） */
+export function pickNextRotatingPost(
+  currentId: string,
+  enabled: ThreadsPost[],
+): ThreadsPost | null {
+  if (enabled.length === 0) return null;
+  const idx = enabled.findIndex((p) => p.id === currentId);
+  const start = idx >= 0 ? idx + 1 : 0;
+  for (let i = 0; i < enabled.length; i += 1) {
+    const post = enabled[(start + i) % enabled.length];
+    if (post) return post;
+  }
+  return null;
+}
+
+/**
+ * その日の予定投稿。直近に同じ postId を出済みならローテーションを1つ進める。
+ */
+export async function pickPostForDateSkippingAired(
+  date = new Date(),
+  priorRecords: PostedRecord[],
+): Promise<{ post: ThreadsPost | null; skippedPostId: string | null }> {
+  const dateKey = jstDateKey(date);
+  const override = await getOverrideForDate(dateKey);
+  if (override) {
+    return {
+      post: {
+        id: override.postId,
+        themeId: override.themeId,
+        text: override.text,
+        enabled: true,
+      },
+      skippedPostId: null,
+    };
+  }
+
+  const enabled = await listRotatingPosts();
+  if (enabled.length === 0) return { post: null, skippedPostId: null };
+
+  let post = await pickPostForDate(date);
+  if (!post) return { post: null, skippedPostId: null };
+
+  let skippedPostId: string | null = null;
+  const seen = new Set<string>();
+
+  while (
+    post &&
+    wasPostIdPublishedOnPriorJstDay(post.id, dateKey, priorRecords) &&
+    !seen.has(post.id)
+  ) {
+    seen.add(post.id);
+    skippedPostId = post.id;
+    post = pickNextRotatingPost(post.id, enabled);
+  }
+
+  return { post, skippedPostId };
 }
 
 export async function peekUpcoming(

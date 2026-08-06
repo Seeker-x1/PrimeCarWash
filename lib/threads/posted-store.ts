@@ -59,14 +59,9 @@ function parseStore(raw: unknown): PostedStore {
 }
 
 function pruneStore(store: PostedStore): PostedStore {
-  const byDate = new Map<string, PostedRecord>();
-  for (const record of store.records) {
-    byDate.set(record.date, record);
-  }
-  const dates = [...byDate.keys()].sort();
-  const keep = new Set(dates.slice(-MAX_RECORDS));
+  const sorted = [...store.records].sort((a, b) => a.publishedAt.localeCompare(b.publishedAt));
   return {
-    records: [...byDate.values()].filter((r) => keep.has(r.date)),
+    records: sorted.slice(-MAX_RECORDS),
     updatedAt: new Date().toISOString(),
   };
 }
@@ -159,7 +154,20 @@ export async function savePostedStore(store: PostedStore): Promise<PostedStore> 
 
 export async function getPostedForDate(dateKey: string): Promise<PostedRecord | null> {
   const store = await loadPostedStore();
-  return store.records.find((r) => r.date === dateKey) ?? null;
+  const matches = store.records.filter((r) => postedRecordJstDate(r) === dateKey);
+  if (matches.length === 0) return null;
+  return matches.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))[0] ?? null;
+}
+
+/** 指定日より前の JST 日付に同じ postId が出ていれば true */
+export function wasPostIdPublishedOnPriorJstDay(
+  postId: string,
+  dateKey: string,
+  records: PostedRecord[],
+): boolean {
+  return records.some(
+    (r) => r.postId === postId && postedRecordJstDate(r) < dateKey,
+  );
 }
 
 /** publishedAt の JST 日付（記録の date キーと照合用） */
@@ -211,8 +219,7 @@ export async function markPostedForDate(input: {
     source: input.source,
   };
 
-  const rest = store.records.filter((r) => r.date !== date);
-  rest.push(record);
+  const rest = [...store.records, record];
   await savePostedStore({ records: rest, updatedAt: new Date().toISOString() });
   return record;
 }

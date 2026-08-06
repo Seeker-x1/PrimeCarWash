@@ -6,13 +6,14 @@ import {
   cronBlockedByPostedToday,
   getPostedForDate,
   isStaleManualPostedRecord,
+  loadPostedStore,
   markPostedForDate,
   postedStoreConfigured,
 } from "@/lib/threads/posted-store";
 import {
   evaluatePublishSlot,
   jstDateKey,
-  pickPostForDate,
+  pickPostForDateSkippingAired,
   resolveCronPublish,
 } from "@/lib/threads/schedule";
 
@@ -44,7 +45,11 @@ export async function GET(request: Request) {
   }
 
   const dateKey = jstDateKey();
-  const scheduledPost = await pickPostForDate();
+  const postedStore = postedStoreConfigured() ? await loadPostedStore() : { records: [] };
+  const { post: scheduledPost, skippedPostId } = await pickPostForDateSkippingAired(
+    new Date(),
+    postedStore.records,
+  );
   const postedTodayRaw = await getPostedForDate(dateKey);
   const staleManual = postedTodayRaw ? isStaleManualPostedRecord(postedTodayRaw) : false;
   const postedToday = staleManual ? null : postedTodayRaw;
@@ -88,6 +93,7 @@ export async function GET(request: Request) {
             }
           : null,
         scheduledPostId: scheduledPost?.id ?? null,
+        skippedPostId,
         dryRun: isThreadsDryRun(),
         cronEnabled: process.env.THREADS_CRON_ENABLED?.trim().toLowerCase() !== "false",
       },
