@@ -21,4 +21,6 @@ export type ThreadsPublishResult = {
   text: string;
   containerId?: string;
   mediaId?: string;
+  permalink?: string;
+  mediaVerified?: boolean;
 };
