@@ -170,29 +170,6 @@ export async function publishTextPost(input: {
 
   const mediaVerified = Boolean(mediaInfo?.permalink || mediaInfo?.text);
 
-  // #region agent log
-  fetch("http://127.0.0.1:7806/ingest/8b50c3e5-afe6-4dff-86e9-b33c4cf14860", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "9b35a5" },
-    body: JSON.stringify({
-      sessionId: "9b35a5",
-      runId: "publish-verify",
-      hypothesisId: "H1-H4",
-      location: "lib/threads/client.ts:publishTextPost",
-      message: "threads publish verify",
-      data: {
-        postId: input.postId,
-        containerId,
-        mediaId,
-        mediaVerified,
-        permalink: mediaInfo?.permalink ?? null,
-        username: mediaInfo?.username ?? null,
-      },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
-
   if (!mediaVerified) {
     throw new Error(
       `Threads publish returned mediaId ${mediaId} but Graph API could not verify the post (no permalink/text). Token or account permissions may be wrong.`,

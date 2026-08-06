@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { assertPostBank, getPostById, getThemeById, THREADS_POSTS, THREADS_THEMES } from "@/lib/threads/content";
 import { authorizeThreadsRequest, threadsAuthConfigured } from "@/lib/threads/auth";
-import { isThreadsDryRun } from "@/lib/threads/client";
+import { fetchPublishedMedia, getThreadsCredentials, isThreadsDryRun } from "@/lib/threads/client";
 import {
   disabledStoreConfigured,
   getDisabledPostIds,
@@ -21,6 +21,7 @@ import {
   jstDateKey,
   peekUpcoming,
   pickPostForDate,
+  pickPostForDateSkippingAired,
   resolveCronPublish,
 } from "@/lib/threads/schedule";
 
@@ -46,17 +47,37 @@ export async function GET(request: Request) {
     );
   }
 
-  const today = await pickPostForDate();
-  const theme = today ? getThemeById(today.themeId) : undefined;
   const dateKey = jstDateKey();
+  const postedStore = postedStoreConfigured() ? await loadPostedStore() : null;
+  const postedStoreRecords = postedStore?.records ?? [];
+  const { post: scheduledToday, skippedPostId } = await pickPostForDateSkippingAired(
+    new Date(),
+    postedStoreRecords,
+  );
+  const today = scheduledToday;
+  const theme = today ? getThemeById(today.themeId) : undefined;
   const postedTodayRaw = await getPostedForDate(dateKey);
+  let postedTodayEnriched: (typeof postedTodayRaw & { permalink?: string }) | null =
+    postedTodayRaw;
+  if (postedTodayRaw?.mediaId) {
+    const creds = getThreadsCredentials();
+    if (creds) {
+      try {
+        const media = await fetchPublishedMedia(creds, postedTodayRaw.mediaId);
+        if (media?.permalink) {
+          postedTodayEnriched = { ...postedTodayRaw, permalink: media.permalink };
+        }
+      } catch {
+        /* Graph lookup optional for preview */
+      }
+    }
+  }
   const staleManual = postedTodayRaw ? isStaleManualPostedRecord(postedTodayRaw) : false;
   const postedToday = staleManual ? null : postedTodayRaw;
   const cronBlocked = cronBlockedByPostedToday(postedToday, today?.id ?? null);
-  const postedStore = postedStoreConfigured() ? await loadPostedStore() : null;
   const recentPosted = postedStore
     ? [...postedStore.records]
-        .sort((a, b) => b.date.localeCompare(a.date))
+        .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
         .slice(0, 14)
     : [];
   const slot = evaluatePublishSlot(new Date(), {
@@ -109,11 +130,12 @@ export async function GET(request: Request) {
       note: slot.precisionNote,
     },
     publish: {
-      postedToday: postedTodayRaw,
+      postedToday: postedTodayEnriched,
       staleManual,
       recentPosted,
       cronBlocked,
       scheduledPostId: today?.id ?? null,
+      skippedSchedulePostId: skippedPostId,
       eligibleNow: publishEligible,
       mode: publishDecision.mode ?? (staleManual ? "catch_up" : null),
       skipReason: staleManual ? null : publishDecision.skipReason,

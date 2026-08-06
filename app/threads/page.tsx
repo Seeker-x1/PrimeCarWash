@@ -64,6 +64,7 @@ type PreviewResponse = {
       mediaId?: string;
       publishedAt: string;
       source: "cron" | "catch_up" | "manual";
+      permalink?: string;
     } | null;
     recentPosted?: Array<{
       date: string;
@@ -324,6 +325,20 @@ export default function ThreadsOpsPage() {
                     <p className="mt-1 text-xs text-emerald-400/90">
                       本日投稿済み: {data.publish.postedToday.postId}（
                       {data.publish.postedToday.source}）
+                      {data.publish.postedToday.permalink ? (
+                        <>
+                          {" "}
+                          —{" "}
+                          <a
+                            href={data.publish.postedToday.permalink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline hover:text-emerald-200"
+                          >
+                            Threads で開く
+                          </a>
+                        </>
+                      ) : null}
                       {(data.publish.cronBlocked === false ||
                         (data.publish.cronBlocked === undefined &&
                           data.publish.postedToday.source === "manual" &&

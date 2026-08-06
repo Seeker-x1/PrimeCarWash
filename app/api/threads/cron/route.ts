@@ -64,43 +64,20 @@ export async function GET(request: Request) {
     publish = { yes: true, mode: "catch_up", skipReason: null };
   }
 
-  // #region agent log
-  fetch("http://127.0.0.1:7806/ingest/8b50c3e5-afe6-4dff-86e9-b33c4cf14860", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "9b35a5" },
-    body: JSON.stringify({
-      sessionId: "9b35a5",
-      runId: "cron-decision",
-      hypothesisId: "H1-H5",
-      location: "app/api/threads/cron/route.ts:decision",
-      message: "cron publish decision",
-      data: {
-        dateKey,
-        hourJst: slot.hourJst,
-        targetHourJst: slot.targetHourJst,
-        window: slot.window,
-        skipReason: slot.skipReason,
-        publishYes: publish.yes,
-        publishSkip: publish.skipReason,
-        cronBlocked,
-        staleManual,
-        postedTodayRaw: postedTodayRaw
-          ? {
-              postId: postedTodayRaw.postId,
-              source: postedTodayRaw.source,
-              date: postedTodayRaw.date,
-              publishedAt: postedTodayRaw.publishedAt,
-            }
-          : null,
-        scheduledPostId: scheduledPost?.id ?? null,
-        skippedPostId,
-        dryRun: isThreadsDryRun(),
-        cronEnabled: process.env.THREADS_CRON_ENABLED?.trim().toLowerCase() !== "false",
-      },
-      timestamp: Date.now(),
+  console.error(
+    "[threads/cron] decision",
+    JSON.stringify({
+      dateKey,
+      hourJst: slot.hourJst,
+      targetHourJst: slot.targetHourJst,
+      publishYes: publish.yes,
+      publishSkip: publish.skipReason,
+      cronBlocked,
+      staleManual,
+      scheduledPostId: scheduledPost?.id ?? null,
+      skippedPostId,
     }),
-  }).catch(() => {});
-  // #endregion
+  );
 
   if (!publish.yes) {
     return NextResponse.json({
