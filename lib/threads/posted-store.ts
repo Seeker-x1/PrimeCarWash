@@ -190,13 +190,11 @@ export function isStaleManualPostedRecord(record: PostedRecord): boolean {
  */
 export function cronBlockedByPostedToday(
   postedToday: PostedRecord | null,
-  scheduledPostId: string | null,
+  _scheduledPostId: string | null,
 ): boolean {
   if (!postedToday) return false;
   if (isStaleManualPostedRecord(postedToday)) return false;
-  if (postedToday.source === "cron" || postedToday.source === "catch_up") return true;
-  if (scheduledPostId && postedToday.postId === scheduledPostId) return true;
-  return false;
+  return true;
 }
 
 export async function markPostedForDate(input: {

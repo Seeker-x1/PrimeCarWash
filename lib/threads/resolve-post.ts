@@ -1,6 +1,11 @@
 import { getPostById } from "@/lib/threads/content";
 import { getOverrideForDate } from "@/lib/threads/overrides-store";
-import { jstDateKey, pickPostForDate } from "@/lib/threads/schedule";
+import { loadPostedStore, postedStoreConfigured } from "@/lib/threads/posted-store";
+import {
+  jstDateKey,
+  pickPostForDate,
+  pickPostForDateSkippingAired,
+} from "@/lib/threads/schedule";
 import type { ThreadsPost } from "@/lib/threads/types";
 
 function dateFromKey(dateKey: string): Date {
@@ -32,5 +37,7 @@ export async function resolvePostForPublish(opts: {
     return null;
   }
 
-  return pickPostForDate(dateFromKey(dateKey));
+  const postedStore = postedStoreConfigured() ? await loadPostedStore() : { records: [] };
+  const { post } = await pickPostForDateSkippingAired(dateFromKey(dateKey), postedStore.records);
+  return post ?? pickPostForDate(dateFromKey(dateKey));
 }
