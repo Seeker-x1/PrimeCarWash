@@ -57,6 +57,7 @@ type PreviewResponse = {
   deletedIds?: string[];
   canTrackPosted?: boolean;
   canRefreshPosts?: boolean;
+  canGenerateWithAi?: boolean;
   publish?: {
     postedToday: {
       date: string;
@@ -384,6 +385,11 @@ export default function ThreadsOpsPage() {
                       削除の永続化には Vercel Blob（BLOB_READ_WRITE_TOKEN）が必要です。
                     </p>
                   ) : null}
+                  {data.canGenerateWithAi === false ? (
+                    <p className="mt-1 text-xs text-amber-500/90">
+                      AI新規は GEMINI_API_KEY 未設定のため使えません（Vercel に追加して Redeploy）。
+                    </p>
+                  ) : null}
                   {data.canRefreshPosts === false ? (
                     <p className="mt-1 text-xs text-amber-500/90">
                       文面の差し替えには Vercel Blob の接続が必要です。
@@ -420,7 +426,7 @@ export default function ThreadsOpsPage() {
                     </button>
                     <button
                       type="button"
-                      disabled={loading || !data.canRefreshPosts || !data.date}
+                      disabled={loading || !data.canRefreshPosts || !data.canGenerateWithAi || !data.date}
                       onClick={() => {
                         if (!data.date) return;
                         void refreshPost(data.date, true);
@@ -574,7 +580,7 @@ export default function ThreadsOpsPage() {
                         </button>
                         <button
                           type="button"
-                          disabled={loading || !data.canRefreshPosts}
+                          disabled={loading || !data.canRefreshPosts || !data.canGenerateWithAi}
                           className="text-xs text-violet-400/90 underline hover:text-violet-300 disabled:opacity-40"
                           title="Gemini で新規文面"
                           onClick={() => void refreshPost(u.date, true)}

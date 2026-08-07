@@ -76,6 +76,9 @@ export async function POST(request: Request) {
     if (/GEMINI_API_KEY/i.test(raw)) {
       message =
         "GEMINI_API_KEY が Vercel に未設定です。AI 生成に必要な場合はサーバー専用キーを入れて Redeploy してください。";
+    } else if (/models\/gemini|not found for API version/i.test(raw)) {
+      message =
+        "Gemini モデルが利用できません。デプロイを最新にしてください（モデル廃止の可能性）。";
     }
     return NextResponse.json({ ok: false, message }, { status: 502 });
   }

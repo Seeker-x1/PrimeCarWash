@@ -121,6 +121,7 @@ export async function GET(request: Request) {
     canPersistDeletes: disabledStoreConfigured(),
     canTrackPosted: postedStoreConfigured(),
     canRefreshPosts: overridesStoreConfigured(),
+    canGenerateWithAi: Boolean(process.env.GEMINI_API_KEY?.trim()),
     schedule: {
       window: slot.window,
       todayHourJst: slot.targetHourJst,

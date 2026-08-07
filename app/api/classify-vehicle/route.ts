@@ -1,14 +1,17 @@
 ﻿import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GEMINI_MODEL_NAME } from "@/lib/gemini-model";
 import { vehicles, type CarSize } from "@/constants/vehicles";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import type { Locale } from "@/lib/site-content";
+import { getVehicleFullName } from "@/lib/vehicle-label";
 import {
   buildVehicleSearchText,
   getVehicleQueryVariants,
   normalizeVehicleSearchValue,
 } from "@/lib/vehicle-search";
 
-const MODEL_NAME = "gemini-1.5-flash";
+const MODEL_NAME = GEMINI_MODEL_NAME;
 const MAX_CAR_NAME_LENGTH = 80;
 const GEMINI_TIMEOUT_MS = 8000;
 /** Soft caps per IP (per serverless isolate). */
@@ -47,7 +50,7 @@ const SIZE_RANK: Record<CarSize, number> = {
   XL: 4,
 };
 
-function findLocalVehicle(carName: string): VehicleClassification | null {
+function findLocalVehicle(carName: string, locale: Locale = "ja"): VehicleClassification | null {
   const queryVariants = getVehicleQueryVariants(carName);
   if (queryVariants.length === 0 || queryVariants[0].length < 2) return null;
 
@@ -67,7 +70,7 @@ function findLocalVehicle(carName: string): VehicleClassification | null {
   return {
     size: matched.size,
     source: "local",
-    matchedVehicle: `${matched.brand} ${matched.model}`,
+    matchedVehicle: getVehicleFullName(matched, locale),
   };
 }
 
@@ -169,7 +172,7 @@ function pickLargerSize(a: CarSize, b: CarSize) {
   return SIZE_RANK[a] >= SIZE_RANK[b] ? a : b;
 }
 
-function classifyByDimensions(specs: VehicleSpecs): VehicleClassification | null {
+function classifyByDimensions(specs: VehicleSpecs, locale: Locale = "ja"): VehicleClassification | null {
   const length = specs.lengthMm ?? 0;
   const width = specs.widthMm ?? 0;
   const height = specs.heightMm ?? 0;
@@ -216,15 +219,25 @@ function classifyByDimensions(specs: VehicleSpecs): VehicleClassification | null
     size: finalSize,
     source: "spec_ai",
     dimensions: specs,
-    reason: [
-      length ? `全長${length}mm` : null,
-      width ? `全幅${width}mm` : null,
-      height ? `全高${height}mm` : null,
-      specs.bodyType ? `車種タイプ: ${specs.bodyType}` : null,
-      similarSizes.length > 0 ? `類似車両サイズ: ${similarSizes.join("/")}` : null,
-    ]
-      .filter(Boolean)
-      .join(" / "),
+    reason: locale === "en"
+      ? [
+          length ? `length ${length}mm` : null,
+          width ? `width ${width}mm` : null,
+          height ? `height ${height}mm` : null,
+          specs.bodyType ? `body type: ${specs.bodyType}` : null,
+          similarSizes.length > 0 ? `similar vehicle sizes: ${similarSizes.join("/")}` : null,
+        ]
+          .filter(Boolean)
+          .join(" / ")
+      : [
+          length ? `全長${length}mm` : null,
+          width ? `全幅${width}mm` : null,
+          height ? `全高${height}mm` : null,
+          specs.bodyType ? `車種タイプ: ${specs.bodyType}` : null,
+          similarSizes.length > 0 ? `類似車両サイズ: ${similarSizes.join("/")}` : null,
+        ]
+          .filter(Boolean)
+          .join(" / "),
   };
 }
 
@@ -302,6 +315,13 @@ export async function POST(request: Request) {
       typeof body.carName === "string"
         ? body.carName.trim()
         : "";
+    const locale: Locale =
+      body &&
+      typeof body === "object" &&
+      "locale" in body &&
+      body.locale === "en"
+        ? "en"
+        : "ja";
 
     if (!carName) {
       return NextResponse.json(
@@ -317,7 +337,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const localClassification = findLocalVehicle(carName);
+    const localClassification = findLocalVehicle(carName, locale);
     if (localClassification) {
       return NextResponse.json(localClassification);
     }
@@ -381,7 +401,7 @@ ${REFERENCE_VEHICLES}
     );
     const text = result.response.text();
     const specs = parseSpecsFromGemini(text);
-    const specClassification = specs ? classifyByDimensions(specs) : null;
+    const specClassification = specs ? classifyByDimensions(specs, locale) : null;
 
     if (!specClassification) {
       return NextResponse.json(

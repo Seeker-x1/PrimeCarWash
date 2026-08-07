@@ -1,8 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GEMINI_MODEL_NAME } from "@/lib/gemini-model";
 import { formatAreaUrlsForPrompt } from "@/lib/threads/area-links";
 import type { ThreadsPost } from "@/lib/threads/types";
 
-const MODEL_NAME = "gemini-1.5-flash";
+const MODEL_NAME = GEMINI_MODEL_NAME;
 const GEMINI_TIMEOUT_MS = 12_000;
 const MAX_TEXT = 500;
 
