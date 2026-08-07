@@ -272,12 +272,15 @@ export function pickNextRotatingPost(
 export async function pickPostForDateSkippingAired(
   date = new Date(),
   priorRecords: PostedRecord[],
+  options?: { additionalPriorOverrides?: Array<{ date: string; postId: string }> },
 ): Promise<{ post: ThreadsPost | null; skippedPostId: string | null }> {
   const dateKey = jstDateKey(date);
-  const priorOverrides =
-    (await loadOverridesStore()).overrides
+  const priorOverrides = [
+    ...(await loadOverridesStore()).overrides
       .filter((o) => o.date < dateKey)
-      .map((o) => ({ date: o.date, postId: o.postId }));
+      .map((o) => ({ date: o.date, postId: o.postId })),
+    ...(options?.additionalPriorOverrides ?? []).filter((o) => o.date < dateKey),
+  ];
 
   const isUsedBefore = (postId: string) =>
     wasPostIdUsedBeforeJstDate(postId, dateKey, priorRecords, priorOverrides);
@@ -337,6 +340,8 @@ export async function peekUpcoming(
   Array<{ date: string; post: ThreadsPost; hourJst: number; minuteJst: number; timeLabel: string }>
 > {
   const records = postedStoreConfigured() ? (await loadPostedStore()).records : [];
+  const plannedOverrides: Array<{ date: string; postId: string }> = [];
+  const todayKey = jstDateKey(from);
 
   const out: Array<{
     date: string;
@@ -349,8 +354,13 @@ export async function peekUpcoming(
   for (let i = 0; i < days; i += 1) {
     const d = new Date(from.getTime() + i * 86_400_000);
     const dateKey = jstDateKey(d);
-    const { post } = await pickPostForDateSkippingAired(d, records);
+    const { post } = await pickPostForDateSkippingAired(d, records, {
+      additionalPriorOverrides: plannedOverrides,
+    });
     if (!post) continue;
+    if (dateKey >= todayKey) {
+      plannedOverrides.push({ date: dateKey, postId: post.id });
+    }
     const hourJst = pickPostHourJstForDate(d);
     const minuteJst = pickPostMinuteJstForDate(d);
     out.push({
