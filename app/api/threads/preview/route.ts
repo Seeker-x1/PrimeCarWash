@@ -86,7 +86,9 @@ export async function GET(request: Request) {
   });
   const publishDecision = resolveCronPublish(slot, cronBlocked);
   const publishEligible =
-    publishDecision.yes || (staleManual && Boolean(today));
+    publishDecision.yes ||
+    staleManual ||
+    (Boolean(today) && !postedToday && process.env.VERCEL);
   const disabled = await getDisabledPostIds();
   const disabledStore = await loadDisabledStore();
   const upcomingAll = await peekUpcoming(15);

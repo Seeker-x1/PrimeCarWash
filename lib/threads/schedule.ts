@@ -184,9 +184,6 @@ export function resolveCronPublish(
   if (slot.yes) {
     return { yes: true, mode: slot.mode, skipReason: null };
   }
-  if (slot.skipReason === "after_post_window") {
-    return { yes: false, mode: null, skipReason: slot.skipReason };
-  }
   if (
     process.env.VERCEL &&
     slot.hourJst >= slot.window.start &&
@@ -195,6 +192,10 @@ export function resolveCronPublish(
     const mode: PublishMode =
       slot.hourJst > slot.targetHourJst ? "catch_up" : "on_time";
     return { yes: true, mode, skipReason: null };
+  }
+  // Hobby Cron は遅延・1日1回・窓外起動があり得る。未投稿ならいつ起動しても出す。
+  if (process.env.VERCEL) {
+    return { yes: true, mode: "catch_up", skipReason: null };
   }
   return { yes: false, mode: null, skipReason: slot.skipReason };
 }

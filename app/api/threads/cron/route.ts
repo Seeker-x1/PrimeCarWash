@@ -64,6 +64,31 @@ export async function GET(request: Request) {
     publish = { yes: true, mode: "catch_up", skipReason: null };
   }
 
+  // #region agent log
+  fetch("http://127.0.0.1:7806/ingest/8b50c3e5-afe6-4dff-86e9-b33c4cf14860", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "9b35a5" },
+    body: JSON.stringify({
+      sessionId: "9b35a5",
+      runId: "cron-decision",
+      hypothesisId: "H1-after-window",
+      location: "app/api/threads/cron/route.ts:decision",
+      message: "cron publish decision",
+      data: {
+        dateKey,
+        hourJst: slot.hourJst,
+        publishYes: publish.yes,
+        skipReason: publish.skipReason,
+        cronBlocked,
+        staleManual,
+        scheduledPostId: scheduledPost?.id ?? null,
+        vercel: Boolean(process.env.VERCEL),
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
+
   console.error(
     "[threads/cron] decision",
     JSON.stringify({
