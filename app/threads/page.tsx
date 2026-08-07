@@ -129,11 +129,7 @@ export default function ThreadsOpsPage() {
     await loadPreview(token);
   }
 
-  async function publish(opts: {
-    postId?: string;
-    date?: string;
-    dryRun: boolean;
-  }) {
+  async function publish(opts: { date?: string; dryRun: boolean; allowExtra?: boolean }) {
     setPublishMsg(null);
     setError(null);
     setLoading(true);
@@ -144,7 +140,7 @@ export default function ThreadsOpsPage() {
           Authorization: `Bearer ${secret.trim()}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(opts),
+        body: JSON.stringify({ date: opts.date, dryRun: opts.dryRun }),
       });
       const json = (await res.json()) as PublishResponse;
       if (!res.ok || !json.ok) {
@@ -153,8 +149,8 @@ export default function ThreadsOpsPage() {
       }
       setPublishMsg(
         json.dryRun
-          ? `Dry-run OK — ${json.postId}\n\n${json.text ?? ""}`
-          : `Posted${json.extraPost ? "（追加投稿）" : ""} — ${json.postId} (media ${json.mediaId ?? "?"})`,
+          ? `接続テスト OK — ${json.postId}\n\n${json.text ?? ""}`
+          : `公開しました${json.extraPost || opts.allowExtra ? "（本日2本目）" : ""} — ${json.postId}`,
       );
       await loadPreview(secret.trim());
     } catch (e) {
@@ -195,6 +191,30 @@ export default function ThreadsOpsPage() {
       await loadPreview(secret.trim());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Refresh failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function clearOverride(date: string) {
+    if (!confirm(`${date} の差し替えを解除し、ローテーション予定に戻しますか？`)) return;
+    setError(null);
+    setPublishMsg(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/threads/refresh?date=${encodeURIComponent(date)}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${secret.trim()}` },
+      });
+      const json = (await res.json()) as { ok: boolean; message?: string; note?: string };
+      if (!res.ok || !json.ok) {
+        setError(json.message ?? `HTTP ${res.status}`);
+        return;
+      }
+      setPublishMsg(json.note ?? "差し替えを解除しました");
+      await loadPreview(secret.trim());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Clear failed");
     } finally {
       setLoading(false);
     }
@@ -339,14 +359,10 @@ export default function ThreadsOpsPage() {
                           </a>
                         </>
                       ) : null}
-                      {(data.publish.cronBlocked === false ||
-                        (data.publish.cronBlocked === undefined &&
-                          data.publish.postedToday.source === "manual" &&
-                          data.today?.post.id &&
-                          data.publish.postedToday.postId !== data.today.post.id)) &&
+                      {data.publish.postedToday.postId !== data.today?.post.id &&
                       data.today?.post.id
-                        ? ` — 予定 ${data.today.post.id} は自動投稿待ち（7時 Cron またはデプロイ後に追いかけ）`
-                        : " — 手動 Publish / AI生成で追加投稿できます"}
+                        ? ` — 画面上の予定 ${data.today.post.id} とは別文面です`
+                        : null}
                     </p>
                   ) : data.publish?.eligibleNow ? (
                     <p className="mt-1 text-xs text-sky-400/90">
@@ -358,18 +374,9 @@ export default function ThreadsOpsPage() {
                       自動投稿:{" "}
                       {data.publish.skipReason === "before_target_slot"
                         ? `本日 ${data.schedule?.todayTimeLabel ?? "—"} 頃に Cron 実行予定（いまは待機中）`
-                        : data.publish.skipReason === "outside_daily_random_slot" &&
-                            !data.publish.catchUpEnabled
-                          ? "Cron 時刻と投稿予定時刻が一致しません（Blob 未設定）。デプロイ更新後は 6/7 時に揃います"
-                        : data.publish.skipReason === "already_posted_today" &&
-                            data.publish.postedToday &&
-                            data.today?.post.id &&
-                            data.publish.postedToday.postId !== data.today.post.id
-                          ? `手動 ${data.publish.postedToday.postId} 済み。予定 ${data.today.post.id} は旧版では自動停止（要デプロイ）`
+                        : data.publish.skipReason === "already_posted_today"
+                          ? "本日は投稿済みのため Cron はスキップ"
                           : data.publish.skipReason}
-                      {data.publish.catchUpEnabled
-                        ? ""
-                        : " · 取りこぼし救済には Vercel Blob が必要"}
                     </p>
                   ) : null}
                   {data.canPersistDeletes === false ? (
@@ -379,7 +386,7 @@ export default function ThreadsOpsPage() {
                   ) : null}
                   {data.canRefreshPosts === false ? (
                     <p className="mt-1 text-xs text-amber-500/90">
-                      「別の案」には Vercel Blob の接続が必要です（Storage → このプロジェクトに接続 → Redeploy）。
+                      文面の差し替えには Vercel Blob の接続が必要です。
                     </p>
                   ) : null}
                   {data.today?.refreshCount ? (
@@ -394,84 +401,106 @@ export default function ThreadsOpsPage() {
                     </p>
                   ) : null}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    disabled={loading || !data.today?.post.id}
-                    onClick={() => {
-                      const id = data.today?.post.id;
-                      if (!id) return;
-                      void removeFromRotation(id);
-                    }}
-                    className="border border-red-900/80 px-3 py-1.5 text-xs tracking-wide text-red-300 hover:bg-red-950/40 disabled:opacity-40"
-                  >
-                    Delete today
-                  </button>
-                  <button
-                    type="button"
-                    disabled={loading || !data.canRefreshPosts || !data.date}
-                    onClick={() => {
-                      if (!data.date) return;
-                      void refreshPost(data.date, true);
-                    }}
-                    className="border border-violet-900/80 px-3 py-1.5 text-xs tracking-wide text-violet-300 hover:bg-violet-950/40 disabled:opacity-40"
-                    title="Gemini で新規文面を生成（何度でも）"
-                  >
-                    AIで生成
-                  </button>
-                  <button
-                    type="button"
-                    disabled={loading || !data.canRefreshPosts || !data.date}
-                    onClick={() => {
-                      if (!data.date) return;
-                      void refreshPost(data.date);
-                    }}
-                    className="border border-sky-900/80 px-3 py-1.5 text-xs tracking-wide text-sky-300 hover:bg-sky-950/40 disabled:opacity-40"
-                    title="別の投稿案に差し替え（バンク→AI）"
-                  >
-                    別の案
-                  </button>
-                  <button
-                    type="button"
-                    disabled={loading}
-                    onClick={() =>
-                      void publish({
-                        postId: data.today?.post.id,
-                        date: data.date,
-                        dryRun: true,
-                      })
-                    }
-                    className="border border-neutral-600 px-3 py-1.5 text-xs tracking-wide hover:bg-neutral-900 disabled:opacity-40"
-                  >
-                    Dry-run today
-                  </button>
-                  <button
-                    type="button"
-                    disabled={loading}
-                    onClick={() => {
-                      const msg = data.publish?.postedToday
-                        ? "本日は既に投稿済みです。プレビュー文を追加で Threads に公開しますか？"
-                        : "本日の投稿を Threads に公開しますか？";
-                      if (!confirm(msg)) return;
-                      void publish({
-                        postId: data.today?.post.id,
-                        date: data.date,
-                        dryRun: false,
-                      });
-                    }}
-                    className="border border-white/70 bg-white px-3 py-1.5 text-xs tracking-wide text-neutral-950 hover:bg-neutral-200 disabled:opacity-40"
-                  >
-                    Publish today
-                  </button>
-                  <button
-                    type="button"
-                    disabled={loading}
-                    onClick={() => void loadPreview(secret.trim())}
-                    className="border border-neutral-700 px-3 py-1.5 text-xs text-neutral-400 hover:bg-neutral-900 disabled:opacity-40"
-                    title="画面の表示だけ更新（投稿文は変わりません）"
-                  >
-                    再読込
-                  </button>
+                <div className="flex w-full flex-col gap-3 sm:w-auto">
+                  <div className="flex flex-wrap gap-2">
+                    <span className="w-full text-[10px] tracking-wide text-neutral-600 uppercase">
+                      文面
+                    </span>
+                    <button
+                      type="button"
+                      disabled={loading || !data.canRefreshPosts || !data.date}
+                      onClick={() => {
+                        if (!data.date) return;
+                        void refreshPost(data.date);
+                      }}
+                      className="border border-sky-900/80 px-3 py-1.5 text-xs tracking-wide text-sky-300 hover:bg-sky-950/40 disabled:opacity-40"
+                      title="バンクの別候補に差し替え（前日と同じIDは避ける）"
+                    >
+                      バンク別案
+                    </button>
+                    <button
+                      type="button"
+                      disabled={loading || !data.canRefreshPosts || !data.date}
+                      onClick={() => {
+                        if (!data.date) return;
+                        void refreshPost(data.date, true);
+                      }}
+                      className="border border-violet-900/80 px-3 py-1.5 text-xs tracking-wide text-violet-300 hover:bg-violet-950/40 disabled:opacity-40"
+                      title="Gemini で新規文面を生成"
+                    >
+                      AI新規
+                    </button>
+                    {(data.today?.refreshCount ?? 0) > 0 || data.today?.pickSource !== "schedule" ? (
+                      <button
+                        type="button"
+                        disabled={loading || !data.canRefreshPosts || !data.date}
+                        onClick={() => {
+                          if (!data.date) return;
+                          void clearOverride(data.date);
+                        }}
+                        className="border border-neutral-700 px-3 py-1.5 text-xs tracking-wide text-neutral-400 hover:bg-neutral-900 disabled:opacity-40"
+                        title="差し替えを解除してローテーション予定に戻す"
+                      >
+                        予定に戻す
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="w-full text-[10px] tracking-wide text-neutral-600 uppercase">
+                      Threads
+                    </span>
+                    {data.dryRunDefault ? (
+                      <button
+                        type="button"
+                        disabled={loading || !data.date}
+                        onClick={() => void publish({ date: data.date, dryRun: true })}
+                        className="border border-neutral-600 px-3 py-1.5 text-xs tracking-wide hover:bg-neutral-900 disabled:opacity-40"
+                        title="API接続テスト（投稿しない）"
+                      >
+                        接続テスト
+                      </button>
+                    ) : null}
+                    {!data.publish?.postedToday ? (
+                      <button
+                        type="button"
+                        disabled={loading || !data.date}
+                        onClick={() => {
+                          if (!confirm("画面上の本文を Threads に公開しますか？")) return;
+                          void publish({ date: data.date, dryRun: false });
+                        }}
+                        className="border border-white/70 bg-white px-3 py-1.5 text-xs tracking-wide text-neutral-950 hover:bg-neutral-200 disabled:opacity-40"
+                      >
+                        公開する
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={loading || !data.date}
+                        onClick={() => {
+                          if (
+                            !confirm(
+                              "本日は既に1本投稿済みです。同じ日に2本目を公開しますか？（通常は不要）",
+                            )
+                          ) {
+                            return;
+                          }
+                          void publish({ date: data.date, dryRun: false, allowExtra: true });
+                        }}
+                        className="border border-amber-800/80 px-3 py-1.5 text-xs tracking-wide text-amber-200 hover:bg-amber-950/30 disabled:opacity-40"
+                      >
+                        2本目を公開
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => void loadPreview(secret.trim())}
+                      className="border border-neutral-700 px-3 py-1.5 text-xs text-neutral-400 hover:bg-neutral-900 disabled:opacity-40"
+                      title="表示を最新状態に更新"
+                    >
+                      更新
+                    </button>
+                  </div>
                 </div>
               </div>
               <pre className="whitespace-pre-wrap border border-neutral-800 bg-neutral-900/60 p-4 text-sm leading-relaxed text-neutral-200">
@@ -515,8 +544,7 @@ export default function ThreadsOpsPage() {
             <section className="space-y-3">
               <h2 className="text-sm tracking-wide text-neutral-400">Next 14 days（明日以降）</h2>
               <p className="text-xs text-neutral-600">
-                「別の案」でバンクから差し替え、「AIで生成」で Gemini
-                新規文面（何度でも）。投稿済みの日も手動 Publish で追加投稿できます。
+                バンク別案＝別の固定文、AI新規＝Gemini生成。ローテから外す＝以降の予定が繰り上がります。
               </p>
               <ul className="space-y-4 text-sm">
                 {data.upcoming?.map((u) => (
@@ -534,43 +562,42 @@ export default function ThreadsOpsPage() {
                           {u.pickSource === "generated" ? " AI" : ""}
                         </span>
                       ) : null}
-                      <span className="ml-auto flex shrink-0 gap-2">
-                        <button
-                          type="button"
-                          disabled={loading || !data.canRefreshPosts}
-                          className="text-xs text-violet-400/90 underline hover:text-violet-300 disabled:opacity-40"
-                          title="Gemini で新規文面を生成"
-                          onClick={() => void refreshPost(u.date, true)}
-                        >
-                          AI生成
-                        </button>
+                      <span className="ml-auto flex shrink-0 flex-wrap justify-end gap-x-2 gap-y-1">
                         <button
                           type="button"
                           disabled={loading || !data.canRefreshPosts}
                           className="text-xs text-sky-400/90 underline hover:text-sky-300 disabled:opacity-40"
-                          title="別の投稿案に差し替え"
+                          title="バンクの別候補に差し替え"
                           onClick={() => void refreshPost(u.date)}
                         >
-                          別の案
+                          バンク別案
                         </button>
                         <button
                           type="button"
-                          disabled={loading}
-                          className="text-xs text-neutral-500 underline hover:text-neutral-300"
-                          onClick={() => {
-                            if (!confirm(`${u.postId} を公開しますか？`)) return;
-                            void publish({ postId: u.postId, date: u.date, dryRun: false });
-                          }}
+                          disabled={loading || !data.canRefreshPosts}
+                          className="text-xs text-violet-400/90 underline hover:text-violet-300 disabled:opacity-40"
+                          title="Gemini で新規文面"
+                          onClick={() => void refreshPost(u.date, true)}
                         >
-                          post
+                          AI新規
                         </button>
+                        {(u.refreshCount ?? 0) > 0 || u.pickSource !== "schedule" ? (
+                          <button
+                            type="button"
+                            disabled={loading || !data.canRefreshPosts}
+                            className="text-xs text-neutral-500 underline hover:text-neutral-300 disabled:opacity-40"
+                            onClick={() => void clearOverride(u.date)}
+                          >
+                            予定に戻す
+                          </button>
+                        ) : null}
                         <button
                           type="button"
                           disabled={loading}
                           className="text-xs text-red-400/90 underline hover:text-red-300"
                           onClick={() => void removeFromRotation(u.postId)}
                         >
-                          delete
+                          ローテ除外
                         </button>
                       </span>
                     </div>
@@ -611,7 +638,7 @@ export default function ThreadsOpsPage() {
                         className="shrink-0 text-red-400/80 underline"
                         onClick={() => void removeFromRotation(p.id)}
                       >
-                        delete
+                        ローテ除外
                       </button>
                     )}
                   </li>

@@ -19,13 +19,10 @@ export async function resolvePostForPublish(opts: {
   date?: string;
 }): Promise<ThreadsPost | null> {
   const dateKey = opts.date?.trim() || jstDateKey();
+  const override = await getOverrideForDate(dateKey);
 
   if (opts.postId?.trim()) {
     const id = opts.postId.trim();
-    const fromBank = getPostById(id);
-    if (fromBank) return fromBank;
-
-    const override = await getOverrideForDate(dateKey);
     if (override?.postId === id) {
       return {
         id: override.postId,
@@ -34,7 +31,18 @@ export async function resolvePostForPublish(opts: {
         enabled: true,
       };
     }
+    const fromBank = getPostById(id);
+    if (fromBank) return fromBank;
     return null;
+  }
+
+  if (override) {
+    return {
+      id: override.postId,
+      themeId: override.themeId,
+      text: override.text,
+      enabled: true,
+    };
   }
 
   const postedStore = postedStoreConfigured() ? await loadPostedStore() : { records: [] };

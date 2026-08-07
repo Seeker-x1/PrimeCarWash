@@ -185,3 +185,16 @@ export async function saveDateOverride(override: DateOverride): Promise<DateOver
   await saveOverridesStore({ overrides: rest, updatedAt: new Date().toISOString() });
   return override;
 }
+
+/** 指定日の差し替えを削除し、ローテーション予定に戻す */
+export async function clearOverrideForDate(dateKey: string): Promise<boolean> {
+  const date = dateKey.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new Error("date must be YYYY-MM-DD (JST)");
+  }
+  const store = await loadOverridesStore();
+  const next = store.overrides.filter((o) => o.date !== date);
+  if (next.length === store.overrides.length) return false;
+  await saveOverridesStore({ overrides: next, updatedAt: new Date().toISOString() });
+  return true;
+}
