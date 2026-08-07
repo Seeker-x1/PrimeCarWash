@@ -170,6 +170,17 @@ export function wasPostIdPublishedOnPriorJstDay(
   );
 }
 
+/** 投稿記録または日付差し替えで、指定日より前に同じ postId が使われていれば true */
+export function wasPostIdUsedBeforeJstDate(
+  postId: string,
+  dateKey: string,
+  records: PostedRecord[],
+  priorOverrides: Array<{ date: string; postId: string }>,
+): boolean {
+  if (wasPostIdPublishedOnPriorJstDay(postId, dateKey, records)) return true;
+  return priorOverrides.some((o) => o.postId === postId && o.date < dateKey);
+}
+
 /** publishedAt の JST 日付（記録の date キーと照合用） */
 export function postedRecordJstDate(record: PostedRecord): string {
   return jstDateKey(new Date(record.publishedAt));

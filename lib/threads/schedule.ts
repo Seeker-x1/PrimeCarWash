@@ -1,8 +1,10 @@
 import { listRotatingPosts } from "@/lib/threads/content";
-import { getOverrideForDate } from "@/lib/threads/overrides-store";
+import { getOverrideForDate, loadOverridesStore } from "@/lib/threads/overrides-store";
 import {
+  loadPostedStore,
+  postedRecordJstDate,
   postedStoreConfigured,
-  wasPostIdPublishedOnPriorJstDay,
+  wasPostIdUsedBeforeJstDate,
   type PostedRecord,
 } from "@/lib/threads/posted-store";
 import type { ThreadsPost } from "@/lib/threads/types";
@@ -265,15 +267,23 @@ export function pickNextRotatingPost(
 }
 
 /**
- * その日の予定投稿。直近に同じ postId を出済みならローテーションを1つ進める。
+ * その日の予定投稿。直近に同じ postId を出済み／予定済みならローテーションを進める。
  */
 export async function pickPostForDateSkippingAired(
   date = new Date(),
   priorRecords: PostedRecord[],
 ): Promise<{ post: ThreadsPost | null; skippedPostId: string | null }> {
   const dateKey = jstDateKey(date);
+  const priorOverrides =
+    (await loadOverridesStore()).overrides
+      .filter((o) => o.date < dateKey)
+      .map((o) => ({ date: o.date, postId: o.postId }));
+
+  const isUsedBefore = (postId: string) =>
+    wasPostIdUsedBeforeJstDate(postId, dateKey, priorRecords, priorOverrides);
+
   const override = await getOverrideForDate(dateKey);
-  if (override) {
+  if (override && !isUsedBefore(override.postId)) {
     return {
       post: {
         id: override.postId,
@@ -291,20 +301,33 @@ export async function pickPostForDateSkippingAired(
   let post = await pickPostForDate(date);
   if (!post) return { post: null, skippedPostId: null };
 
-  let skippedPostId: string | null = null;
+  let skippedPostId: string | null =
+    override && isUsedBefore(override.postId) ? override.postId : null;
   const seen = new Set<string>();
 
-  while (
-    post &&
-    wasPostIdPublishedOnPriorJstDay(post.id, dateKey, priorRecords) &&
-    !seen.has(post.id)
-  ) {
+  while (post && isUsedBefore(post.id) && !seen.has(post.id)) {
     seen.add(post.id);
-    skippedPostId = post.id;
+    if (!skippedPostId) skippedPostId = post.id;
     post = pickNextRotatingPost(post.id, enabled);
   }
 
   return { post, skippedPostId };
+}
+
+/** 指定日より前に投稿済み・差し替え済みの postId 一覧 */
+export async function getPostIdsUsedBeforeJstDate(dateKey: string): Promise<Set<string>> {
+  const ids = new Set<string>();
+  if (postedStoreConfigured()) {
+    const store = await loadPostedStore();
+    for (const record of store.records) {
+      if (postedRecordJstDate(record) < dateKey) ids.add(record.postId);
+    }
+  }
+  const overrides = await loadOverridesStore();
+  for (const override of overrides.overrides) {
+    if (override.date < dateKey) ids.add(override.postId);
+  }
+  return ids;
 }
 
 export async function peekUpcoming(
@@ -313,6 +336,8 @@ export async function peekUpcoming(
 ): Promise<
   Array<{ date: string; post: ThreadsPost; hourJst: number; minuteJst: number; timeLabel: string }>
 > {
+  const records = postedStoreConfigured() ? (await loadPostedStore()).records : [];
+
   const out: Array<{
     date: string;
     post: ThreadsPost;
@@ -320,14 +345,16 @@ export async function peekUpcoming(
     minuteJst: number;
     timeLabel: string;
   }> = [];
+
   for (let i = 0; i < days; i += 1) {
     const d = new Date(from.getTime() + i * 86_400_000);
-    const post = await pickPostForDate(d);
+    const dateKey = jstDateKey(d);
+    const { post } = await pickPostForDateSkippingAired(d, records);
     if (!post) continue;
     const hourJst = pickPostHourJstForDate(d);
     const minuteJst = pickPostMinuteJstForDate(d);
     out.push({
-      date: jstDateKey(d),
+      date: dateKey,
       post,
       hourJst,
       minuteJst,

@@ -9,7 +9,7 @@ import {
   saveDateOverride,
   type DateOverride,
 } from "@/lib/threads/overrides-store";
-import { dayMix, jstDayIndex } from "@/lib/threads/schedule";
+import { dayMix, getPostIdsUsedBeforeJstDate, jstDayIndex } from "@/lib/threads/schedule";
 import type { ThreadsPost } from "@/lib/threads/types";
 
 const MAX_RECENT_TEXTS = 20;
@@ -97,6 +97,9 @@ export async function refreshPickForDate(
 
   const existing = await getOverrideForDate(trimmed);
   const rejected = new Set(existing?.rejectedIds ?? []);
+  for (const id of await getPostIdsUsedBeforeJstDate(trimmed)) {
+    rejected.add(id);
+  }
   const scheduled = await defaultBankPick(trimmed);
   const currentId = existing?.postId ?? scheduled?.id;
   if (currentId) rejected.add(currentId);
