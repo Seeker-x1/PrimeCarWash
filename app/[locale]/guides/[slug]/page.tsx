@@ -164,7 +164,7 @@ export default async function GuideArticlePage({ params }: PageProps) {
       </article>
 
       <section id="reservation-form" className="border-t border-[#999999] py-8">
-        <AmanBookingForm locale={currentLocale} headingLevel="h2" />
+        <AmanBookingForm headingLevel="h2" />
       </section>
 
       <SiteFooter locale={currentLocale} />
