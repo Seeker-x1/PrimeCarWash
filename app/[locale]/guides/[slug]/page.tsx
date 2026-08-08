@@ -11,7 +11,7 @@ import {
   isGuideSlug,
 } from "@/lib/guide-posts";
 import { getLineConsultationUrl } from "@/lib/line-consultation";
-import { getOgImageUrl } from "@/lib/seo-json-ld";
+import { buildGuidePageJsonLd, getOgImageUrl, serializeJsonLd } from "@/lib/seo-json-ld";
 import AmanBookingForm from "@/components/AmanBookingForm";
 import SiteFooter from "@/components/SiteFooter";
 
@@ -74,17 +74,7 @@ export default async function GuideArticlePage({ params }: PageProps) {
   const homeHref = currentLocale === "ja" ? "/" : "/en";
   const lineConsultationUrl = getLineConsultationUrl(currentLocale);
   const hubHref = getGuidesHubPath(currentLocale);
-
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: content.h1,
-    description: content.searchDescription,
-    datePublished: post.publishedAt,
-    author: { "@type": "Organization", name: "PRIME CAR WASH" },
-    publisher: { "@type": "Organization", name: "PRIME CAR WASH" },
-    inLanguage: currentLocale === "ja" ? "ja-JP" : "en-US",
-  };
+  const jsonLd = buildGuidePageJsonLd(currentLocale, slug);
 
   return (
     <main className="bg-black text-white">
@@ -174,16 +164,14 @@ export default async function GuideArticlePage({ params }: PageProps) {
       </article>
 
       <section id="reservation-form" className="border-t border-[#999999] py-8">
-        <AmanBookingForm headingLevel="h2" />
+        <AmanBookingForm locale={currentLocale} headingLevel="h2" />
       </section>
 
       <SiteFooter locale={currentLocale} />
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(articleJsonLd).replace(/<\/script>/gi, "<\\/script>"),
-        }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
     </main>
   );

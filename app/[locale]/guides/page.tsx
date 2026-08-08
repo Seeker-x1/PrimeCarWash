@@ -13,7 +13,7 @@ import {
   isGuideSlug,
 } from "@/lib/guide-posts";
 import { getLineConsultationUrl } from "@/lib/line-consultation";
-import { getOgImageUrl } from "@/lib/seo-json-ld";
+import { buildGuidesHubJsonLd, getOgImageUrl, serializeJsonLd } from "@/lib/seo-json-ld";
 import SiteFooter from "@/components/SiteFooter";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -80,6 +80,11 @@ export default async function GuidesHubPage({ params }: PageProps) {
   const currentLocale = locale as Locale;
   const copy = hubCopy[currentLocale];
   const homeHref = currentLocale === "ja" ? "/" : "/en";
+  const jsonLd = buildGuidesHubJsonLd(currentLocale, {
+    title: copy.title,
+    description: copy.description,
+    h1: copy.h1,
+  });
 
   return (
     <main className="bg-black text-white">
@@ -137,6 +142,11 @@ export default async function GuidesHubPage({ params }: PageProps) {
       </article>
 
       <SiteFooter locale={currentLocale} />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
     </main>
   );
 }

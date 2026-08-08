@@ -3,6 +3,14 @@ import { siteContent } from "@/lib/site-content";
 import { getSiteOrigin } from "@/lib/site-url";
 import type { AreaPageContent } from "@/lib/area-pages";
 import { getAreaCanonicalPath, getAreaContent } from "@/lib/area-pages";
+import {
+  getAreasHubPath,
+  getGuideCanonicalPath,
+  getGuideContent,
+  getGuidePost,
+  getGuidesHubPath,
+  type GuideSlug,
+} from "@/lib/guide-posts";
 const LINE_OFFICIAL_ID =
   process.env.NEXT_PUBLIC_LINE_OFFICIAL_ID ?? "@834ecayh";
 
@@ -35,6 +43,81 @@ export function getOgImageUrl(): string {
   return `${getSiteOrigin()}${OG_IMAGE_PATH}`;
 }
 
+type BreadcrumbCrumb = { name: string; item: string };
+
+function getLineProfileUrl() {
+  return `https://line.me/R/ti/p/${LINE_OFFICIAL_ID}`;
+}
+
+function buildBreadcrumbList(crumbs: BreadcrumbCrumb[]) {
+  return {
+    "@type": "BreadcrumbList" as const,
+    itemListElement: crumbs.map((crumb, index) => ({
+      "@type": "ListItem" as const,
+      position: index + 1,
+      name: crumb.name,
+      item: crumb.item,
+    })),
+  };
+}
+
+function buildOrganizationNode(origin: string, description?: string) {
+  const imageUrl = getOgImageUrl();
+  return {
+    "@type": "Organization" as const,
+    "@id": `${origin}/#organization`,
+    name: "PRIME CAR WASH",
+    url: origin,
+    image: imageUrl,
+    logo: imageUrl,
+    sameAs: [getLineProfileUrl()],
+    ...(description ? { description } : {}),
+  };
+}
+
+function buildWebSiteNode(origin: string, orgId: string, locale?: Locale) {
+  const websiteId = `${origin}/#website`;
+  const pageUrl = locale === "en" ? `${origin}/en` : origin;
+  return {
+    "@type": "WebSite" as const,
+    "@id": websiteId,
+    name: "PRIME CAR WASH",
+    url: origin,
+    inLanguage: locale ? [locale === "ja" ? "ja-JP" : "en-US"] : ["ja-JP", "en-US"],
+    publisher: { "@id": orgId },
+    ...(locale
+      ? {
+          potentialAction: {
+            "@type": "ReserveAction" as const,
+            target: {
+              "@type": "EntryPoint" as const,
+              urlTemplate: `${pageUrl}#reservation-form`,
+              actionPlatform: [
+                "http://schema.org/DesktopWebPlatform",
+                "http://schema.org/MobileWebPlatform",
+              ],
+            },
+            name: locale === "ja" ? "出張洗車を予約" : "Book mobile valeting",
+          },
+        }
+      : {}),
+  };
+}
+
+function pageGraphBase(locale: Locale) {
+  const origin = getSiteOrigin();
+  const org = buildOrganizationNode(origin);
+  const website = buildWebSiteNode(origin, `${origin}/#organization`);
+  const homeUrl = locale === "ja" ? origin : `${origin}/en`;
+  const inLanguage = locale === "ja" ? "ja-JP" : "en-US";
+  return { origin, org, website, homeUrl, inLanguage };
+}
+
+/** Serialize JSON-LD safely inside a script tag. */
+export function serializeJsonLd(data: object): string {
+  return JSON.stringify(data).replace(/<\/script>/gi, "<\\/script>");
+}
+
 function buildAreaServed(locale: Locale) {
   const wards =
     locale === "ja"
@@ -60,7 +143,7 @@ export function buildLocaleJsonLd(locale: Locale) {
   const content = siteContent[locale];
   const pageUrl = locale === "ja" ? origin : `${origin}/en`;
   const inLanguage = locale === "ja" ? "ja-JP" : "en-US";
-  const lineProfileUrl = `https://line.me/R/ti/p/${LINE_OFFICIAL_ID}`;
+  const lineProfileUrl = getLineProfileUrl();
   const imageUrl = getOgImageUrl();
   const description =
     content.searchDescription ?? content.heroDescription;
@@ -91,40 +174,14 @@ export function buildLocaleJsonLd(locale: Locale) {
   const orgId = `${origin}/#organization`;
   const websiteId = `${origin}/#website`;
   const businessId = `${pageUrl}#localbusiness`;
+  const org = buildOrganizationNode(origin, description);
+  const website = buildWebSiteNode(origin, orgId, locale);
 
   return {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "Organization",
-        "@id": orgId,
-        name: "PRIME CAR WASH",
-        url: origin,
-        image: imageUrl,
-        logo: imageUrl,
-        sameAs: [lineProfileUrl],
-        description,
-      },
-      {
-        "@type": "WebSite",
-        "@id": websiteId,
-        name: "PRIME CAR WASH",
-        url: origin,
-        inLanguage: ["ja-JP", "en-US"],
-        publisher: { "@id": orgId },
-        potentialAction: {
-          "@type": "ReserveAction",
-          target: {
-            "@type": "EntryPoint",
-            urlTemplate: `${pageUrl}#reservation-form`,
-            actionPlatform: [
-              "http://schema.org/DesktopWebPlatform",
-              "http://schema.org/MobileWebPlatform",
-            ],
-          },
-          name: locale === "ja" ? "出張洗車を予約" : "Book mobile valeting",
-        },
-      },
+      org,
+      website,
       {
         "@type": "LocalBusiness",
         "@id": businessId,
@@ -174,35 +231,17 @@ export function buildLocaleJsonLd(locale: Locale) {
 
 /** JSON-LD for ward-level landing pages (local SEO). */
 export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
-  const origin = getSiteOrigin();
+  const { origin, org, website, homeUrl, inLanguage } = pageGraphBase(locale);
   const content = getAreaContent(locale, page);
   const canonicalPath = getAreaCanonicalPath(locale, page.slug);
   const pageUrl = `${origin}${canonicalPath}`;
-  const homeUrl = locale === "ja" ? origin : `${origin}/en`;
-  const inLanguage = locale === "ja" ? "ja-JP" : "en-US";
   const imageUrl = getOgImageUrl();
-  const lineProfileUrl = `https://line.me/R/ti/p/${LINE_OFFICIAL_ID}`;
-  const orgId = `${origin}/#organization`;
-  const websiteId = `${origin}/#website`;
   const wardName = locale === "ja" ? page.wardJa : page.wardEn;
 
-  const breadcrumbList = {
-    "@type": "BreadcrumbList" as const,
-    itemListElement: [
-      {
-        "@type": "ListItem" as const,
-        position: 1,
-        name: locale === "ja" ? "ホーム" : "Home",
-        item: homeUrl,
-      },
-      {
-        "@type": "ListItem" as const,
-        position: 2,
-        name: content.h1,
-        item: pageUrl,
-      },
-    ],
-  };
+  const breadcrumbList = buildBreadcrumbList([
+    { name: locale === "ja" ? "ホーム" : "Home", item: homeUrl },
+    { name: content.h1, item: pageUrl },
+  ]);
 
   const faqEntities = content.faq.map((item) => ({
     "@type": "Question" as const,
@@ -217,13 +256,8 @@ export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
     "@context": "https://schema.org",
     "@graph": [
       breadcrumbList,
-      {
-        "@type": "WebSite",
-        "@id": websiteId,
-        name: "PRIME CAR WASH",
-        url: origin,
-        publisher: { "@id": orgId },
-      },
+      org,
+      website,
       {
         "@type": "Service",
         "@id": `${pageUrl}#service`,
@@ -231,7 +265,7 @@ export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
         description: content.searchDescription,
         url: pageUrl,
         image: imageUrl,
-        provider: { "@id": orgId },
+        provider: { "@id": org["@id"] },
         areaServed: {
           "@type": "City",
           name: wardName,
@@ -248,6 +282,7 @@ export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
         "@id": `${pageUrl}#faq`,
         url: `${pageUrl}#faq`,
         inLanguage,
+        isPartOf: { "@id": website["@id"] },
         mainEntity: faqEntities,
       },
       {
@@ -257,14 +292,115 @@ export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
         name: content.searchTitle,
         description: content.searchDescription,
         inLanguage,
-        isPartOf: { "@id": websiteId },
+        isPartOf: { "@id": website["@id"] },
+      },
+    ],
+  };
+}
+
+type HubPageMeta = { title: string; description: string; h1: string };
+
+/** JSON-LD for /areas hub. */
+export function buildAreasHubJsonLd(locale: Locale, meta: HubPageMeta) {
+  const { origin, org, website, homeUrl, inLanguage } = pageGraphBase(locale);
+  const pageUrl = `${origin}${getAreasHubPath(locale)}`;
+  const breadcrumbList = buildBreadcrumbList([
+    { name: locale === "ja" ? "ホーム" : "Home", item: homeUrl },
+    { name: meta.h1, item: pageUrl },
+  ]);
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList,
+      org,
+      website,
+      {
+        "@type": "CollectionPage",
+        "@id": pageUrl,
+        url: pageUrl,
+        name: meta.title,
+        description: meta.description,
+        inLanguage,
+        isPartOf: { "@id": website["@id"] },
+      },
+    ],
+  };
+}
+
+/** JSON-LD for /guides hub. */
+export function buildGuidesHubJsonLd(locale: Locale, meta: HubPageMeta) {
+  const { origin, org, website, homeUrl, inLanguage } = pageGraphBase(locale);
+  const pageUrl = `${origin}${getGuidesHubPath(locale)}`;
+  const breadcrumbList = buildBreadcrumbList([
+    { name: locale === "ja" ? "ホーム" : "Home", item: homeUrl },
+    { name: meta.h1, item: pageUrl },
+  ]);
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList,
+      org,
+      website,
+      {
+        "@type": "CollectionPage",
+        "@id": pageUrl,
+        url: pageUrl,
+        name: meta.title,
+        description: meta.description,
+        inLanguage,
+        isPartOf: { "@id": website["@id"] },
+      },
+    ],
+  };
+}
+
+/** JSON-LD for guide article pages. */
+export function buildGuidePageJsonLd(locale: Locale, slug: GuideSlug) {
+  const post = getGuidePost(slug);
+  if (!post) {
+    throw new Error(`Unknown guide slug: ${slug}`);
+  }
+  const content = getGuideContent(locale, post);
+  const { origin, org, website, homeUrl, inLanguage } = pageGraphBase(locale);
+  const pageUrl = `${origin}${getGuideCanonicalPath(locale, slug)}`;
+  const hubUrl = `${origin}${getGuidesHubPath(locale)}`;
+  const imageUrl = getOgImageUrl();
+  const breadcrumbList = buildBreadcrumbList([
+    { name: locale === "ja" ? "ホーム" : "Home", item: homeUrl },
+    { name: locale === "ja" ? "ガイド" : "Guides", item: hubUrl },
+    { name: content.h1, item: pageUrl },
+  ]);
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbList,
+      org,
+      website,
+      {
+        "@type": "Article",
+        "@id": pageUrl,
+        headline: content.h1,
+        description: content.searchDescription,
+        url: pageUrl,
+        mainEntityOfPage: { "@id": pageUrl },
+        datePublished: post.publishedAt,
+        image: [imageUrl],
+        author: { "@id": org["@id"] },
+        publisher: { "@id": org["@id"] },
+        inLanguage,
+        isPartOf: { "@id": website["@id"] },
       },
       {
-        "@type": "Organization",
-        "@id": orgId,
-        name: "PRIME CAR WASH",
-        url: origin,
-        sameAs: [lineProfileUrl],
+        "@type": "WebPage",
+        "@id": pageUrl,
+        url: pageUrl,
+        name: content.searchTitle,
+        description: content.searchDescription,
+        inLanguage,
+        isPartOf: { "@id": website["@id"] },
       },
     ],
   };

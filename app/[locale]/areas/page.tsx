@@ -8,7 +8,7 @@ import {
   getAreaPage,
 } from "@/lib/area-pages";
 import { getAreasHubPath, getGuidesHubPath, guideSlugs, getGuideCanonicalPath, getGuidePost } from "@/lib/guide-posts";
-import { getOgImageUrl } from "@/lib/seo-json-ld";
+import { buildAreasHubJsonLd, getOgImageUrl, serializeJsonLd } from "@/lib/seo-json-ld";
 import SiteFooter from "@/components/SiteFooter";
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -82,6 +82,11 @@ export default async function AreasHubPage({ params }: PageProps) {
   const copy = hubCopy[currentLocale];
   const site = siteContent[currentLocale];
   const homeHref = currentLocale === "ja" ? "/" : "/en";
+  const jsonLd = buildAreasHubJsonLd(currentLocale, {
+    title: copy.title,
+    description: copy.description,
+    h1: copy.h1,
+  });
   const primary = areaSlugs.filter((slug) => getAreaPage(slug)?.isPrimary);
   const secondary = areaSlugs.filter((slug) => !getAreaPage(slug)?.isPrimary);
 
@@ -176,6 +181,11 @@ export default async function AreasHubPage({ params }: PageProps) {
       </article>
 
       <SiteFooter locale={currentLocale} />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
     </main>
   );
 }
