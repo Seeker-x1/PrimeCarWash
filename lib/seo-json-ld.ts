@@ -183,7 +183,26 @@ export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
   const imageUrl = getOgImageUrl();
   const lineProfileUrl = `https://line.me/R/ti/p/${LINE_OFFICIAL_ID}`;
   const orgId = `${origin}/#organization`;
+  const websiteId = `${origin}/#website`;
   const wardName = locale === "ja" ? page.wardJa : page.wardEn;
+
+  const breadcrumbList = {
+    "@type": "BreadcrumbList" as const,
+    itemListElement: [
+      {
+        "@type": "ListItem" as const,
+        position: 1,
+        name: locale === "ja" ? "ホーム" : "Home",
+        item: homeUrl,
+      },
+      {
+        "@type": "ListItem" as const,
+        position: 2,
+        name: content.h1,
+        item: pageUrl,
+      },
+    ],
+  };
 
   const faqEntities = content.faq.map((item) => ({
     "@type": "Question" as const,
@@ -197,23 +216,13 @@ export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
   return {
     "@context": "https://schema.org",
     "@graph": [
+      breadcrumbList,
       {
-        "@type": "BreadcrumbList",
-        "@id": `${pageUrl}#breadcrumb`,
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: locale === "ja" ? "ホーム" : "Home",
-            item: homeUrl,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: content.h1,
-            item: pageUrl,
-          },
-        ],
+        "@type": "WebSite",
+        "@id": websiteId,
+        name: "PRIME CAR WASH",
+        url: origin,
+        publisher: { "@id": orgId },
       },
       {
         "@type": "Service",
@@ -248,8 +257,7 @@ export function buildAreaPageJsonLd(locale: Locale, page: AreaPageContent) {
         name: content.searchTitle,
         description: content.searchDescription,
         inLanguage,
-        isPartOf: { "@id": `${origin}/#website` },
-        breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+        isPartOf: { "@id": websiteId },
       },
       {
         "@type": "Organization",
