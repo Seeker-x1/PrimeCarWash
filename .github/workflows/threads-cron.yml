@@ -1,0 +1,54 @@
+name: Threads cron backup
+
+# Vercel Hobby Cron は取りこぼすことがあるため、GHA から本番 /api/threads/cron を叩く。
+# 未投稿の日だけ投稿し、投稿済みなら skipped で終了（冪等）。
+
+on:
+  schedule:
+    # JST 6:00 / 7:00 / 8:00 / 9:00（UTC 21 / 22 / 23 / 0）
+    - cron: "0 21 * * *"
+    - cron: "0 22 * * *"
+    - cron: "0 23 * * *"
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: threads-cron-backup
+  cancel-in-progress: false
+
+jobs:
+  invoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit Threads cron API
+        env:
+          THREADS_PUBLISH_SECRET: ${{ secrets.THREADS_PUBLISH_SECRET }}
+          SITE_URL: https://www.xn--79q753awyk7z6a.jp
+        run: |
+          set -euo pipefail
+          if [ -z "${THREADS_PUBLISH_SECRET}" ]; then
+            echo "::error::THREADS_PUBLISH_SECRET is not set in GitHub repository secrets."
+            exit 1
+          fi
+          tmp=$(mktemp)
+          http_code=$(curl -sS -o "$tmp" -w "%{http_code}" \
+            -H "Authorization: Bearer ${THREADS_PUBLISH_SECRET}" \
+            "${SITE_URL}/api/threads/cron")
+          body=$(cat "$tmp")
+          echo "$body"
+          if [ "$http_code" != "200" ]; then
+            echo "::error::HTTP ${http_code}"
+            exit 1
+          fi
+          if echo "$body" | grep -q '"ok":false'; then
+            echo "::error::cron returned ok:false"
+            exit 1
+          fi
+          if echo "$body" | grep -q '"skipped":true'; then
+            echo "Cron skipped (already posted or outside window logic)."
+          else
+            echo "Cron published or dry-run completed."
+          fi
