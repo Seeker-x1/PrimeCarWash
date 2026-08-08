@@ -20,7 +20,7 @@ import {
 export const runtime = "nodejs";
 
 /**
- * Vercel Cron: daily ticks at JST 6–7 (UTC 21/22; Hobby allows once/day per expression).
+ * Vercel Cron: daily ticks at JST 6:00 / 6:30 (UTC 21:00 / 21:30).
  * Posts on the date-seeded hour, or catch-up later in the window if missed.
  * Auth: Bearer CRON_SECRET|THREADS_PUBLISH_SECRET, or x-vercel-cron: 1
  */

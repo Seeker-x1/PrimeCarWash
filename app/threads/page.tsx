@@ -326,11 +326,7 @@ export default function ThreadsOpsPage() {
                   </h2>
                   {data.schedule ? (
                     <p className="mt-1 text-xs text-neutral-400">
-                      自動投稿: Cron{" "}
-                      {(data.schedule.cronHoursJst ?? [6, 7])
-                        .map((h) => `${h}時`)
-                        .join("・")}
-                      台（窓 {data.schedule.window.start}–{data.schedule.window.end}時）／
+                      自動投稿: JST 6 時台（6:00・6:30 Cron）／
                       定刻目安 {data.schedule.todayTimeLabel ?? `${data.schedule.todayHourJst}:00`}{" "}
                       JST／いま {String(data.schedule.currentHourJst).padStart(2, "0")}:
                       {String(data.schedule.currentMinuteJst ?? 0).padStart(2, "0")}
@@ -338,8 +334,7 @@ export default function ThreadsOpsPage() {
                   ) : null}
                   {data.schedule?.note ? (
                     <p className="mt-1 text-xs text-neutral-600">
-                      朝6〜7時台固定。定刻目安の時は日付で6か7に決まります。Hobby の Cron は 6・7 時台に起動（分は前後します）。
-                      Blob 接続時は取りこぼしを7時 Cron で追いかけます。
+                      朝6時台固定（6:00〜6:59 JST）。Cron は 6:00 / 6:30 に起動。7時以降は自動投稿しません。
                     </p>
                   ) : null}
                   {data.publish?.postedToday ? (

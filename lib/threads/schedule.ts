@@ -10,10 +10,10 @@ import {
 import type { ThreadsPost } from "@/lib/threads/types";
 
 /**
- * JST hours that vercel.json Cron hits on Vercel Hobby (UTC 21 / 22 → JST 6 / 7).
- * Blob 未設定の本番では catch-up が無効なので、target もこの時刻に限定する。
+ * JST hours that Cron hits (UTC 21:00 / 21:30 → JST 6:00 / 6:30).
+ * 投稿窓は 6 時台のみ（[6, 7)）。
  */
-export const HOBBY_CRON_HOURS_JST = [6, 7];
+export const HOBBY_CRON_HOURS_JST = [6];
 
 /** JST の年月日キー（例: 2026-07-14） */
 export function jstDateKey(date = new Date()): string {
@@ -55,13 +55,13 @@ export function jstMinute(date = new Date()): number {
 
 /**
  * Auto-post window in JST hours [start, end).
- * Defaults: 6–8 → candidates 6,7（朝6〜7時台固定）。
+ * Defaults: 6–7 → 6 時台のみ（[start, end) 時間）。
  */
 export function getPostWindowHours(): { start: number; end: number } {
   const rawStart = Number.parseInt(process.env.THREADS_POST_WINDOW_START ?? "6", 10);
-  const rawEnd = Number.parseInt(process.env.THREADS_POST_WINDOW_END ?? "8", 10);
+  const rawEnd = Number.parseInt(process.env.THREADS_POST_WINDOW_END ?? "7", 10);
   const start = Number.isFinite(rawStart) ? Math.min(23, Math.max(0, rawStart)) : 6;
-  let end = Number.isFinite(rawEnd) ? Math.min(24, Math.max(0, rawEnd)) : 8;
+  let end = Number.isFinite(rawEnd) ? Math.min(24, Math.max(0, rawEnd)) : 7;
   if (end <= start) end = Math.min(24, start + 1);
   return { start, end };
 }
@@ -76,12 +76,11 @@ export function dayMix(dayIndex: number, salt: number): number {
 
 /**
  * That day's post hour (JST), picked deterministically from the date.
- * Blob 未設定の Vercel 本番は Cron 時刻（6/7）に合わせる。
+ * Blob 未設定の Vercel 本番は Cron 時刻（6 時台）に合わせる。
  */
 export function pickPostHourJstForDate(date = new Date()): number {
   if (!postedStoreConfigured() || process.env.VERCEL) {
-    const idx = dayMix(jstDayIndex(date), 17) % HOBBY_CRON_HOURS_JST.length;
-    return HOBBY_CRON_HOURS_JST[idx];
+    return HOBBY_CRON_HOURS_JST[0] ?? 6;
   }
   const { start, end } = getPostWindowHours();
   const span = end - start;
@@ -110,7 +109,7 @@ export type PublishSkipReason =
 export type PublishMode = "on_time" | "catch_up";
 
 const PRECISION_NOTE =
-  "朝6〜7時台固定。時は日付で6か7に決まり、分も日付で決めますが、Hobby の Cron は同時台内で前後するため厳密なちょうどMM分起動は保証されません。取りこぼし時は7時 Cron で1回だけ追いかけます。";
+  "朝6時台固定（6:00〜6:59 JST）。分は日付で決まりますが、Cron は 6:00 / 6:30 頃の起動のため前後します。7時以降は自動投稿しません。";
 
 /**
  * Decide whether Cron should publish now.
@@ -194,10 +193,6 @@ export function resolveCronPublish(
     const mode: PublishMode =
       slot.hourJst > slot.targetHourJst ? "catch_up" : "on_time";
     return { yes: true, mode, skipReason: null };
-  }
-  // Hobby Cron は遅延・1日1回・窓外起動があり得る。未投稿ならいつ起動しても出す。
-  if (process.env.VERCEL) {
-    return { yes: true, mode: "catch_up", skipReason: null };
   }
   return { yes: false, mode: null, skipReason: slot.skipReason };
 }
