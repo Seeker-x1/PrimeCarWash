@@ -4,11 +4,35 @@ import {
   type AreaSlug,
 } from "@/lib/area-pages";
 import type { Locale } from "@/lib/site-content";
-import { getSiteOrigin } from "@/lib/site-url";
 
-/** Threads 投稿に載せる公式 LP（出張洗車トップ。エリア個別 /areas/* は使わない） */
+/** 投稿本文用（punycode xn-- は出さない） */
+export const OUTBOUND_CAR_WASH_DISPLAY_HOST = "出張洗車.jp";
+
+/**
+ * Threads 投稿に載せる公式 LP。
+ * 表示は IDN の 出張洗車.jp（https://www.xn--79q753awyk7z6a.jp は使わない）。
+ */
 export function getOutboundCarWashUrl(locale: Locale = "ja"): string {
-  return `${getSiteOrigin()}/${locale}`;
+  return `https://${OUTBOUND_CAR_WASH_DISPLAY_HOST}/${locale}`;
+}
+
+/** 保存済み本文の punycode URL を投稿用 IDN 表記へ置換 */
+export function normalizeOutboundUrlInPostText(text: string): string {
+  const displayOrigin = `https://${OUTBOUND_CAR_WASH_DISPLAY_HOST}`;
+  return text
+    .replace(
+      /https?:\/\/www\.xn--79q753awyk7z6a\.jp(\/[^\s]*)?/gi,
+      (_match, path = "/ja") => `${displayOrigin}${path || "/ja"}`,
+    )
+    .replace(
+      /https?:\/\/xn--79q753awyk7z6a\.jp(\/[^\s]*)?/gi,
+      (_match, path = "/ja") => `${displayOrigin}${path || "/ja"}`,
+    )
+    .replace(
+      /(?:^|[\s(（【])((?:www\.)?xn--79q753awyk7z6a\.jp(\/[^\s]*)?)/gi,
+      (match, url: string, path = "/ja") =>
+        match.replace(url, `${displayOrigin}${path || "/ja"}`),
+    );
 }
 
 /** @deprecated Threads では getOutboundCarWashUrl を使う */

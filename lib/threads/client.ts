@@ -1,4 +1,5 @@
 import type { ThreadsPublishResult } from "@/lib/threads/types";
+import { normalizeOutboundUrlInPostText } from "@/lib/threads/area-links";
 
 const GRAPH_BASE = "https://graph.threads.net/v1.0";
 const CONTAINER_POLL_MS = 1_000;
@@ -142,13 +143,14 @@ export async function publishTextPost(input: {
   text: string;
   dryRun?: boolean;
 }): Promise<ThreadsPublishResult> {
+  const text = normalizeOutboundUrlInPostText(input.text);
   const dryRun = input.dryRun ?? isThreadsDryRun();
   if (dryRun) {
     return {
       dryRun: true,
       postId: input.postId,
       themeId: input.themeId,
-      text: input.text,
+      text,
     };
   }
 
@@ -157,7 +159,7 @@ export async function publishTextPost(input: {
     throw new Error("THREADS_USER_ID / THREADS_ACCESS_TOKEN are required to publish");
   }
 
-  const containerId = await createTextContainer(creds, input.text);
+  const containerId = await createTextContainer(creds, text);
   await waitForContainerReady(creds, containerId);
   const mediaId = await publishContainer(creds, containerId);
 
@@ -180,7 +182,7 @@ export async function publishTextPost(input: {
     dryRun: false,
     postId: input.postId,
     themeId: input.themeId,
-    text: input.text,
+    text,
     containerId,
     mediaId,
     permalink: mediaInfo?.permalink,

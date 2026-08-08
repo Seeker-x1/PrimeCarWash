@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GEMINI_MODEL_NAME } from "@/lib/gemini-model";
-import { formatAreaUrlsForPrompt } from "@/lib/threads/area-links";
+import { formatAreaUrlsForPrompt, normalizeOutboundUrlInPostText } from "@/lib/threads/area-links";
 import type { ThreadsPost } from "@/lib/threads/types";
 
 const MODEL_NAME = GEMINI_MODEL_NAME;
@@ -81,6 +81,7 @@ ${areaUrls}
 - 1行目にフック（問い・数字・断言）
 - 渋谷・世田谷・目黒など具体エリアを入れる
 - URLは上記「公式（出張洗車）」の1本だけ入れる（/areas/* は使わない）
+- URL表記は必ず https://出張洗車.jp/ja（punycode の xn-- は禁止）
 - 最後は質問で締める
 - 価格・割引・硬い営業は禁止
 - 改行で読みやすく${variation}${avoidBlock}
@@ -98,6 +99,7 @@ JSON のみ返す: {"text":"本文"}`;
 
   const result = await withTimeout(model.generateContent(prompt), GEMINI_TIMEOUT_MS);
   let text = parseGeneratedText(result.response.text());
+  text = normalizeOutboundUrlInPostText(text);
   if (text.length > MAX_TEXT) {
     text = `${text.slice(0, MAX_TEXT - 1)}…`;
   }

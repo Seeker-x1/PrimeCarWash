@@ -1,4 +1,5 @@
 import { getPostById } from "@/lib/threads/content";
+import { normalizeOutboundUrlInPostText } from "@/lib/threads/area-links";
 import { getOverrideForDate } from "@/lib/threads/overrides-store";
 import { loadPostedStore, postedStoreConfigured } from "@/lib/threads/posted-store";
 import {
@@ -13,6 +14,11 @@ function dateFromKey(dateKey: string): Date {
   return new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
 }
 
+function withNormalizedText(post: ThreadsPost): ThreadsPost {
+  const text = normalizeOutboundUrlInPostText(post.text);
+  return text === post.text ? post : { ...post, text };
+}
+
 /** バンク・日付差し替え（AI生成含む）を解決して投稿可能な本文にする */
 export async function resolvePostForPublish(opts: {
   postId?: string;
@@ -24,28 +30,29 @@ export async function resolvePostForPublish(opts: {
   if (opts.postId?.trim()) {
     const id = opts.postId.trim();
     if (override?.postId === id) {
-      return {
+      return withNormalizedText({
         id: override.postId,
         themeId: override.themeId,
         text: override.text,
         enabled: true,
-      };
+      });
     }
     const fromBank = getPostById(id);
-    if (fromBank) return fromBank;
+    if (fromBank) return withNormalizedText(fromBank);
     return null;
   }
 
   if (override) {
-    return {
+    return withNormalizedText({
       id: override.postId,
       themeId: override.themeId,
       text: override.text,
       enabled: true,
-    };
+    });
   }
 
   const postedStore = postedStoreConfigured() ? await loadPostedStore() : { records: [] };
   const { post } = await pickPostForDateSkippingAired(dateFromKey(dateKey), postedStore.records);
-  return post ?? pickPostForDate(dateFromKey(dateKey));
+  const resolved = post ?? (await pickPostForDate(dateFromKey(dateKey)));
+  return resolved ? withNormalizedText(resolved) : null;
 }
