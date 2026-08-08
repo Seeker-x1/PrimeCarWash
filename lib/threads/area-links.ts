@@ -1,36 +1,36 @@
 import {
   areaSlugs,
-  getAreaCanonicalPath,
   getAreaPage,
   type AreaSlug,
 } from "@/lib/area-pages";
 import type { Locale } from "@/lib/site-content";
 import { getSiteOrigin } from "@/lib/site-url";
 
-/** Absolute URL for Threads / Ops copy (JA default paths: /areas/{slug}). */
-export function getAreaPageUrl(slug: AreaSlug, locale: Locale = "ja"): string {
-  return `${getSiteOrigin()}${getAreaCanonicalPath(locale, slug)}`;
+/** Threads 投稿に載せる公式 LP（出張洗車トップ。エリア個別 /areas/* は使わない） */
+export function getOutboundCarWashUrl(locale: Locale = "ja"): string {
+  return `${getSiteOrigin()}/${locale}`;
 }
 
-/** One line per ward for prompts and briefs. */
+/** @deprecated Threads では getOutboundCarWashUrl を使う */
+export function getAreaPageUrl(_slug: AreaSlug, locale: Locale = "ja"): string {
+  return getOutboundCarWashUrl(locale);
+}
+
+/** AI プロンプト用：公式 URL と対応区名のみ */
 export function formatAreaUrlsForPrompt(locale: Locale = "ja"): string {
-  return areaSlugs
+  const wards = areaSlugs
     .map((slug) => {
       const page = getAreaPage(slug)!;
-      const label = locale === "ja" ? page.wardJa : page.wardEn;
-      return `- ${label}: ${getAreaPageUrl(slug, locale)}`;
+      return locale === "ja" ? page.wardJa : page.wardEn;
     })
-    .join("\n");
+    .join("、");
+  return `公式（出張洗車）: ${getOutboundCarWashUrl(locale)}\n対応エリア例: ${wards}`;
 }
 
-/** Compact block for a Threads post (ward label + URL per line). */
+/** 複数区に触れる投稿用（URL は出張洗車 LP 1 本） */
 export function formatAreaUrlsForPost(slugs: AreaSlug[]): string {
-  return slugs
-    .map((slug) => {
-      const page = getAreaPage(slug)!;
-      return `${page.wardJa}\n${getAreaPageUrl(slug)}`;
-    })
-    .join("\n\n");
+  const wards = slugs.map((slug) => getAreaPage(slug)!.wardJa).join("・");
+  return `出張洗車（${wards}ほか）\n${getOutboundCarWashUrl()}`;
 }
 
 export const ALL_AREA_SLUGS = areaSlugs;

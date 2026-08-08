@@ -73,14 +73,14 @@ export async function generateThreadsPost(input: GeneratePostInput): Promise<Thr
 テーマ: ${input.themeName}（id: ${input.themeId}）
 メモ: ${input.postingTips}
 
-対応エリアLP（local-authority なら該当区を1つ、複数区に触れる場合は最大2つまで本文にURLを入れる）:
+対応エリアLP（local-authority なら該当区を1つ、複数区に触れる場合は最大2つまで本文に区名を入れる）:
 ${areaUrls}
 
 ルール:
 - 日本語、Threads 向け（500文字以内）
 - 1行目にフック（問い・数字・断言）
 - 渋谷・世田谷・目黒など具体エリアを入れる
-- エリア特化テーマでは上記LPの完全URLを入れる（パスは /areas/{slug}）
+- URLは上記「公式（出張洗車）」の1本だけ入れる（/areas/* は使わない）
 - 最後は質問で締める
 - 価格・割引・硬い営業は禁止
 - 改行で読みやすく${variation}${avoidBlock}

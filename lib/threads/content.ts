@@ -1,5 +1,5 @@
 import type { ThreadsPost, ThreadsTheme } from "@/lib/threads/types";
-import { formatAreaUrlsForPost, getAreaPageUrl } from "@/lib/threads/area-links";
+import { formatAreaUrlsForPost, getOutboundCarWashUrl } from "@/lib/threads/area-links";
 
 /**
  * PRIME CAR WASH — Threads 投稿テーマ（フォロワー獲得向け）
@@ -18,7 +18,7 @@ export const THREADS_THEMES: ThreadsTheme[] = [
     nameJa: "エリア特化",
     description: "渋谷・世田谷・目黒周辺の具体シーンで地域の専門家感を出す",
     postingTips:
-      "マンション駐車場・狭い区画・帰宅後など地名＋状況。該当区のLP（/areas/shibuya 等）を1本に1リンクまで。最後は「うちの区来れる？」系の問い。",
+      "マンション駐車場・狭い区画・帰宅後など地名＋状況。URLは出張洗車公式（/ja）を1本だけ。最後は「うちの区来れる？」系の問い。",
   },
   {
     id: "myth-bust",
@@ -86,7 +86,7 @@ export const THREADS_THEMES: ThreadsTheme[] = [
     nameJa: "虫の目・現場観察",
     description: "エリアを歩いて見える汚れ・駐車・季節のパターン（地域密着）",
     postingTips:
-      "渋谷・世田谷・目黒など具体地名＋観察事実。競合名は出さない。売り込みは最後1行まで。",
+      "渋谷・世田谷・目黒など具体地名＋観察事実。URLは出張洗車公式（/ja）を1本。競合名は出さない。売り込みは最後1行まで。",
   },
   {
     id: "founder-story",
@@ -117,7 +117,7 @@ export const THREADS_POSTS: ThreadsPost[] = [
 完全予約制だから、近所に知らせずに済むことも多いです。
 
 渋谷区の詳細はこちら↓
-${getAreaPageUrl("shibuya")}
+${getOutboundCarWashUrl()}
 
 世田谷・目黒もサイトにまとめてあります。
 「うちの区、来れる？」は気軽に聞いてください。`,
@@ -131,12 +131,8 @@ ${getAreaPageUrl("shibuya")}
 週末に自分で洗うと2時間溶ける人、多いです。
 出張なら帰宅後30分〜1時間で、翌朝きれいな状態から出発。
 
-目黒区
-${getAreaPageUrl("meguro")}
-
-港区・品川区のオフィス駐車場も対応しています。
-${getAreaPageUrl("minato")}
-${getAreaPageUrl("shinagawa")}`,
+出張洗車の詳細↓
+${getOutboundCarWashUrl()}`,
     enabled: true,
   },
   {
@@ -148,10 +144,9 @@ ${getAreaPageUrl("shinagawa")}`,
 写真1枚いただけると、ほぼその場で可否が分かります。
 
 世田谷区
-${getAreaPageUrl("setagaya")}
+${getOutboundCarWashUrl()}
 
-中野区
-${getAreaPageUrl("nakano")}`,
+中野区も対応エリアです。`,
     enabled: true,
   },
   {
@@ -163,7 +158,7 @@ ${getAreaPageUrl("nakano")}`,
 車種名だけ送ってもらえれば目安を返せます（営業電話はしません）。
 
 渋谷区（代官山・恵比寿含む）
-${getAreaPageUrl("shibuya")}`,
+${getOutboundCarWashUrl()}`,
     enabled: true,
   },
   {
@@ -479,7 +474,7 @@ ${formatAreaUrlsForPost(["shibuya", "setagaya", "meguro", "minato", "shinagawa",
 見た目はまだマシでも、手触りが変わったら要注意。
 
 世田谷区
-${getAreaPageUrl("setagaya")}
+${getOutboundCarWashUrl()}
 
 うちの駐車場、屋根あります？`,
     enabled: true,
@@ -493,7 +488,7 @@ ${getAreaPageUrl("setagaya")}
 晴れた翌日に洗うと、固着前に落としやすい。
 
 渋谷区
-${getAreaPageUrl("shibuya")}
+${getOutboundCarWashUrl()}
 
 雨の翌日、洗車する派？放置派？`,
     enabled: true,
@@ -507,7 +502,7 @@ ${getAreaPageUrl("shibuya")}
 走行距離より「止まり方」で汚れ方が変わります。
 
 目黒区
-${getAreaPageUrl("meguro")}
+${getOutboundCarWashUrl()}
 
 坂の多い道、よく走りますか？`,
     enabled: true,
@@ -521,7 +516,7 @@ ${getAreaPageUrl("meguro")}
 換気の前に内窓を整えると、乗った瞬間が変わります。
 
 港区
-${getAreaPageUrl("minato")}
+${getOutboundCarWashUrl()}
 
 地下駐車、湿気きついですか？`,
     enabled: true,
