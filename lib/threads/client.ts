@@ -1,5 +1,6 @@
 import type { ThreadsPublishResult } from "@/lib/threads/types";
-import { normalizeOutboundUrlInPostText, resolveOutboundLinkAttachment } from "@/lib/threads/area-links";
+import { assertFactualPostText } from "@/lib/threads/content-policy";
+import { normalizeOutboundUrlInPostText, getPublishLinkAttachment } from "@/lib/threads/area-links";
 
 const GRAPH_BASE = "https://graph.threads.net/v1.0";
 const CONTAINER_POLL_MS = 1_000;
@@ -151,7 +152,8 @@ export async function publishTextPost(input: {
   dryRun?: boolean;
 }): Promise<ThreadsPublishResult> {
   const text = normalizeOutboundUrlInPostText(input.text);
-  const linkAttachment = resolveOutboundLinkAttachment(text);
+  assertFactualPostText(text, `publish post "${input.postId}"`);
+  const linkAttachment = getPublishLinkAttachment(text);
   const dryRun = input.dryRun ?? isThreadsDryRun();
   if (dryRun) {
     return {
@@ -184,6 +186,12 @@ export async function publishTextPost(input: {
   if (!mediaVerified) {
     throw new Error(
       `Threads publish returned mediaId ${mediaId} but Graph API could not verify the post (no permalink/text). Token or account permissions may be wrong.`,
+    );
+  }
+
+  if (!mediaInfo?.linkAttachmentUrl) {
+    throw new Error(
+      `Threads publish ${mediaId} has no link_attachment_url from Graph API — link preview may not appear.`,
     );
   }
 

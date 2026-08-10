@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GEMINI_MODEL_NAME } from "@/lib/gemini-model";
+import { FACTUAL_TONE_PROMPT_RULES, assertFactualPostText } from "@/lib/threads/content-policy";
 import { formatAreaUrlsForPrompt, normalizeOutboundUrlInPostText } from "@/lib/threads/area-links";
 import type { ThreadsPost } from "@/lib/threads/types";
 
@@ -47,6 +48,14 @@ function parseGeneratedText(raw: string): string {
   return trimmed.replace(/^```[\w]*\n?|```$/g, "").trim();
 }
 
+async function generateOnce(
+  model: ReturnType<GoogleGenerativeAI["getGenerativeModel"]>,
+  prompt: string,
+): Promise<string> {
+  const result = await withTimeout(model.generateContent(prompt), GEMINI_TIMEOUT_MS);
+  return parseGeneratedText(result.response.text());
+}
+
 export async function generateThreadsPost(input: GeneratePostInput): Promise<ThreadsPost> {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
@@ -78,12 +87,13 @@ ${areaUrls}
 
 ルール:
 - 日本語、Threads 向け（500文字以内）
-- 1行目にフック（問い・数字・断言）
+- 1行目にフック（問い・具体シーン）
 - 渋谷・世田谷・目黒など具体エリアを入れる
 - URLは上記「公式（出張洗車）」の表記だけ入れる（例: 出張洗車.jp。https:// や punycode は禁止）
 - 最後は質問で締める
 - 価格・割引・硬い営業は禁止
-- 改行で読みやすく${variation}${avoidBlock}
+- 改行で読みやすく
+${FACTUAL_TONE_PROMPT_RULES}${variation}${avoidBlock}
 
 JSON のみ返す: {"text":"本文"}`;
 
@@ -96,8 +106,19 @@ JSON のみ返す: {"text":"本文"}`;
     },
   });
 
-  const result = await withTimeout(model.generateContent(prompt), GEMINI_TIMEOUT_MS);
-  let text = parseGeneratedText(result.response.text());
+  let text = await generateOnce(model, prompt);
+  try {
+    assertFactualPostText(text, "AI generated post");
+  } catch {
+    const retryPrompt = `${prompt}
+
+前回の案は事実表現ルール違反で却下されました。次を必ず守って書き直してください:
+- 72時間・48時間などの期限数字を使わない
+- ペクチン・クリア層・クレーターなど未検証のメカニズム断定をしない
+- 体験ベースの穏やかな表現にする`;
+    text = await generateOnce(model, retryPrompt);
+    assertFactualPostText(text, "AI generated post (retry)");
+  }
   text = normalizeOutboundUrlInPostText(text);
   if (text.length > MAX_TEXT) {
     text = `${text.slice(0, MAX_TEXT - 1)}…`;

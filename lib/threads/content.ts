@@ -1,14 +1,16 @@
 import type { ThreadsPost, ThreadsTheme } from "@/lib/threads/types";
+import { assertFactualPostText } from "@/lib/threads/content-policy";
 import { formatAreaUrlsForPost, getOutboundCarWashUrl } from "@/lib/threads/area-links";
 
 /**
  * PRIME CAR WASH — Threads 投稿テーマ（フォロワー獲得向け）
  *
  * 方針:
- * - 1行目にフック（問い・数字・断言）。詩的コピー・ブローシャー調は禁止
+ * - 1行目にフック（問い・具体シーン）。詩的コピー・ブローシャー調は禁止
  * - 渋谷・世田谷・目黒など具体エリア・シーンを入れる
  * - 保存・返信・フォローの理由を毎回ひとつ入れる
  * - 売り込みは最後に1行まで。価格煽り・割引は出さない
+ * - 事実表現: lib/threads/content-policy.ts（根拠のない期限・メカニズム断定は禁止）
  * - 極意反映: trust-loop（信頼の仕組み）・neighbor-watch（虫の目）は自動バンク可
  * - founder-story はオーナー手動専用（バンクに含めない）。紹介のお願いは全テーマ禁止
  */
@@ -60,7 +62,7 @@ export const THREADS_THEMES: ThreadsTheme[] = [
     id: "seasonal-tips",
     nameJa: "季節ネタ",
     description: "花粉・梅雨・猛暑など今の時期だけの実用情報",
-    postingTips: "今すぐ役立つ一手。放置のリスクを数字や期限で示す。",
+    postingTips: "今すぐ役立つ一手。体験ベースで書き、根拠のない期限・数値・化学メカニズムの断定はしない。",
   },
   {
     id: "owner-insight",
@@ -184,7 +186,7 @@ ${formatAreaUrlsForPost(["shibuya", "setagaya", "meguro", "minato", "shinagawa",
   {
     id: "myth-02",
     themeId: "myth-bust",
-    text: "雨のあとに洗車するのはムダ、は古い話。\n\n酸性の雨ジミは放置すると塗装に残りやすい。\n雨が止んでから24〜48時間以内に落とすのが、\n見た目もリセールも守りやすいです。\n\n雨の日に洗車した方が楽だ、と思う人どれくらいいる？",
+    text: "雨のあとに洗車するのはムダ、は古い話。\n\n雨ジミは放置すると残りやすい。\n雨が止んでから早めに落とすほど、\n見た目もキープしやすいです。\n\n雨の日に洗車した方が楽だ、と思う人どれくらいいる？",
     enabled: true,
   },
   {
@@ -210,7 +212,7 @@ ${formatAreaUrlsForPost(["shibuya", "setagaya", "meguro", "minato", "shinagawa",
   {
     id: "save-01",
     themeId: "save-list",
-    text: "【保存推奨】花粉シーズン、やるべき3つ\n\n①黄ばみは72時間が分水嶺（固着前に落とす）\n②拭きは上から下・一方向\n③ホイールはボディとタオル分ける\n\n世田谷・目黒は花粉濃い。\n放置すると次の洗車が2倍しんどくなります。",
+    text: "【保存推奨】花粉シーズン、やるべき3つ\n\n①湿った花粉は早めに洗い流す（固着前が楽）\n②拭きは上から下・一方向\n③ホイールはボディとタオル分ける\n\n世田谷・目黒は花粉が乗りやすい。\n放置すると次の洗車がしんどくなりがちです。",
     enabled: true,
   },
   {
@@ -364,7 +366,7 @@ ${formatAreaUrlsForPost(["shibuya", "setagaya", "meguro", "minato", "shinagawa",
   {
     id: "sea-01",
     themeId: "seasonal-tips",
-    text: "花粉のピーク、ボディが黄色く見えてきたら要注意。\n\n固着前の72時間が勝負。\n世田谷・目黒は特に花粉が乗りやすい。\n\n水だけでは落ちにくい。\n専用の落とし方が必要なことも。\n\nもう花粉で悩んでます？それともまだ大丈夫？",
+    text: "花粉のピーク、ボディが黄色く見えてきたら要注意。\n\n湿ってから放置するとシミや固着の原因になりやすい。\n世田谷・目黒は特に花粉が乗りやすい。\n\n水だけでは落ちにくいことも。\nこまめな水洗いやプロの洗車が有効なことが多いです。\n\nもう花粉で悩んでます？それともまだ大丈夫？",
     enabled: true,
   },
   {
@@ -570,5 +572,6 @@ export function assertPostBank(): void {
     if (post.text.length > 500) {
       throw new Error(`Post "${post.id}" exceeds 500 characters (${post.text.length})`);
     }
+    assertFactualPostText(post.text, `bank post "${post.id}"`);
   }
 }

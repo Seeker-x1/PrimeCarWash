@@ -31,6 +31,11 @@ export function resolveOutboundLinkAttachment(text: string, locale: Locale = "ja
     : null;
 }
 
+/** 公開時に必ず付与する link_attachment（本文に URL がなくてもプレビューカードを付ける） */
+export function getPublishLinkAttachment(text: string, locale: Locale = "ja"): string {
+  return resolveOutboundLinkAttachment(text, locale) ?? getOutboundCarWashLinkAttachmentUrl(locale);
+}
+
 /** 保存済み本文の punycode / IDN URL を投稿用の短い表記へ置換 */
 export function normalizeOutboundUrlInPostText(text: string): string {
   return text
