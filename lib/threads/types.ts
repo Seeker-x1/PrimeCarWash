@@ -22,5 +22,6 @@ export type ThreadsPublishResult = {
   containerId?: string;
   mediaId?: string;
   permalink?: string;
+  linkAttachmentUrl?: string;
   mediaVerified?: boolean;
 };

@@ -1,5 +1,5 @@
 import type { ThreadsPublishResult } from "@/lib/threads/types";
-import { normalizeOutboundUrlInPostText } from "@/lib/threads/area-links";
+import { normalizeOutboundUrlInPostText, resolveOutboundLinkAttachment } from "@/lib/threads/area-links";
 
 const GRAPH_BASE = "https://graph.threads.net/v1.0";
 const CONTAINER_POLL_MS = 1_000;
@@ -17,6 +17,7 @@ export type ThreadsMediaInfo = {
   timestamp?: string;
   username?: string;
   mediaProductType?: string;
+  linkAttachmentUrl?: string;
 };
 
 export function getThreadsCredentials(): ThreadsCredentials | null {
@@ -56,10 +57,14 @@ async function readGraphJson(res: Response): Promise<Record<string, unknown>> {
 export async function createTextContainer(
   creds: ThreadsCredentials,
   text: string,
+  linkAttachment?: string | null,
 ): Promise<string> {
   const url = new URL(`${GRAPH_BASE}/${creds.userId}/threads`);
   url.searchParams.set("media_type", "TEXT");
   url.searchParams.set("text", text);
+  if (linkAttachment) {
+    url.searchParams.set("link_attachment", linkAttachment);
+  }
   url.searchParams.set("access_token", creds.accessToken);
 
   const res = await fetch(url, { method: "POST" });
@@ -118,7 +123,7 @@ export async function fetchPublishedMedia(
   const url = new URL(`${GRAPH_BASE}/${mediaId}`);
   url.searchParams.set(
     "fields",
-    "id,media_product_type,permalink,text,timestamp,username",
+    "id,media_product_type,permalink,text,timestamp,username,link_attachment_url",
   );
   url.searchParams.set("access_token", creds.accessToken);
 
@@ -134,6 +139,8 @@ export async function fetchPublishedMedia(
     username: typeof body.username === "string" ? body.username : undefined,
     mediaProductType:
       typeof body.media_product_type === "string" ? body.media_product_type : undefined,
+    linkAttachmentUrl:
+      typeof body.link_attachment_url === "string" ? body.link_attachment_url : undefined,
   };
 }
 
@@ -144,6 +151,7 @@ export async function publishTextPost(input: {
   dryRun?: boolean;
 }): Promise<ThreadsPublishResult> {
   const text = normalizeOutboundUrlInPostText(input.text);
+  const linkAttachment = resolveOutboundLinkAttachment(text);
   const dryRun = input.dryRun ?? isThreadsDryRun();
   if (dryRun) {
     return {
@@ -151,6 +159,7 @@ export async function publishTextPost(input: {
       postId: input.postId,
       themeId: input.themeId,
       text,
+      linkAttachmentUrl: linkAttachment ?? undefined,
     };
   }
 
@@ -159,7 +168,7 @@ export async function publishTextPost(input: {
     throw new Error("THREADS_USER_ID / THREADS_ACCESS_TOKEN are required to publish");
   }
 
-  const containerId = await createTextContainer(creds, text);
+  const containerId = await createTextContainer(creds, text, linkAttachment);
   await waitForContainerReady(creds, containerId);
   const mediaId = await publishContainer(creds, containerId);
 
@@ -186,6 +195,7 @@ export async function publishTextPost(input: {
     containerId,
     mediaId,
     permalink: mediaInfo?.permalink,
+    linkAttachmentUrl: mediaInfo?.linkAttachmentUrl ?? linkAttachment ?? undefined,
     mediaVerified: true,
   };
 }
