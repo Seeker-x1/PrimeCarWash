@@ -47,9 +47,9 @@ export const areaPages: AreaPageContent[] = [
     wardEn: "Shibuya",
     isPrimary: true,
     ja: {
-      searchTitle: "渋谷区の出張洗車｜完全予約制・PRIME CAR WASH",
+      searchTitle: "渋谷区の出張洗車｜完全予約制・出張洗車.jp",
       searchDescription:
-        "渋谷区の出張洗車ならPRIME CAR WASH。代々木・恵比寿・広尾などへ伺い、無水洗浄で車外・車内を丁寧にケア。月2回プランは1回5,500円相当。LINE・フォームで予約。",
+        "渋谷区の出張洗車なら出張洗車.jp。代々木・恵比寿・広尾などへ伺い、無水洗浄で車外・車内を丁寧にケア。月2回プランは1回5,500円相当。LINE・フォームで予約。",
       h1: "渋谷区の出張洗車",
       lead: "渋谷区エリアへ出張し、ご指定の洗車場所でプレミアムな車両ケアを提供します。",
       body: [
@@ -71,7 +71,7 @@ export const areaPages: AreaPageContent[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile car wash in Shibuya | PRIME CAR WASH",
+      searchTitle: "Mobile car wash in Shibuya | 出張洗車.jp",
       searchDescription:
         "Appointment-only mobile valeting in Shibuya Ward—Yoyogi, Ebisu, Hiroo, and more. Waterless exterior and interior care from ¥7,700.",
       h1: "Mobile valeting in Shibuya",
@@ -99,7 +99,7 @@ export const areaPages: AreaPageContent[] = [
     wardEn: "Setagaya",
     isPrimary: true,
     ja: {
-      searchTitle: "世田谷区の出張洗車｜完全予約制・PRIME CAR WASH",
+      searchTitle: "世田谷区の出張洗車｜完全予約制・出張洗車.jp",
       searchDescription:
         "世田谷区の出張洗車。三軒茶屋・下北沢・成城・二子玉川などへ伺います。無水洗浄・車内清掃・月額プランあり。ご自宅でプレミアム洗車。",
       h1: "世田谷区の出張洗車",
@@ -121,7 +121,7 @@ export const areaPages: AreaPageContent[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile car wash in Setagaya | PRIME CAR WASH",
+      searchTitle: "Mobile car wash in Setagaya | 出張洗車.jp",
       searchDescription:
         "Mobile valeting in Setagaya—Sangenjaya, Shimokitazawa, Seijo, Futako-Tamagawa, and more.",
       h1: "Mobile valeting in Setagaya",
@@ -149,7 +149,7 @@ export const areaPages: AreaPageContent[] = [
     wardEn: "Meguro",
     isPrimary: true,
     ja: {
-      searchTitle: "目黒区の出張洗車｜完全予約制・PRIME CAR WASH",
+      searchTitle: "目黒区の出張洗車｜完全予約制・出張洗車.jp",
       searchDescription:
         "目黒区の出張洗車。中目黒・自由が丘・学芸大学・祐天寺などへ伺います。完全予約制・無水洗浄。高級車・輸入車も対応。",
       h1: "目黒区の出張洗車",
@@ -171,7 +171,7 @@ export const areaPages: AreaPageContent[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile car wash in Meguro | PRIME CAR WASH",
+      searchTitle: "Mobile car wash in Meguro | 出張洗車.jp",
       searchDescription:
         "Mobile valeting in Meguro—Naka-Meguro, Jiyugaoka, Gakugei-daigaku, and more.",
       h1: "Mobile valeting in Meguro",
@@ -217,7 +217,7 @@ export const areaPages: AreaPageContent[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile car wash in Minato | PRIME CAR WASH",
+      searchTitle: "Mobile car wash in Minato | 出張洗車.jp",
       searchDescription:
         "Mobile valeting in Minato Ward—Roppongi, Azabu, Akasaka, Shirokane, and more.",
       h1: "Mobile valeting in Minato",
@@ -259,7 +259,7 @@ export const areaPages: AreaPageContent[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile car wash in Shinagawa | PRIME CAR WASH",
+      searchTitle: "Mobile car wash in Shinagawa | 出張洗車.jp",
       searchDescription:
         "Mobile valeting in Shinagawa—Ōsaki, Gotanda, Musashi-Koyama, and more.",
       h1: "Mobile valeting in Shinagawa",
@@ -301,7 +301,7 @@ export const areaPages: AreaPageContent[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile car wash in Nakano | PRIME CAR WASH",
+      searchTitle: "Mobile car wash in Nakano | 出張洗車.jp",
       searchDescription:
         "Mobile valeting in Nakano—Nakano, Higashi-Nakano, Nogata, Numabukuro, and more.",
       h1: "Mobile valeting in Nakano",
@@ -343,7 +343,7 @@ export const areaPages: AreaPageContent[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile car wash in Suginami | PRIME CAR WASH",
+      searchTitle: "Mobile car wash in Suginami | 出張洗車.jp",
       searchDescription: "Mobile valeting in Suginami—Ogikubo, Koenji, Asagaya, Nishi-Ogikubo, and more.",
       h1: "Mobile valeting in Suginami",
       lead: "Appointment-only mobile valeting across Suginami Ward.",
@@ -384,7 +384,7 @@ export const areaPages: AreaPageContent[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile car wash in Ota | PRIME CAR WASH",
+      searchTitle: "Mobile car wash in Ota | 出張洗車.jp",
       searchDescription: "Mobile valeting in Ota—Kamata, Omori, Haneda area, Den-en-chofu, and more.",
       h1: "Mobile valeting in Ota",
       lead: "Premium mobile valeting across Ota Ward.",

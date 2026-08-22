@@ -15,19 +15,21 @@ import {
 import { getLineConsultationUrl } from "@/lib/line-consultation";
 import { buildGuidesHubJsonLd, getOgImageUrl, serializeJsonLd } from "@/lib/seo-json-ld";
 import SiteFooter from "@/components/SiteFooter";
+import SiteBrandLink from "@/components/SiteBrandLink";
+import { SITE_NAME } from "@/lib/site-brand";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
 const hubCopy = {
   ja: {
-    title: "出張洗車ガイド｜料金・無水洗車・マンション洗車",
+    title: "出張洗車.jp｜料金・無水洗車・マンション洗車ガイド",
     description:
-      "出張洗車とコイン洗車の違い、無水洗車のメリット、マンション駐車場での依頼、高級車ケア、東京の料金相場を解説。PRIME CAR WASH。",
+      "出張洗車とコイン洗車の違い、無水洗車のメリット、マンション駐車場での依頼、高級車ケア、東京の料金相場を解説。出張洗車.jp。",
     h1: "出張洗車ガイド",
     lead: "出張洗車を検討中の方向けに、料金・施工方法・マンション対応などをまとめました。",
   },
   en: {
-    title: "Mobile valeting guides | PRIME CAR WASH",
+    title: "Mobile valeting guides | 出張洗車.jp",
     description:
       "Guides on mobile vs coin wash, waterless cleaning, apartment parking, luxury cars, and Tokyo pricing.",
     h1: "Valeting guides",
@@ -59,7 +61,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: copy.title,
       description: copy.description,
       type: "website",
-      siteName: "PRIME CAR WASH",
+      siteName: SITE_NAME,
       locale: resolvedLocale === "ja" ? "ja_JP" : "en_US",
       url: canonicalPath,
       images: [ogImage],
@@ -90,9 +92,7 @@ export default async function GuidesHubPage({ params }: PageProps) {
     <main className="bg-black text-white">
       <header className="fixed inset-x-0 top-0 z-20 border-b border-[#999999] bg-black/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Link href={homeHref} className="font-mono text-xs tracking-[0.2em] hover:text-[#d9d9d9]">
-            PRIME CAR WASH
-          </Link>
+          <SiteBrandLink href={homeHref} />
           <Link
             href={currentLocale === "ja" ? "/en/guides" : "/guides"}
             className="border border-[#999999] px-3 py-1 text-xs tracking-[0.12em] uppercase hover:border-white"

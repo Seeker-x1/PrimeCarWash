@@ -1,5 +1,6 @@
 import type { Locale } from "@/lib/site-content";
 import { siteContent } from "@/lib/site-content";
+import { SITE_NAME, SITE_NAME_ALT } from "@/lib/site-brand";
 import { getSiteOrigin } from "@/lib/site-url";
 import type { AreaPageContent } from "@/lib/area-pages";
 import { getAreaCanonicalPath, getAreaContent } from "@/lib/area-pages";
@@ -66,7 +67,8 @@ function buildOrganizationNode(origin: string, description?: string) {
   return {
     "@type": "Organization" as const,
     "@id": `${origin}/#organization`,
-    name: "PRIME CAR WASH",
+    name: SITE_NAME,
+    alternateName: [SITE_NAME_ALT],
     url: origin,
     image: imageUrl,
     logo: imageUrl,
@@ -81,7 +83,8 @@ function buildWebSiteNode(origin: string, orgId: string, locale?: Locale) {
   return {
     "@type": "WebSite" as const,
     "@id": websiteId,
-    name: "PRIME CAR WASH",
+    name: SITE_NAME,
+    alternateName: [SITE_NAME_ALT],
     url: origin,
     inLanguage: locale ? [locale === "ja" ? "ja-JP" : "en-US"] : ["ja-JP", "en-US"],
     publisher: { "@id": orgId },
@@ -185,7 +188,8 @@ export function buildLocaleJsonLd(locale: Locale) {
       {
         "@type": "LocalBusiness",
         "@id": businessId,
-        name: "PRIME CAR WASH",
+        name: SITE_NAME,
+        alternateName: [SITE_NAME_ALT],
         url: pageUrl,
         image: imageUrl,
         description,

@@ -10,6 +10,8 @@ import { buildLocaleJsonLd, getOgImageUrl } from "@/lib/seo-json-ld";
 import BlurFade from "@/components/BlurFade";
 import AmanBookingForm from "@/components/AmanBookingForm";
 import SiteFooter from "@/components/SiteFooter";
+import SiteBrandLink from "@/components/SiteBrandLink";
+import { SITE_NAME } from "@/lib/site-brand";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -47,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       type: "website",
-      siteName: "PRIME CAR WASH",
+      siteName: SITE_NAME,
       locale: ogLocale,
       alternateLocale: resolvedLocale === "ja" ? ["en_US"] : ["ja_JP"],
       url: canonicalPath,
@@ -76,7 +78,7 @@ export default async function LocalePage({ params }: PageProps) {
     <main className="bg-black text-white">
       <header className="fixed inset-x-0 top-0 z-20 border-b border-[#999999] bg-black/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <p className="font-mono text-xs tracking-[0.2em]">PRIME CAR WASH</p>
+          <SiteBrandLink href={currentLocale === "ja" ? "/" : "/en"} />
           <Link
             href={alternateLocale === "ja" ? "/" : "/en"}
             className="border border-[#999999] px-3 py-1 text-xs tracking-[0.12em] uppercase hover:border-white"

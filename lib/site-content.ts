@@ -121,7 +121,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     heroSubtitle: "PREMIUM MOBILE VALETING",
     heroArea: "渋谷・世田谷・目黒を中心に",
     heroDescription: "ご自宅や指定の洗車場所へ伺い、車外・車内を丁寧にケアする出張洗車サービスです。",
-    searchTitle: "出張洗車・完全予約｜PRIME CAR WASH（渋谷・世田谷・目黒周辺）",
+    searchTitle: "出張洗車.jp｜完全予約の出張洗車（渋谷・世田谷・目黒）",
     searchDescription:
       "東京・渋谷・世田谷・目黒の出張洗車。完全予約制でご自宅・駐車場へ伺い、無水洗浄で車外・車内をケア。月2回プランは1回5,500円相当。料金表・LINE予約あり。",
     ctaReserve: "日程を選んで予約",
@@ -180,7 +180,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     areaPageLinksTitle: "エリア別の出張洗車",
     seoIntroTitle: "東京の出張洗車サービスについて",
     seoIntroBody:
-      "PRIME CAR WASHは、東京都内を中心にご指定の場所へ伺う出張洗車（モバイルベレッティング）です。コイン洗車やガソリンスタンドに行く手間なく、ご自宅・マンション駐車場・勤務先でプレミアムな車両ケアを。無水洗浄を基本とし、高級車・輸入車にも対応。ビジター（都度）と月額プランからお選びいただけます。",
+      "出張洗車.jp（PRIME CAR WASH）は、東京都内を中心にご指定の場所へ伺う出張洗車（モバイルベレッティング）です。コイン洗車やガソリンスタンドに行く手間なく、ご自宅・マンション駐車場・勤務先でプレミアムな車両ケアを。無水洗浄を基本とし、高級車・輸入車にも対応。ビジター（都度）と月額プランからお選びいただけます。",
     faqTitle: "よくある質問",
     faqItems: [
       {
@@ -238,7 +238,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     formDescription: "以下をご入力ください。担当より折り返しご連絡します。",
     labels: { name: "氏名", phone: "電話番号", vehicle: "車種", preferredDate1: "希望日（第1候補）", preferredDate2: "希望日（第2候補）", address: "住所", submit: "送信する" },
     formMessages: { success: "送信が完了しました。折り返しご連絡します。", error: "送信に失敗しました。時間をおいて再度お試しください。", sending: "送信中..." },
-    footer: "PRIME CAR WASH | 完全予約制・サブスクリプション型出張無水洗車",
+    footer: "公式サイト 出張洗車.jp｜完全予約制の出張無水洗車（PRIME CAR WASH）",
     threadsLinkLabel: "Threads（最新情報）",
   },
   en: {
@@ -247,7 +247,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     heroSubtitle: "PREMIUM MOBILE VALETING",
     heroArea: "Shibuya, Setagaya & Meguro and surrounding areas",
     heroDescription: "We come to your home or chosen location for premium exterior and interior care.",
-    searchTitle: "PRIME CAR WASH | Mobile valeting in Japan",
+    searchTitle: "出張洗車.jp | Mobile valeting in Tokyo",
     searchDescription:
       "Appointment-only mobile car wash with premium exterior and interior care. Pricing for visitor and subscription plans. Book via LINE or the on-site form.",
     ctaReserve: "Choose a time",
@@ -306,7 +306,7 @@ export const siteContent: Record<Locale, SiteContent> = {
     areaPageLinksTitle: "Valeting by area",
     seoIntroTitle: "Mobile valeting in Tokyo",
     seoIntroBody:
-      "PRIME CAR WASH is an appointment-only mobile car wash serving Tokyo. We come to your home, apartment parking, or workplace—no trip to the coin wash. Waterless exterior care and optional interior cleaning; visitor and subscription plans available.",
+      "出張洗車.jp (PRIME CAR WASH) is an appointment-only mobile car wash serving Tokyo. We come to your home, apartment parking, or workplace—no trip to the coin wash. Waterless exterior care and optional interior cleaning; visitor and subscription plans available.",
     faqTitle: "FAQ",
     faqItems: [
       {
@@ -365,6 +365,6 @@ export const siteContent: Record<Locale, SiteContent> = {
     labels: { name: "Full Name", phone: "Phone Number", vehicle: "Vehicle Model", preferredDate1: "Preferred Date (1st)", preferredDate2: "Preferred Date (2nd)", address: "Address", submit: "Submit" },
     formMessages: { success: "Your request was submitted successfully.", error: "Submission failed. Please try again shortly.", sending: "Submitting..." },
     threadsLinkLabel: "Threads (updates)",
-    footer: "PRIME CAR WASH | Appointment-only subscription mobile waterless wash",
+    footer: "Official site 出張洗車.jp | Appointment-only mobile waterless wash (PRIME CAR WASH)",
   },
 };

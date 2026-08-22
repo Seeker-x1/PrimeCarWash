@@ -19,7 +19,7 @@ export default function BlurFade({
 }: BlurFadeProps) {
   const motionProps = immediate
     ? {
-        initial: { opacity: 0, filter: "blur(10px)", y: 20 },
+        initial: { opacity: 1, filter: "blur(0px)", y: 0 },
         animate: { opacity: 1, filter: "blur(0px)", y: 0 },
       }
     : {

@@ -10,12 +10,14 @@ import {
 import { getAreasHubPath, getGuidesHubPath, guideSlugs, getGuideCanonicalPath, getGuidePost } from "@/lib/guide-posts";
 import { buildAreasHubJsonLd, getOgImageUrl, serializeJsonLd } from "@/lib/seo-json-ld";
 import SiteFooter from "@/components/SiteFooter";
+import SiteBrandLink from "@/components/SiteBrandLink";
+import { SITE_NAME } from "@/lib/site-brand";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
 const hubCopy = {
   ja: {
-    title: "出張洗車 対応エリア一覧｜東京23区",
+    title: "出張洗車.jp｜対応エリア一覧（東京23区）",
     description:
       "渋谷・世田谷・目黒を中心に、港区・品川・中野・杉並・大田区などへ出張洗車。エリア別の料金・FAQ・予約へ。",
     h1: "出張洗車 対応エリア",
@@ -25,7 +27,7 @@ const hubCopy = {
     guidesLink: "洗車ガイド・料金の記事",
   },
   en: {
-    title: "Service areas | PRIME CAR WASH Tokyo",
+    title: "Service areas | 出張洗車.jp Tokyo",
     description:
       "Mobile valeting across Tokyo wards—Shibuya, Setagaya, Meguro, Minato, Shinjuku, and more. Area pages with FAQs and booking.",
     h1: "Service areas",
@@ -60,7 +62,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: copy.title,
       description: copy.description,
       type: "website",
-      siteName: "PRIME CAR WASH",
+      siteName: SITE_NAME,
       locale: resolvedLocale === "ja" ? "ja_JP" : "en_US",
       url: canonicalPath,
       images: [ogImage],
@@ -114,9 +116,7 @@ export default async function AreasHubPage({ params }: PageProps) {
     <main className="bg-black text-white">
       <header className="fixed inset-x-0 top-0 z-20 border-b border-[#999999] bg-black/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Link href={homeHref} className="font-mono text-xs tracking-[0.2em] hover:text-[#d9d9d9]">
-            PRIME CAR WASH
-          </Link>
+          <SiteBrandLink href={homeHref} />
           <Link
             href={currentLocale === "ja" ? "/en/areas" : "/areas"}
             className="border border-[#999999] px-3 py-1 text-xs tracking-[0.12em] uppercase hover:border-white"

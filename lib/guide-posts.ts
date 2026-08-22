@@ -66,7 +66,7 @@ export const guidePosts: GuidePost[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile valeting vs coin wash | PRIME CAR WASH",
+      searchTitle: "Mobile valeting vs coin wash | 出張洗車.jp",
       searchDescription:
         "Compare mobile car wash and coin wash on time, finish quality, and paint care. For busy Tokyo drivers and luxury car owners.",
       h1: "Mobile valeting vs coin wash",
@@ -129,7 +129,7 @@ export const guidePosts: GuidePost[] = [
       ],
     },
     en: {
-      searchTitle: "Waterless car wash guide | PRIME CAR WASH",
+      searchTitle: "Waterless car wash guide | 出張洗車.jp",
       searchDescription:
         "How waterless valeting works, benefits for apartments and paint care, and how PRIME CAR WASH applies it in Tokyo.",
       h1: "Waterless car wash guide",
@@ -190,7 +190,7 @@ export const guidePosts: GuidePost[] = [
       ],
     },
     en: {
-      searchTitle: "Mobile wash at apartment parking | PRIME CAR WASH",
+      searchTitle: "Mobile wash at apartment parking | 出張洗車.jp",
       searchDescription:
         "Can you book mobile valeting in tower or mechanical parking? Rules to check and how we serve Tokyo apartments.",
       h1: "Mobile valeting at apartment parking",
@@ -249,7 +249,7 @@ export const guidePosts: GuidePost[] = [
       ],
     },
     en: {
-      searchTitle: "Luxury & imported car mobile wash | PRIME CAR WASH",
+      searchTitle: "Luxury & imported car mobile wash | 出張洗車.jp",
       searchDescription:
         "Mobile valeting for Lexus, Porsche, Mercedes, BMW and more—paint-safe care and size-based pricing in Tokyo.",
       h1: "Luxury and imported car valeting",
@@ -309,7 +309,7 @@ export const guidePosts: GuidePost[] = [
       ],
     },
     en: {
-      searchTitle: "Tokyo mobile car wash pricing | PRIME CAR WASH",
+      searchTitle: "Tokyo mobile car wash pricing | 出張洗車.jp",
       searchDescription:
         "Exterior wash from ¥7,700 (size M), twice-monthly plan ¥11,000, and size multipliers—transparent Tokyo mobile valeting prices.",
       h1: "Tokyo mobile valeting pricing",

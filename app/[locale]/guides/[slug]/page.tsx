@@ -14,6 +14,8 @@ import { getLineConsultationUrl } from "@/lib/line-consultation";
 import { buildGuidePageJsonLd, getOgImageUrl, serializeJsonLd } from "@/lib/seo-json-ld";
 import AmanBookingForm from "@/components/AmanBookingForm";
 import SiteFooter from "@/components/SiteFooter";
+import SiteBrandLink from "@/components/SiteBrandLink";
+import { SITE_NAME } from "@/lib/site-brand";
 
 type PageProps = { params: Promise<{ locale: string; slug: string }> };
 
@@ -46,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: content.searchTitle,
       description: content.searchDescription,
       type: "article",
-      siteName: "PRIME CAR WASH",
+      siteName: SITE_NAME,
       locale: resolvedLocale === "ja" ? "ja_JP" : "en_US",
       url: canonicalPath,
       images: [ogImage],
@@ -80,9 +82,7 @@ export default async function GuideArticlePage({ params }: PageProps) {
     <main className="bg-black text-white">
       <header className="fixed inset-x-0 top-0 z-20 border-b border-[#999999] bg-black/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <Link href={homeHref} className="font-mono text-xs tracking-[0.2em] hover:text-[#d9d9d9]">
-            PRIME CAR WASH
-          </Link>
+          <SiteBrandLink href={homeHref} />
           <Link
             href={currentLocale === "ja" ? `/en/guides/${slug}` : `/guides/${slug}`}
             className="border border-[#999999] px-3 py-1 text-xs tracking-[0.12em] uppercase hover:border-white"

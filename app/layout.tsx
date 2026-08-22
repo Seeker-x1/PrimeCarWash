@@ -3,6 +3,7 @@ import { Noto_Sans_JP, Noto_Serif_JP } from "next/font/google";
 import Script from "next/script";
 import { cookies, headers } from "next/headers";
 import LineFloat from "@/components/LineFloat";
+import { SITE_NAME } from "@/lib/site-brand";
 import { getSiteOrigin } from "@/lib/site-url";
 import "./globals.css";
 
@@ -21,11 +22,14 @@ const notoSerif = Noto_Serif_JP({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteOrigin()),
   title: {
-    default: "PRIME CAR WASH",
-    template: "%s | PRIME CAR WASH",
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
   description:
     "完全予約制の出張洗車。ご指定の洗車場所へ伺い、車外・車内を丁寧にケア。ビジター・月額プランあり。",
+  openGraph: {
+    siteName: SITE_NAME,
+  },
   alternates: {
     languages: {
       "x-default": "/",

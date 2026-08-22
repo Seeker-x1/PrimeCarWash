@@ -50,36 +50,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       },
     },
     {
-      url: `${base}${getAreasHubPath("en")}`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.75,
-      alternates: {
-        languages: {
-          "x-default": `${base}${getAreasHubPath("ja")}`,
-          ja: `${base}${getAreasHubPath("ja")}`,
-          en: `${base}${getAreasHubPath("en")}`,
-        },
-      },
-    },
-    {
       url: `${base}${getGuidesHubPath("ja")}`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.85,
-      alternates: {
-        languages: {
-          "x-default": `${base}${getGuidesHubPath("ja")}`,
-          ja: `${base}${getGuidesHubPath("ja")}`,
-          en: `${base}${getGuidesHubPath("en")}`,
-        },
-      },
-    },
-    {
-      url: `${base}${getGuidesHubPath("en")}`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.75,
       alternates: {
         languages: {
           "x-default": `${base}${getGuidesHubPath("ja")}`,
@@ -105,15 +79,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
           languages: { "x-default": jaUrl, ja: jaUrl, en: enUrl },
         },
       },
-      {
-        url: enUrl,
-        lastModified: now,
-        changeFrequency: "monthly",
-        priority: 0.7,
-        alternates: {
-          languages: { "x-default": jaUrl, ja: jaUrl, en: enUrl },
-        },
-      },
     ];
   });
 
@@ -128,15 +93,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
         lastModified: now,
         changeFrequency: "monthly",
         priority: 0.75,
-        alternates: {
-          languages: { "x-default": jaUrl, ja: jaUrl, en: enUrl },
-        },
-      },
-      {
-        url: enUrl,
-        lastModified: now,
-        changeFrequency: "monthly",
-        priority: 0.65,
         alternates: {
           languages: { "x-default": jaUrl, ja: jaUrl, en: enUrl },
         },
