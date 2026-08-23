@@ -25,6 +25,15 @@ button {
   transition: all 250ms ease;
 }
 
+/* iOS: <16px inputs trigger zoom. Keep tap targets ≥44px on small screens. */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
 .hero-vignette {
   background: linear-gradient(
     180deg,

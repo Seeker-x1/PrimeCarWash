@@ -1,6 +1,7 @@
 import type { Locale } from "@/lib/site-content";
 import { siteContent } from "@/lib/site-content";
 import { SITE_NAME, SITE_NAME_ALT } from "@/lib/site-brand";
+import { getOrganizationSameAs } from "@/lib/social-links";
 import { getSiteOrigin } from "@/lib/site-url";
 import type { AreaPageContent } from "@/lib/area-pages";
 import { getAreaCanonicalPath, getAreaContent } from "@/lib/area-pages";
@@ -72,7 +73,7 @@ function buildOrganizationNode(origin: string, description?: string) {
     url: origin,
     image: imageUrl,
     logo: imageUrl,
-    sameAs: [getLineProfileUrl()],
+    sameAs: getOrganizationSameAs(getLineProfileUrl()),
     ...(description ? { description } : {}),
   };
 }
@@ -199,7 +200,7 @@ export function buildLocaleJsonLd(locale: Locale) {
             : "Mobile Car Wash / Premium Mobile Valeting",
         areaServed: buildAreaServed(locale),
         priceRange: "¥¥",
-        sameAs: [lineProfileUrl],
+        sameAs: getOrganizationSameAs(lineProfileUrl),
         parentOrganization: { "@id": orgId },
         hasOfferCatalog: {
           "@type": "OfferCatalog",

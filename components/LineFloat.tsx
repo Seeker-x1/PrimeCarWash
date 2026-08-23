@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useMemo, useState } from "react";
 import { getLineConsultationUrl } from "@/lib/line-consultation";
+import { trackGenerateLead, trackLineClick } from "@/lib/analytics";
 
 const LINE_FLOAT_DISMISSED_KEY = "line-float-dismissed";
 
@@ -133,7 +134,11 @@ export default function LineFloat() {
                 href={lineConsultationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-[40px] flex-1 items-center justify-center bg-[#06C755] px-4 py-2 text-center text-[11px] font-medium leading-snug tracking-[0.06em] text-black"
+                onClick={() => {
+                  trackLineClick("float_desktop");
+                  trackGenerateLead({ method: "line_consult" });
+                }}
+                className="flex min-h-11 flex-1 items-center justify-center bg-[#06C755] px-4 py-2 text-center text-[11px] font-medium leading-snug tracking-[0.06em] text-black"
               >
                 {content.label}
               </a>
@@ -150,7 +155,11 @@ export default function LineFloat() {
             href={lineConsultationUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-[40px] max-w-[220px] items-center rounded-full bg-[#06C755] px-4 py-2 text-center text-[11px] font-medium leading-snug tracking-[0.06em] text-black md:hidden"
+            onClick={() => {
+              trackLineClick("float_mobile");
+              trackGenerateLead({ method: "line_consult" });
+            }}
+            className="inline-flex min-h-11 max-w-[220px] items-center rounded-full bg-[#06C755] px-4 py-2 text-center text-[11px] font-medium leading-snug tracking-[0.06em] text-black md:hidden"
           >
             {content.label}
           </a>

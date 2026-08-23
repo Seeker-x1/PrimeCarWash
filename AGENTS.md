@@ -61,6 +61,13 @@
 
 ゼロからのサイト設計テンプレは **`docs/web-prompts/`** に同梱（`web-prompts-1-9.md`、`Get-WebPrompt.ps1`）。
 
+## SEO（公式スキル調査の結論・2026-08）
+
+- **Cursor 公式の SEO エージェント／スキルは存在しない。** `/create-skill` と `/create-subagent` は箱を作る道具であり、SEO 本体ではない。
+- **第三者スイートは入れない**（`seoskillsai/seo-skills-ai`、claude-seo フォーク、GenieSeo 等の GSC MCP）。依存が重く、今回の主因（ブランド誤認・GBP・被リンク）を解決しない。
+- Anthropic の `seo-audit` はチェックリストとして妥当だが、**全文インストールしない**。一般語コンテンツ量産を勧めがちで、ドアウェイ量産リスクがある。定例監査が必要になったら要約移植のみ。
+- 検索上位の残りはコードより運用。手順は **`docs/seo-ops-next.md`**。
+
 ## Threads 運営（AI エージェントチーム）
 
 目標: **1,000フォロワー / 1ヶ月**。オーナーは承認・実投稿・返信送信のみ。

@@ -6,6 +6,7 @@ import { Locale, locales, siteContent } from "@/lib/site-content";
 import { areaSlugs, getAreaCanonicalPath, getAreaPage } from "@/lib/area-pages";
 import { getAreasHubPath, getGuidesHubPath } from "@/lib/guide-posts";
 import { getLineConsultationUrl } from "@/lib/line-consultation";
+import TrackedExternalLink from "@/components/TrackedExternalLink";
 import { buildLocaleJsonLd, getOgImageUrl } from "@/lib/seo-json-ld";
 import BlurFade from "@/components/BlurFade";
 import AmanBookingForm from "@/components/AmanBookingForm";
@@ -122,7 +123,14 @@ export default async function LocalePage({ params }: PageProps) {
           </BlurFade>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#reservation-form" className="rounded-full border border-white px-6 py-3 text-xs tracking-[0.16em] uppercase hover:bg-white hover:text-black">{content.ctaReserve}</a>
-            <a href={lineConsultationUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#999999] px-6 py-3 text-xs tracking-[0.16em] uppercase hover:border-white">{content.ctaContact}</a>
+            <TrackedExternalLink
+              href={lineConsultationUrl}
+              location="hero_contact"
+              trackLead
+              className="inline-flex min-h-11 items-center rounded-full border border-[#999999] px-6 py-3 text-xs tracking-[0.16em] uppercase hover:border-white"
+            >
+              {content.ctaContact}
+            </TrackedExternalLink>
           </div>
         </div>
       </section>

@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { FormEvent, useState } from "react";
+import { trackGenerateLead } from "@/lib/analytics";
 import { Locale, siteContent } from "@/lib/site-content";
 
 type Props = {
@@ -32,6 +33,7 @@ export default function ReservationForm({ locale }: Props) {
       }
 
       setStatus("success");
+      trackGenerateLead({ method: "inquiry_form" });
       event.currentTarget.reset();
     } catch {
       setStatus("error");
@@ -39,7 +41,7 @@ export default function ReservationForm({ locale }: Props) {
   }
 
   const inputClass =
-    "w-full border border-[#999999] bg-transparent px-4 py-3 text-sm text-white outline-none focus:border-white";
+    "w-full min-h-11 border border-[#999999] bg-transparent px-4 py-3 text-base text-white outline-none focus:border-white";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,7 +73,7 @@ export default function ReservationForm({ locale }: Props) {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="rounded-full border border-white px-6 py-3 text-xs tracking-[0.16em] uppercase hover:bg-white hover:text-black disabled:opacity-60"
+        className="min-h-11 rounded-full border border-white px-6 py-3 text-xs tracking-[0.16em] uppercase hover:bg-white hover:text-black disabled:opacity-60"
       >
         {status === "sending" ? content.formMessages.sending : content.labels.submit}
       </button>

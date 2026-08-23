@@ -35,32 +35,41 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
+  const areasJa = `${base}${getAreasHubPath("ja")}`;
+  const areasEn = `${base}${getAreasHubPath("en")}`;
+  const guidesJa = `${base}${getGuidesHubPath("ja")}`;
+  const guidesEn = `${base}${getGuidesHubPath("en")}`;
+  const areasLang = { "x-default": areasJa, ja: areasJa, en: areasEn };
+  const guidesLang = { "x-default": guidesJa, ja: guidesJa, en: guidesEn };
+
   const hubEntries: MetadataRoute.Sitemap = [
     {
-      url: `${base}${getAreasHubPath("ja")}`,
+      url: areasJa,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.85,
-      alternates: {
-        languages: {
-          "x-default": `${base}${getAreasHubPath("ja")}`,
-          ja: `${base}${getAreasHubPath("ja")}`,
-          en: `${base}${getAreasHubPath("en")}`,
-        },
-      },
+      alternates: { languages: areasLang },
     },
     {
-      url: `${base}${getGuidesHubPath("ja")}`,
+      url: areasEn,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+      alternates: { languages: areasLang },
+    },
+    {
+      url: guidesJa,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.85,
-      alternates: {
-        languages: {
-          "x-default": `${base}${getGuidesHubPath("ja")}`,
-          ja: `${base}${getGuidesHubPath("ja")}`,
-          en: `${base}${getGuidesHubPath("en")}`,
-        },
-      },
+      alternates: { languages: guidesLang },
+    },
+    {
+      url: guidesEn,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+      alternates: { languages: guidesLang },
     },
   ];
 
@@ -69,15 +78,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const enPath = getAreaCanonicalPath("en", slug);
     const jaUrl = `${base}${jaPath}`;
     const enUrl = `${base}${enPath}`;
+    const languages = { "x-default": jaUrl, ja: jaUrl, en: enUrl };
     return [
       {
         url: jaUrl,
         lastModified: now,
         changeFrequency: "monthly",
         priority: 0.8,
-        alternates: {
-          languages: { "x-default": jaUrl, ja: jaUrl, en: enUrl },
-        },
+        alternates: { languages },
+      },
+      {
+        url: enUrl,
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.6,
+        alternates: { languages },
       },
     ];
   });
@@ -87,15 +102,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const enPath = getGuideCanonicalPath("en", slug);
     const jaUrl = `${base}${jaPath}`;
     const enUrl = `${base}${enPath}`;
+    const languages = { "x-default": jaUrl, ja: jaUrl, en: enUrl };
     return [
       {
         url: jaUrl,
         lastModified: now,
         changeFrequency: "monthly",
         priority: 0.75,
-        alternates: {
-          languages: { "x-default": jaUrl, ja: jaUrl, en: enUrl },
-        },
+        alternates: { languages },
+      },
+      {
+        url: enUrl,
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.55,
+        alternates: { languages },
       },
     ];
   });

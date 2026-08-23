@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import BlurFade from "@/components/BlurFade";
 import VehicleSelector from "@/components/VehicleSelector";
+import { trackGenerateLead } from "@/lib/analytics";
 import { CarSize } from "@/constants/vehicles";
 
 type ChoiceSlot = {
@@ -188,6 +189,8 @@ ${secondChoiceText}
 ■ 合計金額
 JPY ${totalPrice.toLocaleString()}`;
 
+    trackGenerateLead({ method: "line_reservation", value: totalPrice });
+
     const encodedMessage = encodeURIComponent(message);
     const url = `https://line.me/R/oaMessage/${LINE_OFFICIAL_ID}/?${encodedMessage}`;
     const isMobile =
@@ -316,7 +319,7 @@ JPY ${totalPrice.toLocaleString()}`;
                               return replacement;
                             });
                           }}
-                          className={`relative h-9 border text-xs transition ${
+                          className={`relative min-h-11 border text-xs transition ${
                             isPrimaryDate
                               ? "border-white bg-white text-black"
                               : isSecondaryDate

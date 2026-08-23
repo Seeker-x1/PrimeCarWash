@@ -99,7 +99,7 @@ export default function SiteFooter({ locale }: SiteFooterProps) {
         </a>
       </p>
       <p className="mt-4">
-        <Link href={`${homeHref}#reservation-form`} className="text-[#d9d9d9] hover:text-white">
+        <Link href={`${homeHref}#reservation-form`} className="inline-flex min-h-11 items-center text-[#d9d9d9] hover:text-white">
           {content.ctaReserve}
         </Link>
       </p>

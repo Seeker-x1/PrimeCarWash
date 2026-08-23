@@ -15,3 +15,4 @@ alwaysApply: true
 - Config files (`vercel.json`, `.github/*`) must be **UTF-8 without BOM** — never UTF-16.
 - Security/POP/incident handoff: read **`docs/agent-handoff.md`** before dependency or deploy changes.
 - Avoid unrelated refactors.
+- Do **not** install third-party SEO skill suites or GSC MCPs. There is no official Cursor SEO agent. Remaining ranking work is ops: `docs/seo-ops-next.md`.

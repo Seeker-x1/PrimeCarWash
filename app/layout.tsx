@@ -19,6 +19,14 @@ const notoSerif = Noto_Serif_JP({
   weight: ["400", "600", "700"],
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover" as const,
+};
+
+const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
+
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteOrigin()),
   title: {
@@ -27,6 +35,9 @@ export const metadata: Metadata = {
   },
   description:
     "完全予約制の出張洗車。ご指定の洗車場所へ伺い、車外・車内を丁寧にケア。ビジター・月額プランあり。",
+  verification: googleSiteVerification
+    ? { google: googleSiteVerification }
+    : undefined,
   openGraph: {
     siteName: SITE_NAME,
   },
@@ -76,9 +87,12 @@ export default async function RootLayout({
           <Script id="ga4-script" strategy="afterInteractive">
             {`
               window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${gaMeasurementId}');
+              window.gtag = function gtag(){window.dataLayer.push(arguments);}
+              window.gtag('js', new Date());
+              window.gtag('config', '${gaMeasurementId}', {
+                anonymize_ip: true,
+                send_page_view: true
+              });
             `}
           </Script>
         </>
