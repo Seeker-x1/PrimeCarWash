@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { IDN_APEX_HOST, isWwwHost } from "@/lib/site-url";
 
 function withLocaleHeaders(request: NextRequest, locale: "ja" | "en") {
   const requestHeaders = new Headers(request.headers);
@@ -8,6 +9,15 @@ function withLocaleHeaders(request: NextRequest, locale: "ja" | "en") {
 }
 
 export function proxy(request: NextRequest) {
+  const host = request.headers.get("host") ?? "";
+  if (isWwwHost(host)) {
+    const dest = new URL(request.url);
+    dest.protocol = "https:";
+    dest.hostname = IDN_APEX_HOST;
+    dest.port = "";
+    return NextResponse.redirect(dest, 308);
+  }
+
   const path = request.nextUrl.pathname;
   if (path === "/") {
     const url = request.nextUrl.clone();

@@ -2,6 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm ci",
   "framework": "nextjs",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.xn--79q753awyk7z6a.jp" }],
+      "destination": "https://xn--79q753awyk7z6a.jp/:path*",
+      "permanent": true
+    }
+  ],
   "crons": [
     {
       "path": "/api/threads/cron",

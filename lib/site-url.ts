@@ -1,8 +1,9 @@
-/** Local / CI fallback: www host matches Vercel (apex redirects with 308). */
-const FALLBACK_ORIGIN = "https://www.xn--79q753awyk7z6a.jp";
+/** Canonical production origin: HTTPS apex (no www). */
+const FALLBACK_ORIGIN = "https://xn--79q753awyk7z6a.jp";
 
-/** Apex punycode for 出張洗車.jp — production redirects this host to www. */
-const IDN_APEX_HOST = "xn--79q753awyk7z6a.jp";
+/** Apex punycode for 出張洗車.jp */
+export const IDN_APEX_HOST = "xn--79q753awyk7z6a.jp";
+export const IDN_WWW_HOST = `www.${IDN_APEX_HOST}`;
 
 function originFrom(input: string): string | null {
   try {
@@ -12,12 +13,18 @@ function originFrom(input: string): string | null {
   }
 }
 
-/** Use the hostname that returns 200 so sitemap/canonical match crawlers (unless NEXT_PUBLIC_SITE_URL overrides). */
-function alignWithWwwRedirect(origin: string): string {
+export function isWwwHost(host: string): boolean {
+  const hostname = host.split(":")[0]?.toLowerCase() ?? "";
+  return hostname === IDN_WWW_HOST || hostname === "www.出張洗車.jp";
+}
+
+/** Sitemap / canonical must use the host that returns 200 (apex, not www). */
+function alignToApex(origin: string): string {
   try {
     const u = new URL(origin);
-    if (u.hostname === IDN_APEX_HOST) {
-      u.hostname = `www.${IDN_APEX_HOST}`;
+    if (isWwwHost(u.hostname) || u.hostname === IDN_APEX_HOST) {
+      u.protocol = "https:";
+      u.hostname = IDN_APEX_HOST;
       return u.origin;
     }
     return origin;
@@ -34,7 +41,7 @@ export function getSiteOrigin(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   if (explicit) {
     const o = originFrom(explicit);
-    if (o) return o;
+    if (o) return alignToApex(o);
   }
 
   let resolved = FALLBACK_ORIGIN;
@@ -51,5 +58,5 @@ export function getSiteOrigin(): string {
     }
   }
 
-  return alignWithWwwRedirect(resolved);
+  return alignToApex(resolved);
 }

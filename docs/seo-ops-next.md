@@ -24,7 +24,7 @@
 昨日リクエストした次の URL は放置する。
 
 ```
-https://www.出張洗車.jp/areas/shibuya
+https://出張洗車.jp/areas/shibuya
 ```
 
 1〜2日後:
@@ -52,7 +52,7 @@ https://www.出張洗車.jp/areas/shibuya
 5. リンク先:
 
 ```
-https://www.出張洗車.jp/
+https://出張洗車.jp/
 ```
 
 6. 見出しに `出張洗車.jp` を入れる
@@ -67,7 +67,7 @@ https://www.出張洗車.jp/
 3. カテゴリ例: 洗車場 / 自動車のディテーリング
 4. 店舗住所は出さない（出張型）
 5. エリア: 渋谷区・世田谷区・目黒区（港・品川・中野なども可）
-6. サイト: `https://www.出張洗車.jp/`
+6. サイト: `https://出張洗車.jp/`
 7. はがき等の確認が終わるまで公開にならない
 
 確認後の公開 URL が取れたら、Vercel の `NEXT_PUBLIC_GOOGLE_BUSINESS_PROFILE_URL` に入れる（JSON-LD `sameAs` に自動反映）。詳細は `docs/seo-ops-checklist.md`。
@@ -76,7 +76,7 @@ https://www.出張洗車.jp/
 
 どれか1つでよい。
 
-- LINE 公式アカウントのプロフィール URL を `https://www.出張洗車.jp/`
+- LINE 公式アカウントのプロフィール URL を `https://出張洗車.jp/`
 - Threads / Instagram のリンク欄
 - PR TIMES 等で「出張洗車.jp」と公式 URL を書いたリリース
 

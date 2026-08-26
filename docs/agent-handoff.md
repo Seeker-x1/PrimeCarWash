@@ -56,8 +56,8 @@ POP / LINE 変更:
 
 NEXT_PUBLIC_SITE_URL
   用途: カノニカル・sitemap・OG・JSON-LD の origin（lib/site-url.ts）
-  推奨: 本番 Vercel に明示（例: https://www.xn--79q753awyk7z6a.jp）
-  未設定時: VERCEL_PROJECT_PRODUCTION_URL → VERCEL_URL → www 出張洗車.jp フォールバック
+  推奨: 本番 Vercel に明示（例: https://xn--79q753awyk7z6a.jp）
+  未設定時: VERCEL_PROJECT_PRODUCTION_URL → VERCEL_URL → 出張洗車.jp apex フォールバック
   注意: Preview デプロイで sitemap ホストがプレビュー URL になるのを防ぐため本番は明示設定推奨
 
 GEMINI_API_KEY
@@ -97,24 +97,24 @@ CRON_SECRET
 
 ### リダイレクトについて（登録できないとき）
 
-本番の正規 URL は **`https://www.出張洗車.jp`**（punycode: `https://www.xn--79q753awyk7z6a.jp`）のみ。
+本番の正規 URL は **`https://出張洗車.jp`**（punycode: `https://xn--79q753awyk7z6a.jp`）のみ。
 
 | 入力した URL | 結果 |
 |-------------|------|
-| `http://出張洗車.jp` | → https へ 308 |
-| `https://出張洗車.jp`（www なし） | → **www** へ 308 |
-| `https://www.出張洗車.jp` | **200（ここを登録）** |
+| `http://出張洗車.jp` | → https へ 308（これは正しい。インデックス対象ではない） |
+| `https://出張洗車.jp` | **200（ここを登録）** |
+| `https://www.出張洗車.jp` | → apex へ 308 |
 
-GSC に **`https://出張洗車.jp` だけ**を入れると「リダイレクトがある」と拒否される。**www 付き**で登録するか、下記ドメインプロパティを使う。
+GSC の「ページにリダイレクトがあります」は `http://` と旧 www 向け。**検証しない。** インデックスするのは `https://出張洗車.jp/`。
 
 ### 登録手順（推奨 2 択）
 
 **A. URL プレフィックス（手早い）**
 
 1. [Search Console](https://search.google.com/search-console) → プロパティを追加
-2. 次を**そのまま**入力: `https://www.出張洗車.jp`（末尾スラッシュ有無はどちらでも可）
+2. 次を**そのまま**入力: `https://出張洗車.jp`（末尾スラッシュ有無はどちらでも可）
 3. 所有権確認: HTML タグ（`app/layout.tsx` に meta 追加可）/ DNS / Vercel 連携
-4. Sitemaps → `https://www.xn--79q753awyk7z6a.jp/sitemap.xml` を送信
+4. Sitemaps → `https://xn--79q753awyk7z6a.jp/sitemap.xml` を送信
 5. URL 検査で `/` と `/en` → インデックス登録をリクエスト
 
 **B. ドメインプロパティ（www 有無を気にしない・推奨）**
