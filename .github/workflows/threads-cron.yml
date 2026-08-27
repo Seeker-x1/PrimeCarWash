@@ -23,7 +23,8 @@ jobs:
       - name: Hit Threads cron API
         env:
           THREADS_PUBLISH_SECRET: ${{ secrets.THREADS_PUBLISH_SECRET }}
-          SITE_URL: https://www.xn--79q753awyk7z6a.jp
+          # Apex only. www 308s to this host; curl will not send Authorization across that hop.
+          SITE_URL: https://xn--79q753awyk7z6a.jp
         run: |
           set -euo pipefail
           if [ -z "${THREADS_PUBLISH_SECRET}" ]; then
