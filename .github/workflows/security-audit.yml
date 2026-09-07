@@ -19,6 +19,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify config UTF-8 encoding
         run: node .github/scripts/check-config-encoding.cjs
+      - name: Verify HSTS preload and apex canonical config
+        run: node --test scripts/check-seo-canonical.test.mjs
 
   npm-audit:
     runs-on: ubuntu-latest

@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { IDN_APEX_HOST, isWwwHost } from "@/lib/site-url";
+import { HSTS_HEADER_VALUE, IDN_APEX_HOST, isWwwHost } from "@/lib/site-url";
 
 function withLocaleHeaders(request: NextRequest, locale: "ja" | "en") {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-site-locale", locale);
   return requestHeaders;
+}
+
+function withHsts(response: NextResponse) {
+  response.headers.set("Strict-Transport-Security", HSTS_HEADER_VALUE);
+  return response;
 }
 
 export function proxy(request: NextRequest) {
@@ -15,7 +20,7 @@ export function proxy(request: NextRequest) {
     dest.protocol = "https:";
     dest.hostname = IDN_APEX_HOST;
     dest.port = "";
-    return NextResponse.redirect(dest, 308);
+    return withHsts(NextResponse.redirect(dest, 308));
   }
 
   const path = request.nextUrl.pathname;
@@ -26,7 +31,7 @@ export function proxy(request: NextRequest) {
       request: { headers: withLocaleHeaders(request, "ja") },
     });
     response.cookies.set("site-locale", "ja", { path: "/" });
-    return response;
+    return withHsts(response);
   }
 
   if (path.startsWith("/areas/")) {
@@ -36,7 +41,7 @@ export function proxy(request: NextRequest) {
       request: { headers: withLocaleHeaders(request, "ja") },
     });
     response.cookies.set("site-locale", "ja", { path: "/" });
-    return response;
+    return withHsts(response);
   }
 
   if (path === "/areas") {
@@ -46,7 +51,7 @@ export function proxy(request: NextRequest) {
       request: { headers: withLocaleHeaders(request, "ja") },
     });
     response.cookies.set("site-locale", "ja", { path: "/" });
-    return response;
+    return withHsts(response);
   }
 
   if (path.startsWith("/guides/")) {
@@ -56,7 +61,7 @@ export function proxy(request: NextRequest) {
       request: { headers: withLocaleHeaders(request, "ja") },
     });
     response.cookies.set("site-locale", "ja", { path: "/" });
-    return response;
+    return withHsts(response);
   }
 
   if (path === "/guides") {
@@ -66,25 +71,25 @@ export function proxy(request: NextRequest) {
       request: { headers: withLocaleHeaders(request, "ja") },
     });
     response.cookies.set("site-locale", "ja", { path: "/" });
-    return response;
+    return withHsts(response);
   }
 
   if (path.startsWith("/ja/areas/") || path === "/ja/areas") {
     const url = request.nextUrl.clone();
     url.pathname = path.replace(/^\/ja/, "");
-    return NextResponse.redirect(url, 308);
+    return withHsts(NextResponse.redirect(url, 308));
   }
 
   if (path.startsWith("/ja/guides/") || path === "/ja/guides") {
     const url = request.nextUrl.clone();
     url.pathname = path.replace(/^\/ja/, "");
-    return NextResponse.redirect(url, 308);
+    return withHsts(NextResponse.redirect(url, 308));
   }
 
   if (path === "/ja" || path === "/ja/") {
     const url = request.nextUrl.clone();
     url.pathname = "/";
-    return NextResponse.redirect(url, 308);
+    return withHsts(NextResponse.redirect(url, 308));
   }
 
   const locale = path.startsWith("/en") ? "en" : "ja";
@@ -92,7 +97,7 @@ export function proxy(request: NextRequest) {
     request: { headers: withLocaleHeaders(request, locale) },
   });
   response.cookies.set("site-locale", locale, { path: "/" });
-  return response;
+  return withHsts(response);
 }
 
 export const config = {

@@ -1,9 +1,14 @@
 /** Canonical production origin: HTTPS apex (no www). */
-const FALLBACK_ORIGIN = "https://xn--79q753awyk7z6a.jp";
+export const CANONICAL_ORIGIN = "https://xn--79q753awyk7z6a.jp";
+const FALLBACK_ORIGIN = CANONICAL_ORIGIN;
 
 /** Apex punycode for 出張洗車.jp */
 export const IDN_APEX_HOST = "xn--79q753awyk7z6a.jp";
 export const IDN_WWW_HOST = `www.${IDN_APEX_HOST}`;
+
+/** HSTS preload-ready. Must match vercel.json headers (Googlebot stops crawling http://). */
+export const HSTS_HEADER_VALUE =
+  "max-age=63072000; includeSubDomains; preload";
 
 function originFrom(input: string): string | null {
   try {

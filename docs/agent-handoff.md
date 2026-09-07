@@ -95,17 +95,27 @@ CRON_SECRET
 
 技術 SEO（robots / sitemap / メタ / JSON-LD）はリポジトリ側で整備済み。検索掲載には登録が必要。
 
-### リダイレクトについて（登録できないとき）
+### リダイレクトについて（GSC「ページにリダイレクトがあります」）
 
 本番の正規 URL は **`https://出張洗車.jp`**（punycode: `https://xn--79q753awyk7z6a.jp`）のみ。
 
 | 入力した URL | 結果 |
 |-------------|------|
-| `http://出張洗車.jp` | → https へ 308（これは正しい。インデックス対象ではない） |
+| `http://出張洗車.jp` | → https へ 308（インデックス対象ではない） |
+| `http://www.出張洗車.jp` | → https へ 308 → apex へ 308（インデックス対象ではない） |
 | `https://出張洗車.jp` | **200（ここを登録）** |
 | `https://www.出張洗車.jp` | → apex へ 308 |
 
-GSC の「ページにリダイレクトがあります」は `http://` と旧 www 向け。**検証しない。** インデックスするのは `https://出張洗車.jp/`。
+このレポートはエラーではない。HTTP を 200 にすると HTTPS が壊れる。**「修正を検証」は押さない**（必ず不合格になる）。
+
+GSC から消す手順:
+
+1. 左メニュー **インデックス作成 → 削除** → 一時的な削除 → `http://www.出張洗車.jp/` と `http://出張洗車.jp/` を非表示
+2. URL 検査に `https://出張洗車.jp/` を貼り、未登録ならインデックス登録（連打しない）
+3. サイトマップ `https://xn--79q753awyk7z6a.jp/sitemap.xml` を再送信
+4. デプロイ後、[hstspreload.org](https://hstspreload.org/?domain=xn--79q753awyk7z6a.jp) で apex を Submit（Googlebot が HTTP を辿らなくなる）
+
+インデックスするのは `https://出張洗車.jp/`。HTTP / www は配信対象にしない。
 
 ### 登録手順（推奨 2 択）
 
